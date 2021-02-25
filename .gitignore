@@ -1,0 +1,6 @@
+.vs
+.vscode
+build
+
+# Visual Studio CMake configuration
+CMakeSettings.json
