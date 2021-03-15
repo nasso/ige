@@ -39,10 +39,15 @@ namespace ecs {
         }
     }
 
+    using EntityId = std::uint64_t;
+
+    template <typename Component>
+    struct ComponentStorage {
+        using Type = MapStorage<EntityId, Component>;
+    };
+
     class World {
     public:
-        using EntityId = std::uint64_t;
-
         EntityId createEntity();
         bool removeEntity(EntityId);
 
@@ -93,11 +98,12 @@ namespace ecs {
 
         template <typename T,
             typename... Args,
-            typename Storage = un::ecs::MapStorage<EntityId, T>,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
         void addComponent(EntityId ent, Args&&... args)
         {
+            using Storage = ComponentStorage<T>::Type;
+
             Storage& strg = get<Storage>()
                                 .unwrap_or_else([&]() -> auto& {
                                     return set<Storage>();
@@ -115,11 +121,12 @@ namespace ecs {
         }
 
         template <typename T, typename... Args,
-            typename Storage = un::ecs::MapStorage<EntityId, T>,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
         rtl::Option<T&> getComponent(EntityId ent)
         {
+            using Storage = ComponentStorage<T>::Type;
+
             return get<Storage>()
                 .and_then([=](Storage& strg) {
                     return strg.get(ent);
@@ -128,11 +135,12 @@ namespace ecs {
 
         template <typename T,
             typename... Args,
-            typename Storage = un::ecs::MapStorage<EntityId, T>,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
         rtl::Option<const T&> getComponent(EntityId ent) const
         {
+            using Storage = ComponentStorage<T>::Type;
+
             return get<Storage>()
                 .and_then([=](const Storage& strg) {
                     return strg.get(ent);
@@ -140,10 +148,11 @@ namespace ecs {
         }
 
         template <typename T,
-            typename Storage = un::ecs::MapStorage<EntityId, T>,
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> removeComponent(EntityId ent)
         {
+            using Storage = ComponentStorage<T>::Type;
+
             return get<Storage>()
                 .and_then([ent](Storage& strg) {
                     return strg.remove(ent);

@@ -30,9 +30,12 @@ namespace ecs {
                 std::is_constructible<T, Args...>::value>>
         void set(std::size_t idx, Args&&... args)
         {
+            rtl::Option<T> opt;
+
+            opt.replace(std::forward<Args>(args)...);
+
             m_data.resize(idx + 1);
-            m_data.emplace(m_data.begin() + idx,
-                std::move(rtl::some(std::forward<Args>(args)...)));
+            m_data.emplace(m_data.begin() + idx, std::move(opt));
         }
 
         rtl::Option<const T&> get(const std::size_t& idx) const

@@ -10,12 +10,12 @@
 namespace un {
 namespace ecs {
 
-    World::EntityId World::createEntity()
+    EntityId World::createEntity()
     {
         return ++m_last_entity;
     }
 
-    bool World::removeEntity(World::EntityId ent)
+    bool World::removeEntity(EntityId ent)
     {
         for (auto& comp : m_components) {
             comp.second(ent);

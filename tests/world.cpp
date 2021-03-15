@@ -7,16 +7,19 @@
 
 #include "un/ecs/World.hpp"
 #include "rtl/Option.hpp"
+#include "un/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
 
 using rtl::some;
+using un::ecs::EntityId;
+using un::ecs::VecStorage;
 using un::ecs::World;
 
 TEST(WorldTest, Spawn)
 {
     World world;
 
-    World::EntityId entities[] = {
+    EntityId entities[] = {
         world.createEntity(),
         world.createEntity(),
         world.createEntity(),
@@ -133,4 +136,34 @@ TEST(WorldTest, RemoveEntity)
     ASSERT_TRUE(world.getComponent<float>(ent).is_none());
     ASSERT_TRUE(world.getComponent<double>(ent).is_none());
     ASSERT_TRUE(world.getComponent<std::vector<int>>(ent).is_none());
+}
+
+struct Vectorized {
+};
+
+template <>
+struct un::ecs::ComponentStorage<Vectorized> {
+    using Type = VecStorage<Vectorized>;
+};
+
+TEST(WorldTest, CustomStorage)
+{
+    World world;
+
+    EntityId ent[] = {
+        world.createEntity(),
+        world.createEntity(),
+        world.createEntity(),
+    };
+
+    world.addComponent<Vectorized>(ent[0]);
+    world.addComponent<Vectorized>(ent[1]);
+    world.addComponent<Vectorized>(ent[2]);
+
+    ASSERT_TRUE(world.get<VecStorage<Vectorized>>().is_some());
+
+    auto& strg = world.get<VecStorage<Vectorized>>().unwrap();
+    ASSERT_TRUE(strg.get(ent[0]).is_some());
+    ASSERT_TRUE(strg.get(ent[1]).is_some());
+    ASSERT_TRUE(strg.get(ent[2]).is_some());
 }
