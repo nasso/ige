@@ -1,16 +1,16 @@
 /*
 ** EPITECH PROJECT, 2021
-** oge
+** un
 ** File description:
 ** System
 */
 
-#ifndef SYSTEM_HPP_
-#define SYSTEM_HPP_
+#ifndef FE472698_E495_4B4C_95C4_2F2A646A84F5
+#define FE472698_E495_4B4C_95C4_2F2A646A84F5
 
 #include <functional>
 
-namespace oge {
+namespace un {
 namespace ecs {
 
     class System {
@@ -26,4 +26,4 @@ namespace ecs {
 }
 }
 
-#endif /* !SYSTEM_HPP_ */
+#endif /* FE472698_E495_4B4C_95C4_2F2A646A84F5 */

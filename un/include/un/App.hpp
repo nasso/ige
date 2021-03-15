@@ -1,17 +1,17 @@
 /*
 ** EPITECH PROJECT, 2021
-** oge
+** un
 ** File description:
 ** App
 */
 
-#ifndef APP_HPP_
-#define APP_HPP_
+#ifndef F7EA1363_932A_4910_8D9B_4CA25912EBED
+#define F7EA1363_932A_4910_8D9B_4CA25912EBED
 
 #include "ecs/System.hpp"
 #include <vector>
 
-namespace oge {
+namespace un {
 
 class App {
 public:
@@ -31,4 +31,4 @@ private:
 
 }
 
-#endif /* !APP_HPP_ */
+#endif /* F7EA1363_932A_4910_8D9B_4CA25912EBED */

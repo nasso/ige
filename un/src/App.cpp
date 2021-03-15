@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** oge
+** un
 ** File description:
 ** App
 */
 
-#include "oge/App.hpp"
+#include "un/App.hpp"
 
-namespace oge {
+namespace un {
 
 App::App()
 {

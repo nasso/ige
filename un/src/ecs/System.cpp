@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** oge
+** un
 ** File description:
 ** System
 */
 
-#include "oge/ecs/System.hpp"
+#include "un/ecs/System.hpp"
 
-namespace oge {
+namespace un {
 namespace ecs {
 
     System::System(std::function<void()> run)
