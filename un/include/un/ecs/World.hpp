@@ -16,6 +16,7 @@
 #include <memory>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace un {
 namespace ecs {
@@ -42,7 +43,8 @@ namespace ecs {
     public:
         using EntityId = std::uint64_t;
 
-        EntityId spawn();
+        EntityId createEntity();
+        bool removeEntity(EntityId);
 
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
@@ -51,12 +53,8 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            auto any = un::core::Any::from<T>(std::forward<Args>(args)...);
-            T& res = any.as<T>();
-
-            m_resources.erase(id);
-            m_resources.insert(std::make_pair(id, std::move(any)));
-            return res;
+            return setAny(id, core::Any::from<T>(std::forward<Args>(args)...))
+                .as<T>();
         }
 
         template <typename T,
@@ -65,13 +63,32 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            auto it = m_resources.find(id);
+            return getAny(id)
+                .map([](auto& any) -> auto& {
+                    return any.as<T>();
+                });
+        }
 
-            if (it != m_resources.end()) {
-                return rtl::some(it->second.as<T>());
-            } else {
-                return {};
-            }
+        template <typename T,
+            typename = std::enable_if_t<std::is_object<T>::value>>
+        rtl::Option<const T&> get() const
+        {
+            impl::TypeId id = impl::type_id<T>();
+
+            return getAny(id)
+                .map([](const auto& any) -> const auto& {
+                    return any.as<T>();
+                });
+        }
+
+        template <typename T,
+            typename = std::enable_if_t<std::is_object<T>::value>>
+        rtl::Option<T> remove()
+        {
+            return removeAny(impl::type_id<T>())
+                .map([](core::Any any) {
+                    return any.as<T>();
+                });
         }
 
         template <typename T,
@@ -82,15 +99,22 @@ namespace ecs {
         void addComponent(EntityId ent, Args&&... args)
         {
             Storage& strg = get<Storage>()
-                                .unwrap_or_else([]() {
+                                .unwrap_or_else([&]() -> auto& {
                                     return set<Storage>();
                                 });
 
-            strg.set(ent, std::forward<Args>(args)...);
+            strg.set(std::move(ent), std::forward<Args>(args)...);
+
+            if (m_components.find(impl::type_id<T>()) == m_components.end()) {
+                m_components.emplace(
+                    impl::type_id<T>(),
+                    [&](EntityId ent) {
+                        return removeComponent<T>(ent).is_some();
+                    });
+            }
         }
 
-        template <typename T,
-            typename... Args,
+        template <typename T, typename... Args,
             typename Storage = un::ecs::MapStorage<EntityId, T>,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
@@ -115,9 +139,65 @@ namespace ecs {
                 });
         }
 
+        template <typename T,
+            typename Storage = un::ecs::MapStorage<EntityId, T>,
+            typename = std::enable_if_t<std::is_object<T>::value>>
+        rtl::Option<T> removeComponent(EntityId ent)
+        {
+            return get<Storage>()
+                .and_then([ent](Storage& strg) {
+                    return strg.remove(ent);
+                });
+        }
+
     private:
+        core::Any& setAny(impl::TypeId id, core::Any any)
+        {
+            m_resources.erase(id);
+            m_resources.insert(std::make_pair(id, std::move(any)));
+            return m_resources.at(id);
+        }
+
+        rtl::Option<core::Any&> getAny(impl::TypeId id)
+        {
+            auto it = m_resources.find(id);
+
+            if (it != m_resources.end()) {
+                return rtl::some(it->second);
+            } else {
+                return {};
+            }
+        }
+
+        rtl::Option<const core::Any&> getAny(impl::TypeId id) const
+        {
+            auto it = m_resources.find(id);
+
+            if (it != m_resources.end()) {
+                return rtl::some(it->second);
+            } else {
+                return {};
+            }
+        }
+
+        rtl::Option<core::Any> removeAny(impl::TypeId id)
+        {
+            auto it = m_resources.find(id);
+
+            if (it != m_resources.end()) {
+                auto any = std::move(it->second);
+                m_resources.erase(id);
+                return rtl::some(std::move(any));
+            } else {
+                return {};
+            }
+        }
+
+        using CompRemover = std::function<bool(EntityId)>;
+
         EntityId m_last_entity = 0;
-        std::unordered_map<impl::TypeId, un::core::Any> m_resources;
+        std::unordered_map<impl::TypeId, core::Any> m_resources;
+        std::unordered_map<impl::TypeId, CompRemover> m_components;
     };
 
 }

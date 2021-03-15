@@ -11,7 +11,6 @@ set(sources ${sources}
     "include/un/ecs.hpp"
     "include/un/core.hpp"
     "include/un/core/Any.hpp"
-    "include/un/ecs/IStorage.hpp"
     "include/un/ecs/MapStorage.hpp"
     "include/un/ecs/VecStorage.hpp"
     "include/un/ecs/System.hpp"

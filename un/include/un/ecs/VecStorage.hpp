@@ -8,7 +8,6 @@
 #ifndef DB322AB1_C834_42D3_82D6_5F31BCC83A33
 #define DB322AB1_C834_42D3_82D6_5F31BCC83A33
 
-#include "IStorage.hpp"
 #include "rtl/Option.hpp"
 #include <vector>
 
@@ -16,18 +15,27 @@ namespace un {
 namespace ecs {
 
     template <typename T>
-    class VecStorage : public IStorage<std::size_t, T> {
+    class VecStorage {
     public:
         VecStorage() = default;
         virtual ~VecStorage() = default;
 
-        virtual void set(std::size_t&& idx, T&& value) override
+        VecStorage(VecStorage&& other)
+            : m_data(std::move(other.m_data))
         {
-            m_data.resize(idx + 1);
-            m_data[idx] = rtl::some(value);
         }
 
-        virtual rtl::Option<const T&> get(const std::size_t& idx) const override
+        template <typename... Args,
+            typename = std::enable_if_t<
+                std::is_constructible<T, Args...>::value>>
+        void set(std::size_t idx, Args&&... args)
+        {
+            m_data.resize(idx + 1);
+            m_data.emplace(m_data.begin() + idx,
+                std::move(rtl::some(std::forward<Args>(args)...)));
+        }
+
+        rtl::Option<const T&> get(const std::size_t& idx) const
         {
             if (idx < m_data.size()) {
                 return m_data[idx].as_ref();
@@ -36,7 +44,7 @@ namespace ecs {
             }
         }
 
-        virtual rtl::Option<T&> get(const std::size_t& idx) override
+        rtl::Option<T&> get(const std::size_t& idx)
         {
             if (idx < m_data.size()) {
                 return m_data[idx].as_mut();
@@ -45,7 +53,7 @@ namespace ecs {
             }
         }
 
-        virtual rtl::Option<T> remove(const std::size_t& idx) override
+        rtl::Option<T> remove(const std::size_t& idx)
         {
             if (idx < m_data.size()) {
                 return m_data[idx].take();
