@@ -6,8 +6,10 @@
 */
 
 #include "un/ecs/World.hpp"
+#include "rtl/Option.hpp"
 #include "gtest/gtest.h"
 
+using rtl::some;
 using un::ecs::World;
 
 TEST(WorldTest, Spawn)
@@ -34,4 +36,21 @@ TEST(WorldTest, SetResource)
     world.set<float>(48.3f);
     world.set<double>();
     world.set<std::pair<int, int>>(38, 19);
+}
+
+TEST(WorldTest, GetResource)
+{
+    World world;
+
+    world.set<std::string>("hello");
+    world.set<int>(65);
+    world.set<float>(48.3f);
+    world.set<double>();
+    world.set<std::pair<int, int>>(38, 19);
+
+    ASSERT_EQ(world.get<std::string>(), some("hello"));
+    ASSERT_EQ(world.get<int>(), some(65));
+    ASSERT_EQ(world.get<float>(), some(48.3f));
+    ASSERT_EQ(world.get<double>(), some(0));
+    ASSERT_EQ((world.get<std::pair<int, int>>()), some(std::make_pair(38, 19)));
 }

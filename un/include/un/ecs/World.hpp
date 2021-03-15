@@ -10,6 +10,7 @@
 
 #include "rtl/Option.hpp"
 #include "un/core/Any.hpp"
+#include "un/ecs/MapStorage.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -46,13 +47,16 @@ namespace ecs {
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
-        void set(Args&&... args)
+        T& set(Args&&... args)
         {
             impl::TypeId id = impl::type_id<T>();
 
+            auto any = un::core::Any::from<T>(std::forward<Args>(args)...);
+            T& res = any.as<T>();
+
             m_resources.erase(id);
-            m_resources.insert(std::make_pair(id,
-                un::core::Any::from<T>(std::forward<Args>(args)...)));
+            m_resources.insert(std::make_pair(id, std::move(any)));
+            return res;
         }
 
         template <typename T,
@@ -64,10 +68,51 @@ namespace ecs {
             auto it = m_resources.find(id);
 
             if (it != m_resources.end()) {
-                return rtl::some(it.second.as<T>());
+                return rtl::some(it->second.as<T>());
             } else {
                 return {};
             }
+        }
+
+        template <typename T,
+            typename... Args,
+            typename Storage = un::ecs::MapStorage<EntityId, T>,
+            typename = std::enable_if_t<std::is_object<T>::value
+                && std::is_constructible<T, Args...>::value>>
+        void addComponent(EntityId ent, Args&&... args)
+        {
+            Storage& strg = get<Storage>()
+                                .unwrap_or_else([]() {
+                                    return set<Storage>();
+                                });
+
+            strg.set(ent, std::forward<Args>(args)...);
+        }
+
+        template <typename T,
+            typename... Args,
+            typename Storage = un::ecs::MapStorage<EntityId, T>,
+            typename = std::enable_if_t<std::is_object<T>::value
+                && std::is_constructible<T, Args...>::value>>
+        rtl::Option<T&> getComponent(EntityId ent)
+        {
+            return get<Storage>()
+                .and_then([=](Storage& strg) {
+                    return strg.get(ent);
+                });
+        }
+
+        template <typename T,
+            typename... Args,
+            typename Storage = un::ecs::MapStorage<EntityId, T>,
+            typename = std::enable_if_t<std::is_object<T>::value
+                && std::is_constructible<T, Args...>::value>>
+        rtl::Option<const T&> getComponent(EntityId ent) const
+        {
+            return get<Storage>()
+                .and_then([=](const Storage& strg) {
+                    return strg.get(ent);
+                });
         }
 
     private:
