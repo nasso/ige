@@ -48,8 +48,8 @@ namespace ecs {
 
     class World {
     public:
-        EntityId createEntity();
-        bool removeEntity(EntityId);
+        EntityId create_entity();
+        bool remove_entity(EntityId);
 
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
@@ -58,7 +58,7 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return setAny(id, core::Any::from<T>(std::forward<Args>(args)...))
+            return set_any(id, core::Any::from<T>(std::forward<Args>(args)...))
                 .as<T>();
         }
 
@@ -68,7 +68,7 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return getAny(id)
+            return get_any(id)
                 .map([](auto& any) -> auto& {
                     return any.as<T>();
                 });
@@ -80,7 +80,7 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return getAny(id)
+            return get_any(id)
                 .map([](const auto& any) -> const auto& {
                     return any.as<T>();
                 });
@@ -90,7 +90,7 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> remove()
         {
-            return removeAny(impl::type_id<T>())
+            return remove_any(impl::type_id<T>())
                 .map([](core::Any any) {
                     return any.as<T>();
                 });
@@ -100,7 +100,7 @@ namespace ecs {
             typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
-        void addComponent(EntityId ent, Args&&... args)
+        void add_component(EntityId ent, Args&&... args)
         {
             using Storage = ComponentStorage<T>::Type;
 
@@ -115,7 +115,7 @@ namespace ecs {
                 m_components.emplace(
                     impl::type_id<T>(),
                     [&](EntityId ent) {
-                        return removeComponent<T>(ent).is_some();
+                        return remove_component<T>(ent).is_some();
                     });
             }
         }
@@ -123,7 +123,7 @@ namespace ecs {
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
-        rtl::Option<T&> getComponent(EntityId ent)
+        rtl::Option<T&> get_component(EntityId ent)
         {
             using Storage = ComponentStorage<T>::Type;
 
@@ -137,7 +137,7 @@ namespace ecs {
             typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
-        rtl::Option<const T&> getComponent(EntityId ent) const
+        rtl::Option<const T&> get_component(EntityId ent) const
         {
             using Storage = ComponentStorage<T>::Type;
 
@@ -149,7 +149,7 @@ namespace ecs {
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<T> removeComponent(EntityId ent)
+        rtl::Option<T> remove_component(EntityId ent)
         {
             using Storage = ComponentStorage<T>::Type;
 
@@ -160,14 +160,14 @@ namespace ecs {
         }
 
     private:
-        core::Any& setAny(impl::TypeId id, core::Any any)
+        core::Any& set_any(impl::TypeId id, core::Any any)
         {
             m_resources.erase(id);
             m_resources.insert(std::make_pair(id, std::move(any)));
             return m_resources.at(id);
         }
 
-        rtl::Option<core::Any&> getAny(impl::TypeId id)
+        rtl::Option<core::Any&> get_any(impl::TypeId id)
         {
             auto it = m_resources.find(id);
 
@@ -178,7 +178,7 @@ namespace ecs {
             }
         }
 
-        rtl::Option<const core::Any&> getAny(impl::TypeId id) const
+        rtl::Option<const core::Any&> get_any(impl::TypeId id) const
         {
             auto it = m_resources.find(id);
 
@@ -189,7 +189,7 @@ namespace ecs {
             }
         }
 
-        rtl::Option<core::Any> removeAny(impl::TypeId id)
+        rtl::Option<core::Any> remove_any(impl::TypeId id)
         {
             auto it = m_resources.find(id);
 

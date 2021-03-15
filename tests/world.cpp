@@ -20,9 +20,9 @@ TEST(WorldTest, Spawn)
     World world;
 
     EntityId entities[] = {
-        world.createEntity(),
-        world.createEntity(),
-        world.createEntity(),
+        world.create_entity(),
+        world.create_entity(),
+        world.create_entity(),
     };
 
     ASSERT_NE(entities[0], entities[1]);
@@ -63,57 +63,80 @@ TEST(WorldTest, AddComponent)
 {
     World world;
 
-    auto ent = world.createEntity();
+    auto ent = world.create_entity();
 
-    world.addComponent<std::string>(ent, "hello");
-    world.addComponent<int>(ent, 65);
-    world.addComponent<float>(ent, 48.3f);
-    world.addComponent<double>(ent);
-    world.addComponent<std::pair<int, int>>(ent, 38, 19);
+    world.add_component<std::string>(ent, "hello");
+    world.add_component<int>(ent, 65);
+    world.add_component<float>(ent, 48.3f);
+    world.add_component<double>(ent);
+    world.add_component<std::pair<int, int>>(ent, 38, 19);
 }
 
 TEST(WorldTest, GetComponent)
 {
     World world;
 
-    auto ent = world.createEntity();
+    auto ent = world.create_entity();
 
-    world.addComponent<std::string>(ent, "hello");
-    world.addComponent<int>(ent, 65);
-    world.addComponent<float>(ent, 48.3f);
-    world.addComponent<double>(ent);
-    world.addComponent<std::pair<int, int>>(ent, 38, 19);
+    world.add_component<std::string>(ent, "hello");
+    world.add_component<int>(ent, 65);
+    world.add_component<float>(ent, 48.3f);
+    world.add_component<double>(ent);
+    world.add_component<std::pair<int, int>>(ent, 38, 19);
 
-    ASSERT_EQ(world.getComponent<std::string>(ent), some("hello"));
-    ASSERT_EQ(world.getComponent<int>(ent), some(65));
-    ASSERT_EQ(world.getComponent<float>(ent), some(48.3f));
-    ASSERT_EQ(world.getComponent<double>(ent), some(0));
-    ASSERT_EQ((world.getComponent<std::pair<int, int>>(ent)),
+    ASSERT_EQ(world.get_component<std::string>(ent), some("hello"));
+    ASSERT_EQ(world.get_component<int>(ent), some(65));
+    ASSERT_EQ(world.get_component<float>(ent), some(48.3f));
+    ASSERT_EQ(world.get_component<double>(ent), some(0));
+    ASSERT_EQ((world.get_component<std::pair<int, int>>(ent)),
         some(std::make_pair(38, 19)));
-    ASSERT_TRUE(world.getComponent<std::vector<int>>(ent).is_none());
+    ASSERT_TRUE(world.get_component<std::vector<int>>(ent).is_none());
+}
+
+TEST(WorldTest, GetComponentConst)
+{
+    World world;
+
+    auto ent = world.create_entity();
+
+    world.add_component<std::string>(ent, "hello");
+    world.add_component<int>(ent, 65);
+    world.add_component<float>(ent, 48.3f);
+    world.add_component<double>(ent);
+    world.add_component<std::pair<int, int>>(ent, 38, 19);
+
+    const World& ref = world;
+
+    ASSERT_EQ(ref.get_component<std::string>(ent), some("hello"));
+    ASSERT_EQ(ref.get_component<int>(ent), some(65));
+    ASSERT_EQ(ref.get_component<float>(ent), some(48.3f));
+    ASSERT_EQ(ref.get_component<double>(ent), some(0));
+    ASSERT_EQ((ref.get_component<std::pair<int, int>>(ent)),
+        some(std::make_pair(38, 19)));
+    ASSERT_TRUE(ref.get_component<std::vector<int>>(ent).is_none());
 }
 
 TEST(WorldTest, RemoveComponent)
 {
     World world;
 
-    auto ent = world.createEntity();
+    auto ent = world.create_entity();
 
-    world.addComponent<std::string>(ent, "hello");
-    world.addComponent<int>(ent, 65);
-    world.addComponent<float>(ent, 48.3f);
-    world.addComponent<double>(ent);
-    world.addComponent<std::pair<int, int>>(ent, 38, 19);
+    world.add_component<std::string>(ent, "hello");
+    world.add_component<int>(ent, 65);
+    world.add_component<float>(ent, 48.3f);
+    world.add_component<double>(ent);
+    world.add_component<std::pair<int, int>>(ent, 38, 19);
 
-    ASSERT_EQ(world.removeComponent<std::string>(ent), some("hello"));
-    ASSERT_EQ(world.removeComponent<int>(ent), some(65));
+    ASSERT_EQ(world.remove_component<std::string>(ent), some("hello"));
+    ASSERT_EQ(world.remove_component<int>(ent), some(65));
 
-    ASSERT_TRUE(world.getComponent<std::string>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<int>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<std::vector<int>>(ent).is_none());
-    ASSERT_EQ(world.getComponent<float>(ent), some(48.3f));
-    ASSERT_EQ(world.getComponent<double>(ent), some(0));
-    ASSERT_EQ((world.getComponent<std::pair<int, int>>(ent)),
+    ASSERT_TRUE(world.get_component<std::string>(ent).is_none());
+    ASSERT_TRUE(world.get_component<int>(ent).is_none());
+    ASSERT_TRUE(world.get_component<std::vector<int>>(ent).is_none());
+    ASSERT_EQ(world.get_component<float>(ent), some(48.3f));
+    ASSERT_EQ(world.get_component<double>(ent), some(0));
+    ASSERT_EQ((world.get_component<std::pair<int, int>>(ent)),
         some(std::make_pair(38, 19)));
 }
 
@@ -121,21 +144,21 @@ TEST(WorldTest, RemoveEntity)
 {
     World world;
 
-    auto ent = world.createEntity();
+    auto ent = world.create_entity();
 
-    world.addComponent<std::string>(ent, "hello");
-    world.addComponent<int>(ent, 65);
-    world.addComponent<float>(ent, 48.3f);
-    world.addComponent<double>(ent);
-    world.addComponent<std::pair<int, int>>(ent, 38, 19);
+    world.add_component<std::string>(ent, "hello");
+    world.add_component<int>(ent, 65);
+    world.add_component<float>(ent, 48.3f);
+    world.add_component<double>(ent);
+    world.add_component<std::pair<int, int>>(ent, 38, 19);
 
-    world.removeEntity(ent);
+    world.remove_entity(ent);
 
-    ASSERT_TRUE(world.getComponent<std::string>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<int>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<float>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<double>(ent).is_none());
-    ASSERT_TRUE(world.getComponent<std::vector<int>>(ent).is_none());
+    ASSERT_TRUE(world.get_component<std::string>(ent).is_none());
+    ASSERT_TRUE(world.get_component<int>(ent).is_none());
+    ASSERT_TRUE(world.get_component<float>(ent).is_none());
+    ASSERT_TRUE(world.get_component<double>(ent).is_none());
+    ASSERT_TRUE(world.get_component<std::vector<int>>(ent).is_none());
 }
 
 struct Vectorized {
@@ -151,14 +174,14 @@ TEST(WorldTest, CustomStorage)
     World world;
 
     EntityId ent[] = {
-        world.createEntity(),
-        world.createEntity(),
-        world.createEntity(),
+        world.create_entity(),
+        world.create_entity(),
+        world.create_entity(),
     };
 
-    world.addComponent<Vectorized>(ent[0]);
-    world.addComponent<Vectorized>(ent[1]);
-    world.addComponent<Vectorized>(ent[2]);
+    world.add_component<Vectorized>(ent[0]);
+    world.add_component<Vectorized>(ent[1]);
+    world.add_component<Vectorized>(ent[2]);
 
     ASSERT_TRUE(world.get<VecStorage<Vectorized>>().is_some());
 
