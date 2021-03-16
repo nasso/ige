@@ -65,11 +65,12 @@ TEST(WorldTest, AddComponent)
 
     auto ent = world.create_entity();
 
-    world.add_component<std::string>(ent, "hello");
-    world.add_component<int>(ent, 65);
-    world.add_component<float>(ent, 48.3f);
-    world.add_component<double>(ent);
-    world.add_component<std::pair<int, int>>(ent, 38, 19);
+    ASSERT_EQ(world.add_component<std::string>(ent, "hello"), "hello");
+    ASSERT_EQ(world.add_component<int>(ent, 65), 65);
+    ASSERT_EQ(world.add_component<float>(ent, 48.3f), 48.3f);
+    ASSERT_EQ(world.add_component<double>(ent), 0);
+    ASSERT_EQ((world.add_component<std::pair<int, int>>(ent, 38, 19)),
+        std::make_pair(38, 19));
 }
 
 TEST(WorldTest, GetComponent)

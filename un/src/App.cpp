@@ -9,14 +9,14 @@
 
 namespace un {
 
-App::App()
-{
-}
-
 void App::run()
 {
+    for (auto& system : m_startup_systems) {
+        system.run(m_world);
+    }
+
     for (auto& system : m_systems) {
-        system.run();
+        system.run(m_world);
     }
 }
 

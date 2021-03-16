@@ -96,11 +96,10 @@ namespace ecs {
                 });
         }
 
-        template <typename T,
-            typename... Args,
+        template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
                 && std::is_constructible<T, Args...>::value>>
-        void add_component(EntityId ent, Args&&... args)
+        T& add_component(EntityId ent, Args&&... args)
         {
             using Storage = ComponentStorage<T>::Type;
 
@@ -118,11 +117,12 @@ namespace ecs {
                         return remove_component<T>(ent).is_some();
                     });
             }
+
+            return strg.get(ent).unwrap();
         }
 
-        template <typename T, typename... Args,
-            typename = std::enable_if_t<std::is_object<T>::value
-                && std::is_constructible<T, Args...>::value>>
+        template <typename T,
+            typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T&> get_component(EntityId ent)
         {
             using Storage = ComponentStorage<T>::Type;
@@ -134,9 +134,7 @@ namespace ecs {
         }
 
         template <typename T,
-            typename... Args,
-            typename = std::enable_if_t<std::is_object<T>::value
-                && std::is_constructible<T, Args...>::value>>
+            typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<const T&> get_component(EntityId ent) const
         {
             using Storage = ComponentStorage<T>::Type;

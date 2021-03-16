@@ -6,18 +6,24 @@
 */
 
 #include "un/ecs/System.hpp"
+#include "un/ecs/World.hpp"
 
 namespace un {
 namespace ecs {
 
     System::System(std::function<void()> run)
+        : m_run([=](World&) { return run(); })
+    {
+    }
+
+    System::System(std::function<void(World&)> run)
         : m_run(run)
     {
     }
 
-    void System::run()
+    void System::run(World& wld)
     {
-        m_run();
+        m_run(wld);
     }
 
 }
