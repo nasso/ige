@@ -48,8 +48,51 @@ namespace ecs {
 
     class World {
     public:
-        EntityId create_entity();
-        bool remove_entity(EntityId);
+        class Entity {
+        public:
+            Entity(World&, EntityId);
+            Entity(const Entity&) = default;
+
+            bool operator==(const Entity&) const;
+            bool operator!=(const Entity&) const;
+            bool remove();
+
+            template <typename T, typename... Args,
+                typename = std::enable_if_t<std::is_object<T>::value
+                    && std::is_constructible<T, Args...>::value>>
+            T& add_component(Args&&... args)
+            {
+                return m_wld.add_component<T>(m_id,
+                    std::forward<Args>(args)...);
+            }
+
+            template <typename T,
+                typename = std::enable_if_t<std::is_object<T>::value>>
+            rtl::Option<T&> get_component()
+            {
+                return m_wld.get_component<T>(m_id);
+            }
+
+            template <typename T,
+                typename = std::enable_if_t<std::is_object<T>::value>>
+            rtl::Option<const T&> get_component() const
+            {
+                return m_wld.get_component<T>(m_id);
+            }
+
+            template <typename T,
+                typename = std::enable_if_t<std::is_object<T>::value>>
+            rtl::Option<T> remove_component()
+            {
+                return m_wld.remove_component<T>(m_id);
+            }
+
+        private:
+            World& m_wld;
+            EntityId m_id;
+        };
+
+        Entity create_entity();
 
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
@@ -95,6 +138,9 @@ namespace ecs {
                     return any.as<T>();
                 });
         }
+
+    private:
+        bool remove_entity(EntityId);
 
         template <typename T, typename... Args,
             typename = std::enable_if_t<std::is_object<T>::value
@@ -157,7 +203,6 @@ namespace ecs {
                 });
         }
 
-    private:
         core::Any& set_any(impl::TypeId id, core::Any any)
         {
             m_resources.erase(id);

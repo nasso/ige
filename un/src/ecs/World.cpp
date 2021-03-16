@@ -10,9 +10,30 @@
 namespace un {
 namespace ecs {
 
-    EntityId World::create_entity()
+    World::Entity::Entity(World& wld, EntityId id)
+        : m_wld(wld)
+        , m_id(id)
     {
-        return ++m_last_entity;
+    }
+
+    bool World::Entity::operator==(const Entity& other) const
+    {
+        return m_id == other.m_id && &m_wld == &other.m_wld;
+    }
+
+    bool World::Entity::operator!=(const Entity& other) const
+    {
+        return !(*this == other);
+    }
+
+    bool World::Entity::remove()
+    {
+        return m_wld.remove_entity(m_id);
+    }
+
+    World::Entity World::create_entity()
+    {
+        return { *this, ++m_last_entity };
     }
 
     bool World::remove_entity(EntityId ent)
