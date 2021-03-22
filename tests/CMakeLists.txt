@@ -34,9 +34,10 @@ add_subdirectory(
 
 # add test executable
 add_executable(un_unit_tests
+    "any.cpp"
+    "state.cpp"
     "storage.cpp"
     "world.cpp"
-    "any.cpp"
 )
 target_link_libraries(un_unit_tests un)
 target_link_libraries(un_unit_tests gmock)

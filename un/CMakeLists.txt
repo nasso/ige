@@ -7,16 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # source files
 set(sources ${sources}
     "include/un.hpp"
-    "include/un/App.hpp"
-    "include/un/ecs.hpp"
     "include/un/core.hpp"
     "include/un/core/Any.hpp"
+    "include/un/core/App.hpp"
+    "include/un/core/State.hpp"
     "include/un/ecs/MapStorage.hpp"
     "include/un/ecs/VecStorage.hpp"
-    "include/un/ecs/System.hpp"
     "include/un/ecs/World.hpp"
-    "src/App.cpp"
     "src/core/Any.cpp"
+    "src/core/App.cpp"
+    "src/core/State.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
 )
