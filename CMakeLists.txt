@@ -3,8 +3,7 @@ cmake_minimum_required(VERSION 3.8)
 project(un)
 include(CTest)
 
-# modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
 add_subdirectory(rtl)
 add_subdirectory(un)
