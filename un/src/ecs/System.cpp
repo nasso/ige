@@ -11,11 +11,6 @@
 namespace un {
 namespace ecs {
 
-    System::System(std::function<void()> run)
-        : m_run([=](World&) { return run(); })
-    {
-    }
-
     System::System(std::function<void(World&)> run)
         : m_run(run)
     {

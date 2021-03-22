@@ -21,6 +21,8 @@ namespace core {
             PAUSED, /* The state is not active */
         };
 
+        virtual ~State() = default;
+
         /**
          * @brief If STOPPED, schedule the state to be RUNNING next update
          */

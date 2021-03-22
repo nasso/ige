@@ -36,6 +36,7 @@ add_subdirectory(
 add_executable(un_unit_tests
     "any.cpp"
     "state.cpp"
+    "statemachine.cpp"
     "storage.cpp"
     "world.cpp"
 )
