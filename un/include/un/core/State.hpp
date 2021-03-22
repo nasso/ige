@@ -8,10 +8,12 @@
 #ifndef CAE73E4C_C36A_49DD_BEE3_0F01F323198A
 #define CAE73E4C_C36A_49DD_BEE3_0F01F323198A
 
-#include "App.hpp"
+#include <type_traits>
 
 namespace un {
 namespace core {
+
+    class App;
 
     class State {
     public:
@@ -61,6 +63,15 @@ namespace core {
         Status m_status = STOPPED;
         Status m_next_status = STOPPED;
     };
+
+    namespace traits {
+        template <typename State>
+        struct is_state : public std::is_base_of<core::State, State> {
+        };
+
+        template <typename State>
+        constexpr bool is_state_v = is_state<State>::value;
+    }
 
 }
 }

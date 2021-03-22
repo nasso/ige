@@ -8,7 +8,6 @@
 #ifndef A36D202D_24FB_4842_A4D0_ED897E9F7A2A
 #define A36D202D_24FB_4842_A4D0_ED897E9F7A2A
 
-#include "App.hpp"
 #include "State.hpp"
 #include "rtl/Option.hpp"
 #include <memory>
@@ -18,10 +17,7 @@
 namespace un {
 namespace core {
 
-    namespace traits {
-        template <typename State>
-        using is_state = std::is_base_of<core::State, State>;
-    }
+    class App;
 
     class StateMachine {
     private:
@@ -78,7 +74,7 @@ namespace core {
         void pop();
         void quit();
 
-        void update(App& app);
+        void update(App&);
 
         rtl::Option<State&> current();
         bool is_running() const;

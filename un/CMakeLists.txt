@@ -15,6 +15,7 @@ set(sources ${sources}
     "include/un/core/utils/bitfield.hpp"
     "include/un/ecs.hpp"
     "include/un/ecs/MapStorage.hpp"
+    "include/un/ecs/Schedule.hpp"
     "include/un/ecs/System.hpp"
     "include/un/ecs/VecStorage.hpp"
     "include/un/ecs/World.hpp"
@@ -22,6 +23,7 @@ set(sources ${sources}
     "src/core/App.cpp"
     "src/core/State.cpp"
     "src/core/StateMachine.cpp"
+    "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
 )

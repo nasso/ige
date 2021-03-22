@@ -16,7 +16,7 @@ namespace ecs {
     {
     }
 
-    void System::run(World& wld)
+    void System::operator()(World& wld)
     {
         m_run(wld);
     }

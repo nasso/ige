@@ -16,10 +16,9 @@ namespace ecs {
 
     class System {
     public:
-        System(std::function<void()> run);
         System(std::function<void(World&)> run);
 
-        void run(World&);
+        void operator()(World&);
 
     private:
         std::function<void(World&)> m_run;
