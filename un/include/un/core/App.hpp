@@ -62,6 +62,8 @@ namespace core {
             }
         };
 
+        App() = default;
+
         core::StateMachine& state_machine();
         const core::StateMachine& state_machine() const;
 
