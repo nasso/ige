@@ -10,6 +10,16 @@
 #include "un/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
 
+namespace std {
+
+template <typename A, typename B>
+std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
+{
+    return os << "(" << p.first << ", " << p.second << ")";
+}
+
+}
+
 using rtl::some;
 using un::ecs::VecStorage;
 using un::ecs::World;

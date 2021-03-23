@@ -38,7 +38,7 @@ namespace ecs {
 
         rtl::Option<const V&> get(const K& key) const
         {
-            auto& it = m_data.find(key);
+            auto it = m_data.find(key);
 
             if (it != m_data.end()) {
                 return rtl::some(it->second);
@@ -49,7 +49,7 @@ namespace ecs {
 
         rtl::Option<V&> get(const K& key)
         {
-            auto& it = m_data.find(key);
+            auto it = m_data.find(key);
 
             if (it != m_data.end()) {
                 return rtl::some(it->second);
@@ -60,7 +60,7 @@ namespace ecs {
 
         rtl::Option<V> remove(const K& key)
         {
-            auto& it = m_data.find(key);
+            auto it = m_data.find(key);
 
             if (it != m_data.end()) {
                 V opt = std::move(it->second);

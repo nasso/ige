@@ -102,7 +102,7 @@ namespace ecs {
             impl::TypeId id = impl::type_id<T>();
 
             return set_any(id, core::Any::from<T>(std::forward<Args>(args)...))
-                .as<T>();
+                .template as<T>();
         }
 
         template <typename T,
@@ -113,7 +113,7 @@ namespace ecs {
 
             return get_any(id)
                 .map([](auto& any) -> auto& {
-                    return any.as<T>();
+                    return any.template as<T>();
                 });
         }
 
@@ -125,7 +125,7 @@ namespace ecs {
 
             return get_any(id)
                 .map([](const auto& any) -> const auto& {
-                    return any.as<T>();
+                    return any.template as<T>();
                 });
         }
 
@@ -135,7 +135,7 @@ namespace ecs {
         {
             return remove_any(impl::type_id<T>())
                 .map([](core::Any any) {
-                    return any.as<T>();
+                    return any.template as<T>();
                 });
         }
 
@@ -147,7 +147,7 @@ namespace ecs {
                 && std::is_constructible<T, Args...>::value>>
         T& add_component(EntityId ent, Args&&... args)
         {
-            using Storage = ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<T>::Type;
 
             Storage& strg = get<Storage>()
                                 .unwrap_or_else([&]() -> auto& {
@@ -171,7 +171,7 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T&> get_component(EntityId ent)
         {
-            using Storage = ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<T>::Type;
 
             return get<Storage>()
                 .and_then([=](Storage& strg) {
@@ -183,7 +183,7 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<const T&> get_component(EntityId ent) const
         {
-            using Storage = ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<T>::Type;
 
             return get<Storage>()
                 .and_then([=](const Storage& strg) {
@@ -195,7 +195,7 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> remove_component(EntityId ent)
         {
-            using Storage = ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<T>::Type;
 
             return get<Storage>()
                 .and_then([ent](Storage& strg) {
