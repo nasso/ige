@@ -24,16 +24,13 @@ namespace ecs {
     namespace impl {
         using TypeId = std::size_t;
 
-        template <typename T>
-        struct type_id_ptr {
+        template <typename T> struct type_id_ptr {
             static const T* const id;
         };
 
-        template <typename T>
-        const T* const type_id_ptr<T>::id = nullptr;
+        template <typename T> const T* const type_id_ptr<T>::id = nullptr;
 
-        template <typename T>
-        constexpr TypeId type_id() noexcept
+        template <typename T> constexpr TypeId type_id() noexcept
         {
             return reinterpret_cast<TypeId>(&type_id_ptr<T>::id);
         }
@@ -41,8 +38,7 @@ namespace ecs {
 
     using EntityId = std::uint64_t;
 
-    template <typename Component>
-    struct ComponentStorage {
+    template <typename Component> struct ComponentStorage {
         using Type = MapStorage<EntityId, Component>;
     };
 
@@ -62,8 +58,8 @@ namespace ecs {
                     && std::is_constructible<T, Args...>::value>>
             T& add_component(Args&&... args)
             {
-                return m_wld.add_component<T>(m_id,
-                    std::forward<Args>(args)...);
+                return m_wld.add_component<T>(
+                    m_id, std::forward<Args>(args)...);
             }
 
             template <typename T,
@@ -85,6 +81,11 @@ namespace ecs {
             rtl::Option<T> remove_component()
             {
                 return m_wld.remove_component<T>(m_id);
+            }
+
+            EntityId id()
+            {
+                return m_id;
             }
 
         private:
@@ -111,10 +112,8 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return get_any(id)
-                .map([](auto& any) -> auto& {
-                    return any.template as<T>();
-                });
+            return get_any(id).map(
+                [](auto& any) -> auto& { return any.template as<T>(); });
         }
 
         template <typename T,
@@ -123,23 +122,19 @@ namespace ecs {
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return get_any(id)
-                .map([](const auto& any) -> const auto& {
-                    return any.template as<T>();
-                });
+            return get_any(id).map([
+            ](const auto& any) -> const auto& { return any.template as<T>(); });
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> remove()
         {
-            return remove_any(impl::type_id<T>())
-                .map([](core::Any any) {
-                    return any.template as<T>();
-                });
+            return remove_any(impl::type_id<T>()).map([](core::Any any) {
+                return any.template as<T>();
+            });
         }
 
-    private:
         bool remove_entity(EntityId);
 
         template <typename T, typename... Args,
@@ -149,19 +144,16 @@ namespace ecs {
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            Storage& strg = get<Storage>()
-                                .unwrap_or_else([&]() -> auto& {
-                                    return set<Storage>();
-                                });
+            Storage& strg = get<Storage>().unwrap_or_else([&]() -> auto& {
+                return set<Storage>();
+            });
 
             strg.set(std::move(ent), std::forward<Args>(args)...);
 
             if (m_components.find(impl::type_id<T>()) == m_components.end()) {
-                m_components.emplace(
-                    impl::type_id<T>(),
-                    [&](EntityId ent) {
-                        return remove_component<T>(ent).is_some();
-                    });
+                m_components.emplace(impl::type_id<T>(), [&](EntityId ent) {
+                    return remove_component<T>(ent).is_some();
+                });
             }
 
             return strg.get(ent).unwrap();
@@ -173,10 +165,8 @@ namespace ecs {
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>()
-                .and_then([=](Storage& strg) {
-                    return strg.get(ent);
-                });
+            return get<Storage>().and_then(
+                [=](Storage& strg) { return strg.get(ent); });
         }
 
         template <typename T,
@@ -185,10 +175,8 @@ namespace ecs {
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>()
-                .and_then([=](const Storage& strg) {
-                    return strg.get(ent);
-                });
+            return get<Storage>().and_then(
+                [=](const Storage& strg) { return strg.get(ent); });
         }
 
         template <typename T,
@@ -197,12 +185,11 @@ namespace ecs {
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>()
-                .and_then([ent](Storage& strg) {
-                    return strg.remove(ent);
-                });
+            return get<Storage>().and_then(
+                [ent](Storage& strg) { return strg.remove(ent); });
         }
 
+    private:
         core::Any& set_any(impl::TypeId id, core::Any any)
         {
             m_resources.erase(id);

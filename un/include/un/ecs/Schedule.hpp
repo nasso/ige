@@ -27,7 +27,13 @@ namespace ecs {
             std::vector<System> m_systems;
 
         public:
-            Builder& add_system(System);
+            template <typename F> Builder& add_system(F&& sys)
+            {
+                m_systems.emplace_back(std::forward<F>(sys));
+
+                return *this;
+            }
+
             Schedule build() const;
         };
 

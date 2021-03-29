@@ -11,7 +11,7 @@
 namespace un {
 namespace ecs {
 
-    System::System(std::function<void(World&)> run)
+    System::System(std::function<void(World&)> run) noexcept
         : m_run(run)
     {
     }

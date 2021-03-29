@@ -47,13 +47,12 @@ namespace core {
             rtl::Option<ecs::Schedule> m_cleanup;
 
         public:
-            void on_start(ecs::Schedule);
-            void on_update(ecs::Schedule);
-            void on_stop(ecs::Schedule);
+            App::Builder& on_start(ecs::Schedule);
+            App::Builder& on_update(ecs::Schedule);
+            App::Builder& on_stop(ecs::Schedule);
 
             template <typename S, typename... Args>
-            std::enable_if_t<can_make_state<S, Args...>>
-            run(Args&&... args)
+            std::enable_if_t<can_make_state<S, Args...>> run(Args&&... args)
             {
                 App app(m_startup.take(), m_update.take(), m_cleanup.take());
 
@@ -63,6 +62,9 @@ namespace core {
         };
 
         App() = default;
+
+        ecs::World& world();
+        const ecs::World& world() const;
 
         core::StateMachine& state_machine();
         const core::StateMachine& state_machine() const;

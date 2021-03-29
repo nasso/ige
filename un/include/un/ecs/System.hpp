@@ -16,7 +16,7 @@ namespace ecs {
 
     class System {
     public:
-        System(std::function<void(World&)> run);
+        System(std::function<void(World&)> run) noexcept;
 
         void operator()(World&);
 

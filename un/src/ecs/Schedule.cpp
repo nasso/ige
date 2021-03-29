@@ -17,13 +17,6 @@ namespace ecs {
     {
     }
 
-    Schedule::Builder& Schedule::Builder::add_system(System sys)
-    {
-        m_systems.push_back(sys);
-
-        return *this;
-    }
-
     Schedule Schedule::Builder::build() const
     {
         return { m_systems };
