@@ -1,3 +1,6 @@
 [submodule "rtl"]
-	path = rtl
+	path = extern/rtl
 	url = https://github.com/nasso/rtl
+[submodule "extern/googletest"]
+	path = extern/googletest
+	url = ../../google/googletest.git

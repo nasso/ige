@@ -1,36 +1,33 @@
-cmake_minimum_required(VERSION 3.8)
+mark_as_advanced(
+    BUILD_GMOCK BUILD_GTEST BUILD_SHARED_LIBS
+    gmock_build_tests gtest_build_samples gtest_build_tests
+    gtest_disable_pthreads gtest_force_shared_crt gtest_hide_internal_symbols
+)
 
-project(un_tests)
+macro(package_add_test TESTNAME)
+    # create an exectuable in which the tests will be stored
+    add_executable(${TESTNAME} ${ARGN})
 
-find_package(GTest)
+    # link the Google test infrastructure, mocking library, and a default main
+    # fuction to the test executable.  Remove g_test_main if writing your own
+    # main function.
+    target_link_libraries(${TESTNAME} rtl un gtest gmock gtest_main)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-if(TARGET GTest::gtest_main AND TARGET GTest::gmock)
-    # add test executable
-    add_executable(un_unit_tests
-        "any.cpp"
-        "state.cpp"
-        "statemachine.cpp"
-        "storage.cpp"
-        "world.cpp"
+    # gtest_discover_tests replaces gtest_add_tests,
+    # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more
+    # options to pass to it
+    gtest_discover_tests(${TESTNAME}
+        # set a working directory to your project root so that you can find test
+        # data via paths relative to the project root
+        WORKING_DIRECTORY ${PROJECT_DIR}
+        PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
     )
-    target_link_libraries(un_unit_tests un)
-    target_link_libraries(un_unit_tests GTest::gmock)
-    target_link_libraries(un_unit_tests GTest::gtest_main)
 
-    add_test(
-        NAME un_unit_tests_build
-        COMMAND "${CMAKE_COMMAND}"
-                --build "${CMAKE_BINARY_DIR}"
-                --config "$<CONFIG>"
-                --target un_unit_tests
-    )
-    set_tests_properties(un_unit_tests_build
-        PROPERTIES FIXTURES_SETUP un_unit_tests_fixture)
+    set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+endmacro()
 
-    add_test(NAME un_unit_tests COMMAND un_unit_tests)
-    set_tests_properties(un_unit_tests
-        PROPERTIES FIXTURES_REQUIRED un_unit_tests_fixture)
-endif()
+package_add_test(any any.cpp)
+package_add_test(state state.cpp)
+package_add_test(statemachine statemachine.cpp)
+package_add_test(storage storage.cpp)
+package_add_test(world world.cpp)
