@@ -15,6 +15,5 @@ add_subdirectory(examples)
 # tests
 if(PACKAGE_TESTS)
 	enable_testing()
-
 	add_subdirectory(tests)
 endif()
