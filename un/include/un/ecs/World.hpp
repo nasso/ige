@@ -92,7 +92,8 @@ namespace ecs {
             World& m_wld;
             EntityId m_id;
         };
-
+        
+        ~World();
         Entity create_entity();
 
         template <typename T, typename... Args,
@@ -130,9 +131,9 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> remove()
         {
-            return remove_any(impl::type_id<T>()).map([](core::Any any) {
-                return any.template as<T>();
-            });
+            return std::move(remove_any(impl::type_id<T>()).map([](core::Any any) {
+                return std::move(any.template as<T>());
+            }));
         }
 
         bool remove_entity(EntityId);
@@ -235,8 +236,8 @@ namespace ecs {
         using CompRemover = std::function<bool(EntityId)>;
 
         EntityId m_last_entity = 0;
-        std::unordered_map<impl::TypeId, core::Any> m_resources;
         std::unordered_map<impl::TypeId, CompRemover> m_components;
+        std::unordered_map<impl::TypeId, core::Any> m_resources;
     };
 
 }
