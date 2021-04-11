@@ -93,7 +93,6 @@ namespace ecs {
             EntityId m_id;
         };
         
-        ~World();
         Entity create_entity();
 
         template <typename T, typename... Args,
