@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** StateMachine
 */
@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace un {
+namespace ige {
 namespace core {
 
     class App;
@@ -42,8 +42,8 @@ namespace core {
 
             remove_current_state();
 
-            m_states.push_back(std::make_unique<S>(
-                std::forward<Args>(args)...));
+            m_states.push_back(
+                std::make_unique<S>(std::forward<Args>(args)...));
 
             auto& cur = current().unwrap();
             cur.start();
@@ -63,8 +63,8 @@ namespace core {
         {
             current() | &State::pause;
 
-            m_states.push_back(std::make_unique<S>(
-                std::forward<Args>(args)...));
+            m_states.push_back(
+                std::make_unique<S>(std::forward<Args>(args)...));
 
             auto& cur = current().unwrap();
             cur.start();

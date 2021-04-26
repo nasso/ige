@@ -1,14 +1,15 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** world
 */
 
-#include "un/ecs/World.hpp"
+#include "ige/ecs/World.hpp"
+#include "ige/ecs/VecStorage.hpp"
 #include "rtl/Option.hpp"
-#include "un/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
+
 
 namespace std {
 
@@ -20,9 +21,9 @@ std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
 
 }
 
+using ige::ecs::VecStorage;
+using ige::ecs::World;
 using rtl::some;
-using un::ecs::VecStorage;
-using un::ecs::World;
 
 TEST(WorldTest, Spawn)
 {
@@ -174,7 +175,7 @@ TEST(WorldTest, RemoveEntity)
 struct Vectorized {
 };
 
-template <> struct un::ecs::ComponentStorage<Vectorized> {
+template <> struct ige::ecs::ComponentStorage<Vectorized> {
     using Type = VecStorage<Vectorized>;
 };
 

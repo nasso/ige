@@ -1,15 +1,15 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** Schedule
 */
 
-#include "un/ecs/Schedule.hpp"
-#include "un/ecs/System.hpp"
-#include "un/ecs/World.hpp"
+#include "ige/ecs/Schedule.hpp"
+#include "ige/ecs/System.hpp"
+#include "ige/ecs/World.hpp"
 
-namespace un {
+namespace ige {
 namespace ecs {
 
     Schedule::Schedule(std::vector<System> sys)

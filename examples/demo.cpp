@@ -1,16 +1,16 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** demo
 */
 
-#include "un.hpp"
+#include "ige.hpp"
 #include <iostream>
 
-using un::core::App;
-using un::core::State;
-using un::ecs::Schedule;
+using ige::core::App;
+using ige::core::State;
+using ige::ecs::Schedule;
 
 class RootState : public State {
     int counter = 0;

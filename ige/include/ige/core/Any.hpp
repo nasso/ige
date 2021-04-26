@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** Any
 */
@@ -11,7 +11,7 @@
 #include <functional>
 #include <type_traits>
 
-namespace un {
+namespace ige {
 namespace core {
 
     class Any {
@@ -33,14 +33,12 @@ namespace core {
             return Any(data, [](void* ptr) { delete static_cast<T*>(ptr); });
         }
 
-        template <typename T>
-        T& as()
+        template <typename T> T& as()
         {
             return *static_cast<T*>(m_data);
         }
 
-        template <typename T>
-        const T& as() const
+        template <typename T> const T& as() const
         {
             return *static_cast<T*>(m_data);
         }

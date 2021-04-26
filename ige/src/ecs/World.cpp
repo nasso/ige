@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** World
 */
 
-#include "un/ecs/World.hpp"
+#include "ige/ecs/World.hpp"
 
-namespace un {
+namespace ige {
 namespace ecs {
 
     World::Entity::Entity(World& wld, EntityId id)

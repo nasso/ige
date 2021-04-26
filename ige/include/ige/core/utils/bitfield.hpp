@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** bitfield
 */
@@ -10,13 +10,12 @@
 
 #include <type_traits>
 
-namespace un {
+namespace ige {
 namespace core {
 
     namespace utils {
 
-        template <typename E>
-        struct is_bitfield : std::false_type {
+        template <typename E> struct is_bitfield : std::false_type {
         };
 
         template <typename E>
@@ -28,37 +27,34 @@ namespace core {
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator|(E lhs, E rhs) noexcept
 {
     using type = typename std::underlying_type_t<E>;
 
-    return static_cast<E>(
-        static_cast<type>(lhs) | static_cast<type>(rhs));
+    return static_cast<E>(static_cast<type>(lhs) | static_cast<type>(rhs));
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator&(E lhs, E rhs) noexcept
 {
     using type = typename std::underlying_type_t<E>;
 
-    return static_cast<E>(
-        static_cast<type>(lhs) & static_cast<type>(rhs));
+    return static_cast<E>(static_cast<type>(lhs) & static_cast<type>(rhs));
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator^(E lhs, E rhs) noexcept
 {
     using type = typename std::underlying_type_t<E>;
 
-    return static_cast<E>(
-        static_cast<type>(lhs) ^ static_cast<type>(rhs));
+    return static_cast<E>(static_cast<type>(lhs) ^ static_cast<type>(rhs));
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator~(E val) noexcept
 {
     using type = typename std::underlying_type_t<E>;
@@ -67,29 +63,28 @@ constexpr E operator~(E val) noexcept
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator|=(E& lhs, E rhs) noexcept
 {
     return lhs = lhs | rhs;
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator&=(E& lhs, E rhs) noexcept
 {
     return lhs = lhs & rhs;
 }
 
 template <typename E,
-    typename = std::enable_if_t<un::core::utils::is_bitfield_v<E>>>
+    typename = std::enable_if_t<ige::core::utils::is_bitfield_v<E>>>
 constexpr E operator^=(E& lhs, E rhs) noexcept
 {
     return lhs = lhs ^ rhs;
 }
 
-#define MAKE_BITFIELD(E)                                          \
-    template <>                                                   \
-    struct ::un::core::utils::is_bitfield<E> : ::std::true_type { \
+#define MAKE_BITFIELD(E)                                                       \
+    template <> struct ::ige::core::utils::is_bitfield<E> : ::std::true_type { \
     }
 
 #endif /* DF43A954_CC27_4B07_ADB1_C50EE78AF09F */

@@ -1,25 +1,23 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** test
 */
 
-#include "un/ecs/MapStorage.hpp"
-#include "un/ecs/VecStorage.hpp"
+#include "ige/ecs/MapStorage.hpp"
+#include "ige/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
 
-using un::ecs::MapStorage;
-using un::ecs::VecStorage;
+using ige::ecs::MapStorage;
+using ige::ecs::VecStorage;
 
-template <typename T>
-struct StorageTest : public testing::Test {
+template <typename T> struct StorageTest : public testing::Test {
     using Storage = T;
 };
 
-using StorageTypes = testing::Types<
-    VecStorage<int>,
-    MapStorage<std::size_t, int>>;
+using StorageTypes
+    = testing::Types<VecStorage<int>, MapStorage<std::size_t, int>>;
 
 TYPED_TEST_SUITE(StorageTest, StorageTypes);
 

@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** Schedule
 */
@@ -12,7 +12,7 @@
 #include "World.hpp"
 #include <vector>
 
-namespace un {
+namespace ige {
 namespace ecs {
 
     class Schedule {

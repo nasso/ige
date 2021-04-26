@@ -1,15 +1,16 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** StateMachine
 */
 
-#include "un/core/StateMachine.hpp"
+#include "ige/core/StateMachine.hpp"
+#include "ige/core/App.hpp"
 #include "rtl/Option.hpp"
-#include "un/core/App.hpp"
 
-namespace un {
+
+namespace ige {
 namespace core {
 
     void StateMachine::remove_current_state()

@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** MapStorage
 */
@@ -11,11 +11,10 @@
 #include "rtl/Option.hpp"
 #include <unordered_map>
 
-namespace un {
+namespace ige {
 namespace ecs {
 
-    template <typename K, typename V>
-    class MapStorage {
+    template <typename K, typename V> class MapStorage {
     public:
         MapStorage() = default;
         virtual ~MapStorage() = default;
@@ -26,13 +25,12 @@ namespace ecs {
         }
 
         template <typename... Args,
-            typename = std::enable_if_t<
-                std::is_constructible<V, Args...>::value>>
+            typename
+            = std::enable_if_t<std::is_constructible<V, Args...>::value>>
         void set(K&& key, Args&&... args)
         {
             remove(key);
-            m_data.emplace(std::piecewise_construct,
-                std::forward_as_tuple(key),
+            m_data.emplace(std::piecewise_construct, std::forward_as_tuple(key),
                 std::forward_as_tuple(std::forward<Args>(args)...));
         }
 

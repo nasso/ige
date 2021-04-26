@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** statemachine
 */
 
-#include "un/core/StateMachine.hpp"
-#include "un/core/App.hpp"
-#include "un/core/State.hpp"
+#include "ige/core/StateMachine.hpp"
+#include "ige/core/App.hpp"
+#include "ige/core/State.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -15,9 +15,9 @@ using ::testing::InSequence;
 using ::testing::Ref;
 using ::testing::StrictMock;
 
-using un::core::App;
-using un::core::State;
-using un::core::StateMachine;
+using ige::core::App;
+using ige::core::State;
+using ige::core::StateMachine;
 
 class MockState : public State {
 public:

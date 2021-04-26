@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** VecStorage
 */
@@ -11,11 +11,10 @@
 #include "rtl/Option.hpp"
 #include <vector>
 
-namespace un {
+namespace ige {
 namespace ecs {
 
-    template <typename T>
-    class VecStorage {
+    template <typename T> class VecStorage {
     public:
         VecStorage() = default;
         virtual ~VecStorage() = default;
@@ -26,8 +25,8 @@ namespace ecs {
         }
 
         template <typename... Args,
-            typename = std::enable_if_t<
-                std::is_constructible<T, Args...>::value>>
+            typename
+            = std::enable_if_t<std::is_constructible<T, Args...>::value>>
         void set(std::size_t idx, Args&&... args)
         {
             rtl::Option<T> opt;

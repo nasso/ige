@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** System
 */
@@ -11,7 +11,7 @@
 #include "World.hpp"
 #include <functional>
 
-namespace un {
+namespace ige {
 namespace ecs {
 
     class System {

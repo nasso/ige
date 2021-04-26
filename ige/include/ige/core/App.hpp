@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** App
 */
@@ -8,15 +8,16 @@
 #ifndef F7EA1363_932A_4910_8D9B_4CA25912EBED
 #define F7EA1363_932A_4910_8D9B_4CA25912EBED
 
+#include "ige/core/State.hpp"
+#include "ige/core/StateMachine.hpp"
+#include "ige/ecs/Schedule.hpp"
+#include "ige/ecs/System.hpp"
+#include "ige/ecs/World.hpp"
 #include "rtl/Option.hpp"
-#include "un/core/State.hpp"
-#include "un/core/StateMachine.hpp"
-#include "un/ecs/Schedule.hpp"
-#include "un/ecs/System.hpp"
-#include "un/ecs/World.hpp"
 #include <vector>
 
-namespace un {
+
+namespace ige {
 namespace core {
 
     class App {

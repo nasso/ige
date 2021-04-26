@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** State
 */
@@ -10,7 +10,7 @@
 
 #include <type_traits>
 
-namespace un {
+namespace ige {
 namespace core {
 
     class App;

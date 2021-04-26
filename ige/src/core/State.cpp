@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** State
 */
 
-#include "un/core/State.hpp"
+#include "ige/core/State.hpp"
 
-namespace un {
+namespace ige {
 namespace core {
 
     State::Status State::status() const
@@ -64,11 +64,21 @@ namespace core {
         }
     }
 
-    void State::on_start(App&) { }
-    void State::on_update(App&) { }
-    void State::on_pause(App&) { }
-    void State::on_resume(App&) { }
-    void State::on_stop(App&) { }
+    void State::on_start(App&)
+    {
+    }
+    void State::on_update(App&)
+    {
+    }
+    void State::on_pause(App&)
+    {
+    }
+    void State::on_resume(App&)
+    {
+    }
+    void State::on_stop(App&)
+    {
+    }
 
 }
 }

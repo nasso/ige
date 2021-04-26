@@ -1,11 +1,11 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** any
 */
 
-#include "un/core/Any.hpp"
+#include "ige/core/Any.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include <type_traits>
@@ -15,10 +15,13 @@ public:
     MockDtor() = default;
 
     MOCK_METHOD(void, die, ());
-    ~MockDtor() { die(); }
+    ~MockDtor()
+    {
+        die();
+    }
 };
 
-using un::core::Any;
+using ige::core::Any;
 
 TEST(AnyTest, BasicInt)
 {

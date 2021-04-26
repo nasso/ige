@@ -1,13 +1,13 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** Any
 */
 
-#include "un/core/Any.hpp"
+#include "ige/core/Any.hpp"
 
-namespace un {
+namespace ige {
 namespace core {
 
     Any::Any(void* data, std::function<void(void*)> dtor)

@@ -1,6 +1,6 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** World
 */
@@ -8,9 +8,9 @@
 #ifndef B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
 #define B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
 
+#include "ige/core/Any.hpp"
+#include "ige/ecs/MapStorage.hpp"
 #include "rtl/Option.hpp"
-#include "un/core/Any.hpp"
-#include "un/ecs/MapStorage.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -18,7 +18,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace un {
+
+namespace ige {
 namespace ecs {
 
     namespace impl {

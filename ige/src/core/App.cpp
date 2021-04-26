@@ -1,16 +1,16 @@
 /*
 ** EPITECH PROJECT, 2021
-** un
+** ige
 ** File description:
 ** App
 */
 
-#include "un/core/App.hpp"
+#include "ige/core/App.hpp"
 #include "rtl/Option.hpp"
 
 using rtl::some;
 
-namespace un {
+namespace ige {
 namespace core {
 
     App::Builder& App::Builder::on_start(ecs::Schedule sch)

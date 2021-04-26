@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 
-project(un)
+project(ige)
 
 if(${PROJECT_NAME} STREQUAL ${CMAKE_PROJECT_NAME})
 	option(PACKAGE_TESTS "Build the tests" ON)
@@ -9,7 +9,7 @@ else()
 endif()
 
 add_subdirectory(extern/rtl)
-add_subdirectory(un)
+add_subdirectory(ige)
 add_subdirectory(examples)
 
 # tests
