@@ -92,7 +92,7 @@ namespace ecs {
             World& m_wld;
             EntityId m_id;
         };
-        
+
         Entity create_entity();
 
         template <typename T, typename... Args,
@@ -130,9 +130,10 @@ namespace ecs {
             typename = std::enable_if_t<std::is_object<T>::value>>
         rtl::Option<T> remove()
         {
-            return std::move(remove_any(impl::type_id<T>()).map([](core::Any any) {
-                return std::move(any.template as<T>());
-            }));
+            return std::move(
+                remove_any(impl::type_id<T>()).map([](core::Any any) {
+                    return std::move(any.template as<T>());
+                }));
         }
 
         bool remove_entity(EntityId);

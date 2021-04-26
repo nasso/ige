@@ -174,8 +174,7 @@ TEST(WorldTest, RemoveEntity)
 struct Vectorized {
 };
 
-template <>
-struct un::ecs::ComponentStorage<Vectorized> {
+template <> struct un::ecs::ComponentStorage<Vectorized> {
     using Type = VecStorage<Vectorized>;
 };
 
