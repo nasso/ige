@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.11)
 
 project(ige)
 
+# set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if(${PROJECT_NAME} STREQUAL ${CMAKE_PROJECT_NAME})
 	option(PACKAGE_TESTS "Build the tests" ON)
 else()
