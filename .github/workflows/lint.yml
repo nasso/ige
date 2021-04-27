@@ -1,0 +1,16 @@
+name: Check coding style with clang-format
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo apt install clang-format
+      - name: Check for clang-format errors
+        run: >
+          find -iname "*.cpp" -or -iname "*.hpp" -or -iname "*.h"
+          -exec clang-format --Werror --style=file --dry-run {} \;
