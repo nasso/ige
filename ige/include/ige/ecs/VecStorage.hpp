@@ -30,12 +30,9 @@ namespace ecs {
             = std::enable_if_t<std::is_constructible<T, Args...>::value>>
         void set(std::size_t idx, Args&&... args)
         {
-            std::optional<T> opt;
-
-            opt.emplace(std::forward<Args>(args)...);
-
             m_data.resize(idx + 1);
-            m_data.emplace(m_data.begin() + idx, std::move(opt));
+            m_data.emplace(m_data.begin() + idx,
+                std::make_optional<T>(std::forward<Args>(args)...));
         }
 
         std::optional<std::reference_wrapper<const T>> get(
@@ -44,7 +41,7 @@ namespace ecs {
             std::optional<std::reference_wrapper<const T>> element;
 
             if (idx < m_data.size()) {
-                if (auto value = m_data[idx]) {
+                if (auto& value = m_data[idx]) {
                     element.emplace(*value);
                 }
             }
@@ -57,7 +54,7 @@ namespace ecs {
             std::optional<std::reference_wrapper<T>> element;
 
             if (idx < m_data.size()) {
-                if (auto value = m_data[idx]) {
+                if (auto& value = m_data[idx]) {
                     element.emplace(*value);
                 }
             }
