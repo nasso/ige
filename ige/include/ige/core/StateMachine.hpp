@@ -9,8 +9,9 @@
 #define A36D202D_24FB_4842_A4D0_ED897E9F7A2A
 
 #include "State.hpp"
-#include "rtl/Option.hpp"
+#include <functional>
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <vector>
 
@@ -38,14 +39,16 @@ namespace core {
                 && std::is_constructible<S, Args...>::value>>
         S& switch_to(Args&&... args)
         {
-            current() | &State::stop;
+            if (auto cur = current()) {
+                cur->get().stop();
+            }
 
             remove_current_state();
 
             m_states.push_back(
                 std::make_unique<S>(std::forward<Args>(args)...));
 
-            auto& cur = current().unwrap();
+            auto& cur = current()->get();
             cur.start();
             return static_cast<S&>(cur);
         }
@@ -61,12 +64,14 @@ namespace core {
                 && std::is_constructible<S, Args...>::value>>
         S& push(Args&&... args)
         {
-            current() | &State::pause;
+            if (auto cur = current()) {
+                cur->get().pause();
+            }
 
             m_states.push_back(
                 std::make_unique<S>(std::forward<Args>(args)...));
 
-            auto& cur = current().unwrap();
+            auto& cur = current()->get();
             cur.start();
             return static_cast<S&>(cur);
         }
@@ -75,10 +80,10 @@ namespace core {
         void quit();
 
         void update(App&);
-
-        rtl::Option<State&> current();
         bool is_running() const;
-        rtl::Option<const State&> current() const;
+
+        std::optional<std::reference_wrapper<State>> current();
+        std::optional<std::reference_wrapper<const State>> current() const;
     };
 
 }

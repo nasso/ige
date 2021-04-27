@@ -8,7 +8,8 @@
 #ifndef DB322AB1_C834_42D3_82D6_5F31BCC83A33
 #define DB322AB1_C834_42D3_82D6_5F31BCC83A33
 
-#include "rtl/Option.hpp"
+#include <functional>
+#include <optional>
 #include <vector>
 
 namespace ige {
@@ -29,43 +30,54 @@ namespace ecs {
             = std::enable_if_t<std::is_constructible<T, Args...>::value>>
         void set(std::size_t idx, Args&&... args)
         {
-            rtl::Option<T> opt;
+            std::optional<T> opt;
 
-            opt.replace(std::forward<Args>(args)...);
+            opt.emplace(std::forward<Args>(args)...);
 
             m_data.resize(idx + 1);
             m_data.emplace(m_data.begin() + idx, std::move(opt));
         }
 
-        rtl::Option<const T&> get(const std::size_t& idx) const
+        std::optional<std::reference_wrapper<const T>> get(
+            const std::size_t& idx) const
         {
+            std::optional<std::reference_wrapper<const T>> element;
+
             if (idx < m_data.size()) {
-                return m_data[idx].as_ref();
-            } else {
-                return {};
+                if (auto value = m_data[idx]) {
+                    element.emplace(*value);
+                }
             }
+
+            return element;
         }
 
-        rtl::Option<T&> get(const std::size_t& idx)
+        std::optional<std::reference_wrapper<T>> get(const std::size_t& idx)
         {
+            std::optional<std::reference_wrapper<T>> element;
+
             if (idx < m_data.size()) {
-                return m_data[idx].as_mut();
-            } else {
-                return {};
+                if (auto value = m_data[idx]) {
+                    element.emplace(*value);
+                }
             }
+
+            return element;
         }
 
-        rtl::Option<T> remove(const std::size_t& idx)
+        std::optional<T> remove(const std::size_t& idx)
         {
+            std::optional<T> element;
+
             if (idx < m_data.size()) {
-                return m_data[idx].take();
-            } else {
-                return {};
+                m_data[idx].swap(element);
             }
+
+            return element;
         }
 
     private:
-        std::vector<rtl::Option<T>> m_data;
+        std::vector<std::optional<T>> m_data;
     };
 
 }

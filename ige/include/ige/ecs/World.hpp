@@ -10,14 +10,14 @@
 
 #include "ige/core/Any.hpp"
 #include "ige/ecs/MapStorage.hpp"
-#include "rtl/Option.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
-
 
 namespace ige {
 namespace ecs {
@@ -65,21 +65,21 @@ namespace ecs {
 
             template <typename T,
                 typename = std::enable_if_t<std::is_object<T>::value>>
-            rtl::Option<T&> get_component()
+            std::optional<std::reference_wrapper<T>> get_component()
             {
                 return m_wld.get_component<T>(m_id);
             }
 
             template <typename T,
                 typename = std::enable_if_t<std::is_object<T>::value>>
-            rtl::Option<const T&> get_component() const
+            std::optional<std::reference_wrapper<const T>> get_component() const
             {
                 return m_wld.get_component<T>(m_id);
             }
 
             template <typename T,
                 typename = std::enable_if_t<std::is_object<T>::value>>
-            rtl::Option<T> remove_component()
+            std::optional<T> remove_component()
             {
                 return m_wld.remove_component<T>(m_id);
             }
@@ -109,27 +109,33 @@ namespace ecs {
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<T&> get()
+        std::optional<std::reference_wrapper<T>> get()
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return get_any(id).map(
-                [](auto& any) -> auto& { return any.template as<T>(); });
+            if (auto any = get_any(id)) {
+                return { any->get().template as<T>() };
+            } else {
+                return {};
+            }
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<const T&> get() const
+        std::optional<std::reference_wrapper<const T>> get() const
         {
             impl::TypeId id = impl::type_id<T>();
 
-            return get_any(id).map([
-            ](const auto& any) -> const auto& { return any.template as<T>(); });
+            if (auto any = get_any(id)) {
+                return { any->get().template as<T>() };
+            } else {
+                return {};
+            }
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<T> remove()
+        std::optional<T> remove()
         {
             return std::move(
                 remove_any(impl::type_id<T>()).map([](core::Any any) {
@@ -146,49 +152,63 @@ namespace ecs {
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            Storage& strg = get<Storage>().unwrap_or_else([&]() -> auto& {
-                return set<Storage>();
-            });
+            auto optstrg = get<Storage>();
+
+            if (!get<Storage>().has_value()) {
+                set<Storage>();
+            }
+
+            auto& strg = get<Storage>()->get();
 
             strg.set(std::move(ent), std::forward<Args>(args)...);
 
             if (m_components.find(impl::type_id<T>()) == m_components.end()) {
                 m_components.emplace(impl::type_id<T>(), [&](EntityId ent) {
-                    return remove_component<T>(ent).is_some();
+                    return remove_component<T>(ent).has_value();
                 });
             }
 
-            return strg.get(ent).unwrap();
+            return strg.get(ent)->get();
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<T&> get_component(EntityId ent)
+        std::optional<std::reference_wrapper<T>> get_component(EntityId ent)
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>().and_then(
-                [=](Storage& strg) { return strg.get(ent); });
+            if (auto strg = get<Storage>()) {
+                return strg->get().get(ent);
+            } else {
+                return {};
+            }
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<const T&> get_component(EntityId ent) const
+        std::optional<std::reference_wrapper<const T>> get_component(
+            EntityId ent) const
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>().and_then(
-                [=](const Storage& strg) { return strg.get(ent); });
+            if (auto strg = get<Storage>()) {
+                return strg->get().get(ent);
+            } else {
+                return {};
+            }
         }
 
         template <typename T,
             typename = std::enable_if_t<std::is_object<T>::value>>
-        rtl::Option<T> remove_component(EntityId ent)
+        std::optional<T> remove_component(EntityId ent)
         {
             using Storage = typename ComponentStorage<T>::Type;
 
-            return get<Storage>().and_then(
-                [ent](Storage& strg) { return strg.remove(ent); });
+            if (auto strg = get<Storage>()) {
+                return strg->get().remove(ent);
+            } else {
+                return {};
+            }
         }
 
     private:
@@ -199,36 +219,38 @@ namespace ecs {
             return m_resources.at(id);
         }
 
-        rtl::Option<core::Any&> get_any(impl::TypeId id)
+        std::optional<std::reference_wrapper<core::Any>> get_any(
+            impl::TypeId id)
         {
             auto it = m_resources.find(id);
 
             if (it != m_resources.end()) {
-                return rtl::some(it->second);
+                return { it->second };
             } else {
                 return {};
             }
         }
 
-        rtl::Option<const core::Any&> get_any(impl::TypeId id) const
+        std::optional<std::reference_wrapper<const core::Any>> get_any(
+            impl::TypeId id) const
         {
             auto it = m_resources.find(id);
 
             if (it != m_resources.end()) {
-                return rtl::some(it->second);
+                return { it->second };
             } else {
                 return {};
             }
         }
 
-        rtl::Option<core::Any> remove_any(impl::TypeId id)
+        std::optional<core::Any> remove_any(impl::TypeId id)
         {
             auto it = m_resources.find(id);
 
             if (it != m_resources.end()) {
                 auto any = std::move(it->second);
                 m_resources.erase(id);
-                return rtl::some(std::move(any));
+                return { std::move(any) };
             } else {
                 return {};
             }

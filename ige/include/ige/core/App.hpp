@@ -13,9 +13,8 @@
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include "rtl/Option.hpp"
+#include <optional>
 #include <vector>
-
 
 namespace ige {
 namespace core {
@@ -24,16 +23,17 @@ namespace core {
     private:
         core::StateMachine m_state_machine;
         ecs::World m_world;
-        rtl::Option<ecs::Schedule> m_startup;
-        rtl::Option<ecs::Schedule> m_update;
-        rtl::Option<ecs::Schedule> m_cleanup;
+        std::optional<ecs::Schedule> m_startup;
+        std::optional<ecs::Schedule> m_update;
+        std::optional<ecs::Schedule> m_cleanup;
 
         template <typename S, typename... Args>
         static constexpr bool can_make_state = core::traits::is_state_v<S>&&
             std::is_constructible<S, Args...>::value;
 
-        App(rtl::Option<ecs::Schedule> start, rtl::Option<ecs::Schedule> update,
-            rtl::Option<ecs::Schedule> clean)
+        App(std::optional<ecs::Schedule> start,
+            std::optional<ecs::Schedule> update,
+            std::optional<ecs::Schedule> clean)
             : m_startup(std::move(start))
             , m_update(std::move(update))
             , m_cleanup(std::move(clean))
@@ -43,9 +43,9 @@ namespace core {
     public:
         class Builder {
         private:
-            rtl::Option<ecs::Schedule> m_startup;
-            rtl::Option<ecs::Schedule> m_update;
-            rtl::Option<ecs::Schedule> m_cleanup;
+            std::optional<ecs::Schedule> m_startup;
+            std::optional<ecs::Schedule> m_update;
+            std::optional<ecs::Schedule> m_cleanup;
 
         public:
             App::Builder& on_start(ecs::Schedule);

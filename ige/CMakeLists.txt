@@ -1,9 +1,3 @@
-cmake_minimum_required(VERSION 3.8)
-
-# we use C++ 14
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -30,5 +24,10 @@ set(sources ${sources}
 
 # static library
 add_library(ige STATIC ${sources})
-target_link_libraries(ige rtl)
 target_include_directories(ige PUBLIC "include")
+set_target_properties(ige
+    PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+)

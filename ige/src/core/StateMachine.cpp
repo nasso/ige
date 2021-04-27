@@ -7,8 +7,8 @@
 
 #include "ige/core/StateMachine.hpp"
 #include "ige/core/App.hpp"
-#include "rtl/Option.hpp"
-
+#include <functional>
+#include <optional>
 
 namespace ige {
 namespace core {
@@ -25,11 +25,15 @@ namespace core {
 
     void StateMachine::pop()
     {
-        current() | &State::stop;
+        if (auto cur = current()) {
+            cur->get().stop();
+        }
 
         remove_current_state();
 
-        current() | &State::resume;
+        if (auto cur = current()) {
+            cur->get().resume();
+        }
     }
 
     void StateMachine::update(App& app)
@@ -54,21 +58,22 @@ namespace core {
         return !m_states.empty();
     }
 
-    rtl::Option<State&> StateMachine::current()
+    std::optional<std::reference_wrapper<State>> StateMachine::current()
     {
         if (m_states.empty()) {
             return {};
         } else {
-            return rtl::some(**(m_states.end() - 1));
+            return { **(m_states.end() - 1) };
         }
     }
 
-    rtl::Option<const State&> StateMachine::current() const
+    std::optional<std::reference_wrapper<const State>>
+    StateMachine::current() const
     {
         if (m_states.empty()) {
             return {};
         } else {
-            return rtl::some(**(m_states.end() - 1));
+            return { **(m_states.end() - 1) };
         }
     }
 

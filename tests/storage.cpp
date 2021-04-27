@@ -27,11 +27,11 @@ TYPED_TEST(StorageTest, StorageGetEmpty)
 
     Storage storage;
 
-    ASSERT_EQ(storage.get(0), rtl::none<int>());
-    ASSERT_EQ(storage.get(1), rtl::none<int>());
-    ASSERT_EQ(storage.get(49), rtl::none<int>());
-    ASSERT_EQ(storage.get(395), rtl::none<int>());
-    ASSERT_EQ(storage.get(-42), rtl::none<int>());
+    ASSERT_FALSE(storage.get(0).has_value());
+    ASSERT_FALSE(storage.get(1).has_value());
+    ASSERT_FALSE(storage.get(49).has_value());
+    ASSERT_FALSE(storage.get(395).has_value());
+    ASSERT_FALSE(storage.get(-42).has_value());
 }
 
 TYPED_TEST(StorageTest, StorageSet)
@@ -41,11 +41,11 @@ TYPED_TEST(StorageTest, StorageSet)
     Storage storage;
 
     storage.set(0, 39);
-    ASSERT_EQ(storage.get(0), rtl::some(39));
+    ASSERT_EQ(*storage.get(0), 39);
     storage.set(3, 49);
-    ASSERT_EQ(storage.get(3), rtl::some(49));
+    ASSERT_EQ(*storage.get(3), 49);
     storage.set(9, 3);
-    ASSERT_EQ(storage.get(9), rtl::some(3));
+    ASSERT_EQ(*storage.get(9), 3);
 }
 
 TYPED_TEST(StorageTest, StorageRemove)
@@ -57,10 +57,10 @@ TYPED_TEST(StorageTest, StorageRemove)
     storage.set(0, 39);
     storage.set(3, 49);
     storage.remove(3);
-    ASSERT_EQ(storage.get(0), rtl::some(39));
-    ASSERT_EQ(storage.get(3), rtl::none<int>());
+    ASSERT_EQ(*storage.get(0), 39);
+    ASSERT_FALSE(storage.get(3).has_value());
     storage.set(3, 49);
-    ASSERT_EQ(storage.get(3), rtl::some(49));
+    ASSERT_EQ(*storage.get(3), 49);
 }
 
 TYPED_TEST(StorageTest, StorageGetConst)
@@ -72,6 +72,6 @@ TYPED_TEST(StorageTest, StorageGetConst)
 
     storage.set(0, 39);
     storage.set(3, 49);
-    ASSERT_EQ(ref.get(0), rtl::some(39));
-    ASSERT_EQ(ref.get(3), rtl::some(49));
+    ASSERT_EQ(*ref.get(0), 39);
+    ASSERT_EQ(*ref.get(3), 49);
 }

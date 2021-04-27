@@ -32,7 +32,7 @@ macro(package_add_test TESTNAME)
     # link the Google test infrastructure, mocking library, and a default main
     # fuction to the test executable.  Remove g_test_main if writing your own
     # main function.
-    target_link_libraries(${TESTNAME} rtl ige gtest gmock gtest_main)
+    target_link_libraries(${TESTNAME} ige gtest gmock gtest_main)
 
     # gtest_discover_tests replaces gtest_add_tests,
     # see https://cmake.org/cmake/help/v3.10/module/GoogleTest.html for more
@@ -44,7 +44,13 @@ macro(package_add_test TESTNAME)
         PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_DIR}"
     )
 
-    set_target_properties(${TESTNAME} PROPERTIES FOLDER tests)
+    set_target_properties(${TESTNAME}
+        PROPERTIES
+            CXX_STANDARD 17
+            CXX_STANDARD_REQUIRED ON
+            CXX_EXTENSIONS OFF
+            FOLDER tests
+    )
 endmacro()
 
 package_add_test(any any.cpp)

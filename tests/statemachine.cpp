@@ -50,7 +50,7 @@ TEST(StateMachine, SingleStateCycle)
     ASSERT_TRUE(machine.is_running());
     ASSERT_TRUE(machine.current());
 
-    auto& st = static_cast<StrictMock<MockState>&>(machine.current().unwrap());
+    auto& st = static_cast<StrictMock<MockState>&>(machine.current()->get());
 
     {
         InSequence seq;

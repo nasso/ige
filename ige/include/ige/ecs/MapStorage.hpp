@@ -8,7 +8,8 @@
 #ifndef F171BC61_6D7C_4555_A4C6_5073CCB074F3
 #define F171BC61_6D7C_4555_A4C6_5073CCB074F3
 
-#include "rtl/Option.hpp"
+#include <functional>
+#include <optional>
 #include <unordered_map>
 
 namespace ige {
@@ -34,29 +35,29 @@ namespace ecs {
                 std::forward_as_tuple(std::forward<Args>(args)...));
         }
 
-        rtl::Option<const V&> get(const K& key) const
+        std::optional<std::reference_wrapper<const V>> get(const K& key) const
         {
             auto it = m_data.find(key);
 
             if (it != m_data.end()) {
-                return rtl::some(it->second);
+                return { it->second };
             } else {
                 return {};
             }
         }
 
-        rtl::Option<V&> get(const K& key)
+        std::optional<std::reference_wrapper<V>> get(const K& key)
         {
             auto it = m_data.find(key);
 
             if (it != m_data.end()) {
-                return rtl::some(it->second);
+                return { it->second };
             } else {
                 return {};
             }
         }
 
-        rtl::Option<V> remove(const K& key)
+        std::optional<V> remove(const K& key)
         {
             auto it = m_data.find(key);
 
@@ -64,7 +65,7 @@ namespace ecs {
                 V opt = std::move(it->second);
 
                 m_data.erase(it);
-                return rtl::some(std::move(opt));
+                return { std::move(opt) };
             } else {
                 return {};
             }
