@@ -14,6 +14,7 @@
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace ige {
@@ -55,7 +56,14 @@ namespace core {
             template <typename S, typename... Args>
             std::enable_if_t<can_make_state<S, Args...>> run(Args&&... args)
             {
-                App app(m_startup.take(), m_update.take(), m_cleanup.take());
+                std::optional<ecs::Schedule> startup, update, cleanup;
+
+                m_startup.swap(startup);
+                m_update.swap(update);
+                m_cleanup.swap(cleanup);
+
+                App app(
+                    std::move(startup), std::move(update), std::move(cleanup));
 
                 app.state_machine().push<S>(std::forward<Args>(args)...);
                 app.run();

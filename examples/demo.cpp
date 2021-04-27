@@ -22,12 +22,12 @@ class RootState : public State {
         std::cout << "Hello " << counter << std::endl;
 
         if (counter >= 10) {
-            // app.quit();
+            app.quit();
         }
     }
 };
 
 int main()
 {
-    // App::Builder().run<RootState>();
+    App::Builder().run<RootState>();
 }
