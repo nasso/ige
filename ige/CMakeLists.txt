@@ -6,7 +6,6 @@ set(sources ${sources}
     "include/ige/core/App.hpp"
     "include/ige/core/State.hpp"
     "include/ige/core/StateMachine.hpp"
-    "include/ige/core/utils/bitfield.hpp"
     "include/ige/ecs.hpp"
     "include/ige/ecs/MapStorage.hpp"
     "include/ige/ecs/Schedule.hpp"
