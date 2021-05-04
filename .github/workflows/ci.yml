@@ -5,8 +5,11 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-ubuntu:
     runs-on: ubuntu-latest
+    env:
+      CC: gcc-10
+      CXX: g++-10
     steps:
       - uses: actions/checkout@v2
       - name: Configure
@@ -18,7 +21,6 @@ jobs:
         run: ctest
 
   build-epitest:
-    needs: [build]
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'refs/heads/master' }}
     container: epitechcontent/epitest-docker
@@ -33,7 +35,6 @@ jobs:
         run: ctest
 
   build-windows:
-    needs: [build]
     runs-on: windows-latest
     if: ${{ github.ref == 'refs/heads/master' }}
     steps:
