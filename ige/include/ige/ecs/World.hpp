@@ -9,7 +9,10 @@
 #define B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
 
 #include "ige/core/Any.hpp"
+#include "ige/ecs/Component.hpp"
 #include "ige/ecs/MapStorage.hpp"
+#include "ige/ecs/Resources.hpp"
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -25,13 +28,16 @@ namespace ecs {
     namespace impl {
         using TypeId = std::size_t;
 
-        template <typename T> struct type_id_ptr {
+        template <typename T>
+        struct type_id_ptr {
             static const T* const id;
         };
 
-        template <typename T> const T* const type_id_ptr<T>::id = nullptr;
+        template <typename T>
+        const T* const type_id_ptr<T>::id = nullptr;
 
-        template <typename T> constexpr TypeId type_id() noexcept
+        template <typename T>
+        constexpr TypeId type_id() noexcept
         {
             return reinterpret_cast<TypeId>(&type_id_ptr<T>::id);
         }
@@ -39,7 +45,8 @@ namespace ecs {
 
     using EntityId = std::uint64_t;
 
-    template <typename Component> struct ComponentStorage {
+    template <typename Component>
+    struct ComponentStorage {
         using Type = MapStorage<EntityId, Component>;
     };
 
@@ -54,31 +61,27 @@ namespace ecs {
             bool operator!=(const Entity&) const;
             bool remove();
 
-            template <typename T, typename... Args,
-                typename = std::enable_if_t<std::is_object<T>::value
-                    && std::is_constructible<T, Args...>::value>>
-            T& add_component(Args&&... args)
+            template <Component T, typename... Args>
+            requires std::constructible_from<T, Args...> T& add_component(
+                Args&&... args)
             {
                 return m_wld.add_component<T>(
                     m_id, std::forward<Args>(args)...);
             }
 
-            template <typename T,
-                typename = std::enable_if_t<std::is_object<T>::value>>
+            template <Component T>
             std::optional<std::reference_wrapper<T>> get_component()
             {
                 return m_wld.get_component<T>(m_id);
             }
 
-            template <typename T,
-                typename = std::enable_if_t<std::is_object<T>::value>>
+            template <Component T>
             std::optional<std::reference_wrapper<const T>> get_component() const
             {
                 return m_wld.get_component<T>(m_id);
             }
 
-            template <typename T,
-                typename = std::enable_if_t<std::is_object<T>::value>>
+            template <Component T>
             std::optional<T> remove_component()
             {
                 return m_wld.remove_component<T>(m_id);
@@ -96,10 +99,8 @@ namespace ecs {
 
         Entity create_entity();
 
-        template <typename T, typename... Args,
-            typename = std::enable_if_t<std::is_object<T>::value
-                && std::is_constructible<T, Args...>::value>>
-        T& set(Args&&... args)
+        template <Resource T, typename... Args>
+        requires std::constructible_from<T, Args...> T& set(Args&&... args)
         {
             impl::TypeId id = impl::type_id<T>();
 
@@ -107,8 +108,7 @@ namespace ecs {
                 .template as<T>();
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Resource T>
         std::optional<std::reference_wrapper<T>> get()
         {
             impl::TypeId id = impl::type_id<T>();
@@ -120,8 +120,7 @@ namespace ecs {
             }
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Resource T>
         std::optional<std::reference_wrapper<const T>> get() const
         {
             impl::TypeId id = impl::type_id<T>();
@@ -133,8 +132,7 @@ namespace ecs {
             }
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Resource T>
         std::optional<T> remove()
         {
             return std::move(
@@ -145,10 +143,9 @@ namespace ecs {
 
         bool remove_entity(EntityId);
 
-        template <typename T, typename... Args,
-            typename = std::enable_if_t<std::is_object<T>::value
-                && std::is_constructible<T, Args...>::value>>
-        T& add_component(EntityId ent, Args&&... args)
+        template <Component T, typename... Args>
+        requires std::constructible_from<T, Args...> T& add_component(
+            EntityId ent, Args&&... args)
         {
             using Storage = typename ComponentStorage<T>::Type;
 
@@ -171,8 +168,7 @@ namespace ecs {
             return strg.get(ent)->get();
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Component T>
         std::optional<std::reference_wrapper<T>> get_component(EntityId ent)
         {
             using Storage = typename ComponentStorage<T>::Type;
@@ -184,8 +180,7 @@ namespace ecs {
             }
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Component T>
         std::optional<std::reference_wrapper<const T>> get_component(
             EntityId ent) const
         {
@@ -198,8 +193,7 @@ namespace ecs {
             }
         }
 
-        template <typename T,
-            typename = std::enable_if_t<std::is_object<T>::value>>
+        template <Component T>
         std::optional<T> remove_component(EntityId ent)
         {
             using Storage = typename ComponentStorage<T>::Type;

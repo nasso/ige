@@ -27,6 +27,12 @@ namespace ecs {
         {
         }
 
+        MapStorage& operator=(MapStorage&& rhs)
+        {
+            m_data = std::move(rhs.m_data);
+            return *this;
+        }
+
         template <typename... Args>
             requires std::constructible_from<V, Args...>
         void set(K&& key, Args&&... args)

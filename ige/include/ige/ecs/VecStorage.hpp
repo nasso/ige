@@ -27,6 +27,12 @@ namespace ecs {
         {
         }
 
+        VecStorage& operator=(VecStorage&& rhs)
+        {
+            m_data = std::move(rhs.m_data);
+            return *this;
+        }
+
         template <typename... Args>
             requires std::constructible_from<T, Args...>
         void set(std::size_t idx, Args&&... args)
