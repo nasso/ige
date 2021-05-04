@@ -9,6 +9,7 @@
 #define A36D202D_24FB_4842_A4D0_ED897E9F7A2A
 
 #include "State.hpp"
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <optional>
@@ -34,10 +35,9 @@ namespace core {
          * @tparam S Type of the new state
          * @param args Constructor arguments for the new state
          */
-        template <typename S, typename... Args,
-            typename = std::enable_if_t<traits::is_state<S>::value
-                && std::is_constructible<S, Args...>::value>>
-        S& switch_to(Args&&... args)
+        template <std::derived_from<State> S, typename... Args>
+        requires std::constructible_from<S, Args...> S& switch_to(
+            Args&&... args)
         {
             if (auto cur = current()) {
                 cur->get().stop();
@@ -59,10 +59,8 @@ namespace core {
          * @tparam S Type of the new state
          * @param args Constructor arguments for the new state
          */
-        template <typename S, typename... Args,
-            typename = std::enable_if_t<traits::is_state<S>::value
-                && std::is_constructible<S, Args...>::value>>
-        S& push(Args&&... args)
+        template <std::derived_from<State> S, typename... Args>
+        requires std::constructible_from<S, Args...> S& push(Args&&... args)
         {
             if (auto cur = current()) {
                 cur->get().pause();

@@ -64,15 +64,6 @@ namespace core {
         Status m_next_status = STOPPED;
     };
 
-    namespace traits {
-        template <typename State>
-        struct is_state : public std::is_base_of<core::State, State> {
-        };
-
-        template <typename State>
-        constexpr bool is_state_v = is_state<State>::value;
-    }
-
 }
 }
 

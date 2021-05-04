@@ -13,6 +13,7 @@
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include <concepts>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -27,10 +28,6 @@ namespace core {
         std::optional<ecs::Schedule> m_startup;
         std::optional<ecs::Schedule> m_update;
         std::optional<ecs::Schedule> m_cleanup;
-
-        template <typename S, typename... Args>
-        static constexpr bool can_make_state = core::traits::is_state_v<S>&&
-            std::is_constructible<S, Args...>::value;
 
         App(std::optional<ecs::Schedule> start,
             std::optional<ecs::Schedule> update,
@@ -53,8 +50,9 @@ namespace core {
             App::Builder& on_update(ecs::Schedule);
             App::Builder& on_stop(ecs::Schedule);
 
-            template <typename S, typename... Args>
-            std::enable_if_t<can_make_state<S, Args...>> run(Args&&... args)
+            template <std::derived_from<State> S, typename... Args>
+            requires std::constructible_from<S, Args...> void run(
+                Args&&... args)
             {
                 std::optional<ecs::Schedule> startup, update, cleanup;
 
