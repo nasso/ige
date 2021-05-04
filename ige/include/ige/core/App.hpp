@@ -51,8 +51,8 @@ namespace core {
             App::Builder& on_stop(ecs::Schedule);
 
             template <std::derived_from<State> S, typename... Args>
-            requires std::constructible_from<S, Args...> void run(
-                Args&&... args)
+                requires std::constructible_from<S, Args...>
+            void run(Args&&... args)
             {
                 std::optional<ecs::Schedule> startup, update, cleanup;
 

@@ -12,7 +12,8 @@
 using ige::ecs::MapStorage;
 using ige::ecs::VecStorage;
 
-template <typename T> struct StorageTest : public testing::Test {
+template <typename T>
+struct StorageTest : public testing::Test {
     using Storage = T;
 };
 
