@@ -8,6 +8,7 @@
 #ifndef F171BC61_6D7C_4555_A4C6_5073CCB074F3
 #define F171BC61_6D7C_4555_A4C6_5073CCB074F3
 
+#include <concepts>
 #include <functional>
 #include <optional>
 #include <unordered_map>
@@ -15,7 +16,8 @@
 namespace ige {
 namespace ecs {
 
-    template <typename K, typename V> class MapStorage {
+    template <typename K, typename V>
+    class MapStorage {
     public:
         MapStorage() = default;
         virtual ~MapStorage() = default;
@@ -25,9 +27,8 @@ namespace ecs {
         {
         }
 
-        template <typename... Args,
-            typename
-            = std::enable_if_t<std::is_constructible<V, Args...>::value>>
+        template <typename... Args>
+            requires std::constructible_from<V, Args...>
         void set(K&& key, Args&&... args)
         {
             remove(key);

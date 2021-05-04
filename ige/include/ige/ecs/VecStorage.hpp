@@ -8,6 +8,7 @@
 #ifndef DB322AB1_C834_42D3_82D6_5F31BCC83A33
 #define DB322AB1_C834_42D3_82D6_5F31BCC83A33
 
+#include <concepts>
 #include <functional>
 #include <optional>
 #include <vector>
@@ -15,7 +16,8 @@
 namespace ige {
 namespace ecs {
 
-    template <typename T> class VecStorage {
+    template <typename T>
+    class VecStorage {
     public:
         VecStorage() = default;
         virtual ~VecStorage() = default;
@@ -25,9 +27,8 @@ namespace ecs {
         {
         }
 
-        template <typename... Args,
-            typename
-            = std::enable_if_t<std::is_constructible<T, Args...>::value>>
+        template <typename... Args>
+            requires std::constructible_from<T, Args...>
         void set(std::size_t idx, Args&&... args)
         {
             m_data.resize(idx + 1);
