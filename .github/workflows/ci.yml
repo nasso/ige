@@ -36,6 +36,7 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    needs: [build-epitest]
     if: ${{ github.ref == 'refs/heads/master' }}
     steps:
       - uses: actions/checkout@v2
