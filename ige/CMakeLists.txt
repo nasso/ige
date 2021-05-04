@@ -25,10 +25,20 @@ set(sources ${sources}
 
 # static library
 add_library(ige STATIC ${sources})
-target_include_directories(ige PUBLIC "include")
+target_include_directories(ige
+    PRIVATE "include"
+    SYSTEM INTERFACE "include"
+)
 set_target_properties(ige
     PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
+)
+target_compile_options(ige
+    PRIVATE
+        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:
+            -Wall -Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:
+            /W4>
 )
