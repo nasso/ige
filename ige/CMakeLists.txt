@@ -14,6 +14,12 @@ set(sources ${sources}
     "include/ige/ecs/System.hpp"
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
+    "include/ige/game.hpp"
+    "include/ige/game/PerspectiveCamera.hpp"
+    "include/ige/game/Transform.hpp"
+    "include/ige/math.hpp"
+    "include/ige/math/Vector.hpp"
+
     "src/core/Any.cpp"
     "src/core/App.cpp"
     "src/core/State.cpp"
