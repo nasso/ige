@@ -1,4 +1,3 @@
-
 #include "ige/core/App.hpp"
 #include <optional>
 

@@ -1,4 +1,3 @@
-
 #include "ige/core/State.hpp"
 #include "ige/core/App.hpp"
 #include "gmock/gmock.h"

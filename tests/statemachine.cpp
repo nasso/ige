@@ -1,4 +1,3 @@
-
 #include "ige/core/StateMachine.hpp"
 #include "ige/core/App.hpp"
 #include "ige/core/State.hpp"

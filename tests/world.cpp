@@ -1,4 +1,3 @@
-
 #include "ige/ecs/World.hpp"
 #include "ige/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"

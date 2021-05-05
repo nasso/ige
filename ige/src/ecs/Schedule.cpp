@@ -1,4 +1,3 @@
-
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"

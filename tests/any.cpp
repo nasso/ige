@@ -1,4 +1,3 @@
-
 #include "ige/core/Any.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

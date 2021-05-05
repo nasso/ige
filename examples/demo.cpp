@@ -1,4 +1,3 @@
-
 #include "ige.hpp"
 #include <iostream>
 

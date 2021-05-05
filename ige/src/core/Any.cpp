@@ -1,4 +1,3 @@
-
 #include "ige/core/Any.hpp"
 
 namespace ige {

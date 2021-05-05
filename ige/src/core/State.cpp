@@ -1,4 +1,3 @@
-
 #include "ige/core/State.hpp"
 
 namespace ige {

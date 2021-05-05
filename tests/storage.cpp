@@ -1,4 +1,3 @@
-
 #include "ige/ecs/MapStorage.hpp"
 #include "ige/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
