@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Transform
-*/
-
 #ifndef F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 #define F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 

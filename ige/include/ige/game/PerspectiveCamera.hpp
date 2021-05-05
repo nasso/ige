@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** PerspectiveCamera
-*/
-
 #ifndef D8BF3E52_E300_4A34_B8B5_1446D343CF26
 #define D8BF3E52_E300_4A34_B8B5_1446D343CF26
 

@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Vector
-*/
-
 #ifndef C198ABD2_597E_4EDC_A112_EE5F956C57EE
 #define C198ABD2_597E_4EDC_A112_EE5F956C57EE
 
