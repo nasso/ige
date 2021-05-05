@@ -52,13 +52,13 @@ namespace ecs {
 
     class World {
     public:
-        class Entity {
+        class EntityRef {
         public:
-            Entity(World&, EntityId);
-            Entity(const Entity&) = default;
+            EntityRef(World&, EntityId);
+            EntityRef(const EntityRef&) = default;
 
-            bool operator==(const Entity&) const;
-            bool operator!=(const Entity&) const;
+            bool operator==(const EntityRef&) const;
+            bool operator!=(const EntityRef&) const;
             bool remove();
 
             template <Component T, typename... Args>
@@ -97,7 +97,7 @@ namespace ecs {
             EntityId m_id;
         };
 
-        Entity create_entity();
+        EntityRef create_entity();
 
         template <Resource T, typename... Args>
         requires std::constructible_from<T, Args...> T& set(Args&&... args)

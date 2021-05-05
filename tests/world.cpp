@@ -27,7 +27,7 @@ TEST(WorldTest, Spawn)
 {
     World world;
 
-    World::Entity entities[] = {
+    World::EntityRef entities[] = {
         world.create_entity(),
         world.create_entity(),
         world.create_entity(),
@@ -183,7 +183,7 @@ TEST(WorldTest, CustomStorage)
 {
     World world;
 
-    World::Entity ent[] = {
+    World::EntityRef ent[] = {
         world.create_entity(),
         world.create_entity(),
         world.create_entity(),
