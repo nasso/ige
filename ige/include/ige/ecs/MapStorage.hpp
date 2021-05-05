@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** MapStorage
-*/
 
 #ifndef F171BC61_6D7C_4555_A4C6_5073CCB074F3
 #define F171BC61_6D7C_4555_A4C6_5073CCB074F3

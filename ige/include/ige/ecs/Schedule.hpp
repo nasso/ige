@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Schedule
-*/
 
 #ifndef C36AD5E7_BDB7_4987_A83E_C6A2BB423A01
 #define C36AD5E7_BDB7_4987_A83E_C6A2BB423A01

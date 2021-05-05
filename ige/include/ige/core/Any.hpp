@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Any
-*/
 
 #ifndef E2CD97D4_79A5_42B2_90CA_A083F9A9451D
 #define E2CD97D4_79A5_42B2_90CA_A083F9A9451D

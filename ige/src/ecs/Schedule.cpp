@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Schedule
-*/
 
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"

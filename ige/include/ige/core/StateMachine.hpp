@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** StateMachine
-*/
 
 #ifndef A36D202D_24FB_4842_A4D0_ED897E9F7A2A
 #define A36D202D_24FB_4842_A4D0_ED897E9F7A2A

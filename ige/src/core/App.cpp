@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** App
-*/
 
 #include "ige/core/App.hpp"
 #include <optional>

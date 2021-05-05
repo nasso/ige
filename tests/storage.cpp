@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** test
-*/
 
 #include "ige/ecs/MapStorage.hpp"
 #include "ige/ecs/VecStorage.hpp"

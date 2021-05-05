@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** any
-*/
 
 #include "ige/core/Any.hpp"
 #include "gmock/gmock.h"

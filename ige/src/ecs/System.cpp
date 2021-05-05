@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** System
-*/
 
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"

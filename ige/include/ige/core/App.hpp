@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** App
-*/
 
 #ifndef F7EA1363_932A_4910_8D9B_4CA25912EBED
 #define F7EA1363_932A_4910_8D9B_4CA25912EBED

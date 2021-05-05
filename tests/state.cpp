@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** state
-*/
 
 #include "ige/core/State.hpp"
 #include "ige/core/App.hpp"

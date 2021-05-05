@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** statemachine
-*/
 
 #include "ige/core/StateMachine.hpp"
 #include "ige/core/App.hpp"

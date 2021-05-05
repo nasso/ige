@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** State
-*/
 
 #ifndef CAE73E4C_C36A_49DD_BEE3_0F01F323198A
 #define CAE73E4C_C36A_49DD_BEE3_0F01F323198A

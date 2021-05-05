@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** System
-*/
 
 #ifndef FE472698_E495_4B4C_95C4_2F2A646A84F5
 #define FE472698_E495_4B4C_95C4_2F2A646A84F5

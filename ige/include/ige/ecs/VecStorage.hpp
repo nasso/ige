@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** VecStorage
-*/
 
 #ifndef DB322AB1_C834_42D3_82D6_5F31BCC83A33
 #define DB322AB1_C834_42D3_82D6_5F31BCC83A33

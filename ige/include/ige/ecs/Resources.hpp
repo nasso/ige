@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** Resources
-*/
 
 #ifndef A0B328C5_412E_4F22_A2FB_18A5C0CBD2F6
 #define A0B328C5_412E_4F22_A2FB_18A5C0CBD2F6

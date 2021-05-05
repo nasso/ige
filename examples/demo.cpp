@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** demo
-*/
 
 #include "ige.hpp"
 #include <iostream>

@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** ecs
-*/
 
 #ifndef ACD1A8AC_AE17_4757_A597_433E6FF3097E
 #define ACD1A8AC_AE17_4757_A597_433E6FF3097E

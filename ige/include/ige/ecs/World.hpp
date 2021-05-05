@@ -1,9 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** World
-*/
 
 #ifndef B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
 #define B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
