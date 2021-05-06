@@ -40,14 +40,14 @@ namespace ecs {
             template <Component C>
             C& add_component(C comp)
             {
-                return emplace_component<C>(std::move(comp));
+                return m_wld->add_component(m_id, std::move(comp));
             }
 
             template <Component T, typename... Args>
             requires std::constructible_from<T, Args...> T& emplace_component(
                 Args&&... args)
             {
-                return m_wld->add_component<T>(
+                return m_wld->emplace_component<T>(
                     m_id, std::forward<Args>(args)...);
             }
 
@@ -108,8 +108,14 @@ namespace ecs {
             return m_resources.remove<T>();
         }
 
+        template <Component C>
+        C& add_component(EntityId ent, C comp)
+        {
+            return emplace_component<C>(ent, std::move(comp));
+        }
+
         template <Component T, typename... Args>
-        requires std::constructible_from<T, Args...> T& add_component(
+        requires std::constructible_from<T, Args...> T& emplace_component(
             EntityId ent, Args&&... args)
         {
             using Storage = typename ComponentStorage<T>::Type;
