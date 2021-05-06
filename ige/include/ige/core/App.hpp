@@ -3,6 +3,7 @@
 
 #include "ige/core/State.hpp"
 #include "ige/core/StateMachine.hpp"
+#include "ige/ecs/Resources.hpp"
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
@@ -22,46 +23,51 @@ namespace core {
         std::optional<ecs::Schedule> m_update;
         std::optional<ecs::Schedule> m_cleanup;
 
-        App(std::optional<ecs::Schedule> start,
-            std::optional<ecs::Schedule> update,
-            std::optional<ecs::Schedule> clean)
-            : m_startup(std::move(start))
-            , m_update(std::move(update))
-            , m_cleanup(std::move(clean))
-        {
-        }
-
     public:
         class Builder {
         private:
             std::optional<ecs::Schedule> m_startup;
             std::optional<ecs::Schedule> m_update;
             std::optional<ecs::Schedule> m_cleanup;
+            ecs::Resources m_res;
 
         public:
             App::Builder& on_start(ecs::Schedule);
             App::Builder& on_update(ecs::Schedule);
             App::Builder& on_stop(ecs::Schedule);
 
+            template <ecs::Resource R>
+            App::Builder& insert(R res)
+            {
+                m_res.insert(res);
+                return *this;
+            }
+
+            template <ecs::Resource R, typename... Args>
+            requires std::constructible_from<R, Args...> App::Builder& emplace(
+                Args&&... args)
+            {
+                m_res.set<R>(std::forward<Args>(args)...);
+                return *this;
+            }
+
             template <std::derived_from<State> S, typename... Args>
                 requires std::constructible_from<S, Args...>
             void run(Args&&... args)
             {
-                std::optional<ecs::Schedule> startup, update, cleanup;
+                App app(std::move(m_res));
+                m_res = ecs::Resources();
 
-                m_startup.swap(startup);
-                m_update.swap(update);
-                m_cleanup.swap(cleanup);
-
-                App app(
-                    std::move(startup), std::move(update), std::move(cleanup));
+                app.m_startup.swap(m_startup);
+                app.m_update.swap(m_update);
+                app.m_cleanup.swap(m_cleanup);
 
                 app.state_machine().push<S>(std::forward<Args>(args)...);
                 app.run();
             }
         };
 
-        App() = default;
+        App(ecs::Resources = {});
 
         ecs::World& world();
         const ecs::World& world() const;

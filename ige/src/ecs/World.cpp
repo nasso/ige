@@ -1,7 +1,13 @@
 #include "ige/ecs/World.hpp"
+#include "ige/ecs/Resources.hpp"
 
 namespace ige {
 namespace ecs {
+
+    World::World(Resources res)
+        : m_resources(std::move(res))
+    {
+    }
 
     World::EntityRef::EntityRef(World& wld, EntityId id)
         : m_wld(&wld)

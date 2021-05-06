@@ -1,8 +1,14 @@
 #include "ige/core/App.hpp"
+#include "ige/ecs/Resources.hpp"
 #include <optional>
 
 namespace ige {
 namespace core {
+
+    App::App(ecs::Resources res)
+        : m_world(std::move(res))
+    {
+    }
 
     App::Builder& App::Builder::on_start(ecs::Schedule sch)
     {

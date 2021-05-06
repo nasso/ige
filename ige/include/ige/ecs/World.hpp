@@ -18,24 +18,6 @@
 namespace ige {
 namespace ecs {
 
-    namespace impl {
-        using TypeId = std::size_t;
-
-        template <typename T>
-        struct type_id_ptr {
-            static const T* const id;
-        };
-
-        template <typename T>
-        const T* const type_id_ptr<T>::id = nullptr;
-
-        template <typename T>
-        constexpr TypeId type_id() noexcept
-        {
-            return reinterpret_cast<TypeId>(&type_id_ptr<T>::id);
-        }
-    }
-
     using EntityId = std::uint64_t;
 
     template <Component C>
@@ -91,51 +73,34 @@ namespace ecs {
             EntityId m_id;
         };
 
+        World(Resources = {});
+
         EntityRef create_entity();
+        bool remove_entity(EntityId);
 
         template <Resource T, typename... Args>
         requires std::constructible_from<T, Args...> T& set(Args&&... args)
         {
-            impl::TypeId id = impl::type_id<T>();
-
-            return set_any(id, core::Any::from<T>(std::forward<Args>(args)...))
-                .template as<T>();
+            return m_resources.set<T>(std::forward<Args>(args)...);
         }
 
         template <Resource T>
         std::optional<std::reference_wrapper<T>> get()
         {
-            impl::TypeId id = impl::type_id<T>();
-
-            if (auto any = get_any(id)) {
-                return { any->get().template as<T>() };
-            } else {
-                return {};
-            }
+            return m_resources.get<T>();
         }
 
         template <Resource T>
         std::optional<std::reference_wrapper<const T>> get() const
         {
-            impl::TypeId id = impl::type_id<T>();
-
-            if (auto any = get_any(id)) {
-                return { any->get().template as<T>() };
-            } else {
-                return {};
-            }
+            return m_resources.get<T>();
         }
 
         template <Resource T>
         std::optional<T> remove()
         {
-            return std::move(
-                remove_any(impl::type_id<T>()).map([](core::Any any) {
-                    return std::move(any.template as<T>());
-                }));
+            return m_resources.remove<T>();
         }
-
-        bool remove_entity(EntityId);
 
         template <Component T, typename... Args>
         requires std::constructible_from<T, Args...> T& add_component(
@@ -200,55 +165,11 @@ namespace ecs {
         }
 
     private:
-        core::Any& set_any(impl::TypeId id, core::Any any)
-        {
-            m_resources.erase(id);
-            m_resources.insert(std::make_pair(id, std::move(any)));
-            return m_resources.at(id);
-        }
-
-        std::optional<std::reference_wrapper<core::Any>> get_any(
-            impl::TypeId id)
-        {
-            auto it = m_resources.find(id);
-
-            if (it != m_resources.end()) {
-                return { it->second };
-            } else {
-                return {};
-            }
-        }
-
-        std::optional<std::reference_wrapper<const core::Any>> get_any(
-            impl::TypeId id) const
-        {
-            auto it = m_resources.find(id);
-
-            if (it != m_resources.end()) {
-                return { it->second };
-            } else {
-                return {};
-            }
-        }
-
-        std::optional<core::Any> remove_any(impl::TypeId id)
-        {
-            auto it = m_resources.find(id);
-
-            if (it != m_resources.end()) {
-                auto any = std::move(it->second);
-                m_resources.erase(id);
-                return { std::move(any) };
-            } else {
-                return {};
-            }
-        }
-
         using CompRemover = std::function<bool(EntityId)>;
 
         EntityId m_last_entity = 0;
         std::unordered_map<impl::TypeId, CompRemover> m_components;
-        std::unordered_map<impl::TypeId, core::Any> m_resources;
+        Resources m_resources;
     };
 
 }
