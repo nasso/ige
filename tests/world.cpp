@@ -186,10 +186,8 @@ TEST(WorldTest, CustomStorage)
     ent[1].emplace_component<Vectorized>();
     ent[2].emplace_component<Vectorized>();
 
-    ASSERT_TRUE(world.get<VecStorage<Vectorized>>().has_value());
-
-    // auto& strg = world.get<VecStorage<Vectorized>>().unwrap();
-    // ASSERT_TRUE(strg.get(ent[0]).is_some());
-    // ASSERT_TRUE(strg.get(ent[1]).is_some());
-    // ASSERT_TRUE(strg.get(ent[2]).is_some());
+    auto& strg = world.get<VecStorage<Vectorized>>()->get();
+    ASSERT_TRUE(strg.get(ent[0].id()).has_value());
+    ASSERT_TRUE(strg.get(ent[1].id()).has_value());
+    ASSERT_TRUE(strg.get(ent[2].id()).has_value());
 }
