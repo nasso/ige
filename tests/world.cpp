@@ -67,11 +67,11 @@ TEST(WorldTest, AddComponent)
 
     auto ent = world.create_entity();
 
-    ASSERT_EQ(ent.add_component<std::string>("hello"), "hello");
-    ASSERT_EQ(ent.add_component<int>(65), 65);
-    ASSERT_EQ(ent.add_component<float>(48.3f), 48.3f);
-    ASSERT_EQ(ent.add_component<double>(), 0);
-    ASSERT_EQ((ent.add_component<std::pair<int, int>>(38, 19)),
+    ASSERT_EQ(ent.emplace_component<std::string>("hello"), "hello");
+    ASSERT_EQ(ent.emplace_component<int>(65), 65);
+    ASSERT_EQ(ent.emplace_component<float>(48.3f), 48.3f);
+    ASSERT_EQ(ent.emplace_component<double>(), 0);
+    ASSERT_EQ((ent.emplace_component<std::pair<int, int>>(38, 19)),
         std::make_pair(38, 19));
 }
 
@@ -81,11 +81,11 @@ TEST(WorldTest, GetComponent)
 
     auto ent = world.create_entity();
 
-    ent.add_component<std::string>("hello");
-    ent.add_component<int>(65);
-    ent.add_component<float>(48.3f);
-    ent.add_component<double>();
-    ent.add_component<std::pair<int, int>>(38, 19);
+    ent.emplace_component<std::string>("hello");
+    ent.emplace_component<int>(65);
+    ent.emplace_component<float>(48.3f);
+    ent.emplace_component<double>();
+    ent.emplace_component<std::pair<int, int>>(38, 19);
 
     ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
     ASSERT_EQ(ent.get_component<int>()->get(), 65);
@@ -102,11 +102,11 @@ TEST(WorldTest, GetComponentConst)
 
     auto ent = world.create_entity();
 
-    ent.add_component<std::string>("hello");
-    ent.add_component<int>(65);
-    ent.add_component<float>(48.3f);
-    ent.add_component<double>();
-    ent.add_component<std::pair<int, int>>(38, 19);
+    ent.emplace_component<std::string>("hello");
+    ent.emplace_component<int>(65);
+    ent.emplace_component<float>(48.3f);
+    ent.emplace_component<double>();
+    ent.emplace_component<std::pair<int, int>>(38, 19);
 
     const World& ref = world;
 
@@ -125,11 +125,11 @@ TEST(WorldTest, RemoveComponent)
 
     auto ent = world.create_entity();
 
-    ent.add_component<std::string>("hello");
-    ent.add_component<int>(65);
-    ent.add_component<float>(48.3f);
-    ent.add_component<double>();
-    ent.add_component<std::pair<int, int>>(38, 19);
+    ent.emplace_component<std::string>("hello");
+    ent.emplace_component<int>(65);
+    ent.emplace_component<float>(48.3f);
+    ent.emplace_component<double>();
+    ent.emplace_component<std::pair<int, int>>(38, 19);
 
     ASSERT_EQ(*ent.remove_component<std::string>(), "hello");
     ASSERT_EQ(*ent.remove_component<int>(), 65);
@@ -149,11 +149,11 @@ TEST(WorldTest, RemoveEntity)
 
     auto ent = world.create_entity();
 
-    ent.add_component<std::string>("hello");
-    ent.add_component<int>(65);
-    ent.add_component<float>(48.3f);
-    ent.add_component<double>();
-    ent.add_component<std::pair<int, int>>(38, 19);
+    ent.emplace_component<std::string>("hello");
+    ent.emplace_component<int>(65);
+    ent.emplace_component<float>(48.3f);
+    ent.emplace_component<double>();
+    ent.emplace_component<std::pair<int, int>>(38, 19);
 
     ent.remove();
 
@@ -182,9 +182,9 @@ TEST(WorldTest, CustomStorage)
         world.create_entity(),
     };
 
-    ent[0].add_component<Vectorized>();
-    ent[1].add_component<Vectorized>();
-    ent[2].add_component<Vectorized>();
+    ent[0].emplace_component<Vectorized>();
+    ent[1].emplace_component<Vectorized>();
+    ent[2].emplace_component<Vectorized>();
 
     ASSERT_TRUE(world.get<VecStorage<Vectorized>>().has_value());
 

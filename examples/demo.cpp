@@ -16,9 +16,8 @@ class RootState : public State {
     {
         auto camera = app.world().create_entity();
 
-        camera.add_component<Transform>(
-            Transform::look_at(Vec3(3.0f), Vec3(0.0f)));
-        camera.add_component<PerspectiveCamera>(90.0f);
+        camera.add_component(Transform::look_at(Vec3(3.0f), Vec3(0.0f)));
+        camera.add_component(PerspectiveCamera(90.0f));
     }
 
     void on_update(App& app) override

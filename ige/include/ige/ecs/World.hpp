@@ -37,8 +37,14 @@ namespace ecs {
             bool operator!=(const EntityRef&) const;
             bool remove();
 
+            template <Component C>
+            C& add_component(C comp)
+            {
+                return emplace_component<C>(std::move(comp));
+            }
+
             template <Component T, typename... Args>
-            requires std::constructible_from<T, Args...> T& add_component(
+            requires std::constructible_from<T, Args...> T& emplace_component(
                 Args&&... args)
             {
                 return m_wld->add_component<T>(
