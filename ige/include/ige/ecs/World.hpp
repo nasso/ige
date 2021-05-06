@@ -38,9 +38,9 @@ namespace ecs {
 
     using EntityId = std::uint64_t;
 
-    template <typename Component>
+    template <Component C>
     struct ComponentStorage {
-        using Type = MapStorage<EntityId, Component>;
+        using Type = MapStorage<EntityId, C>;
     };
 
     class World {
