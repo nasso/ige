@@ -47,7 +47,7 @@ namespace core {
             requires std::constructible_from<R, Args...> App::Builder& emplace(
                 Args&&... args)
             {
-                m_res.set<R>(std::forward<Args>(args)...);
+                m_res.emplace<R>(std::forward<Args>(args)...);
                 return *this;
             }
 

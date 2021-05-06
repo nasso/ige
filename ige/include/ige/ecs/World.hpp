@@ -81,7 +81,7 @@ namespace ecs {
         template <Resource T, typename... Args>
         requires std::constructible_from<T, Args...> T& set(Args&&... args)
         {
-            return m_resources.set<T>(std::forward<Args>(args)...);
+            return m_resources.emplace<T>(std::forward<Args>(args)...);
         }
 
         template <Resource T>

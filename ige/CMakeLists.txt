@@ -17,6 +17,7 @@ set(sources ${sources}
     "include/ige/game.hpp"
     "include/ige/game/PerspectiveCamera.hpp"
     "include/ige/game/Transform.hpp"
+    "include/ige/game/WindowSettings.hpp"
     "include/ige/math.hpp"
     "include/ige/math/Vector.hpp"
 

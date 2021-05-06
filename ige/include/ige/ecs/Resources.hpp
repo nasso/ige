@@ -43,7 +43,7 @@ namespace ecs {
         }
 
         template <Resource T, typename... Args>
-        requires std::constructible_from<T, Args...> T& set(Args&&... args)
+        requires std::constructible_from<T, Args...> T& emplace(Args&&... args)
         {
             impl::TypeId id = impl::type_id<T>();
 

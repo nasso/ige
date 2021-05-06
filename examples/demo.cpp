@@ -6,6 +6,7 @@ using ige::core::State;
 using ige::ecs::Schedule;
 using ige::game::PerspectiveCamera;
 using ige::game::Transform;
+using ige::game::WindowSettings;
 using ige::math::Vec3;
 
 class RootState : public State {
@@ -14,7 +15,6 @@ class RootState : public State {
     void on_start(App& app) override
     {
         auto camera = app.world().create_entity();
-        auto cube = app.world().create_entity();
 
         camera.add_component<Transform>(
             Transform::look_at(Vec3(3.0f), Vec3(0.0f)));
@@ -35,5 +35,7 @@ class RootState : public State {
 
 int main()
 {
-    App::Builder().run<RootState>();
+    App::Builder()
+        .insert(WindowSettings { "Hello, World!", 800, 600 })
+        .run<RootState>();
 }
