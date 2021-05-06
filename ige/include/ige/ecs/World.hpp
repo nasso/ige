@@ -49,6 +49,7 @@ namespace ecs {
         public:
             EntityRef(World&, EntityId);
             EntityRef(const EntityRef&) = default;
+            EntityRef& operator=(const EntityRef&) = default;
 
             bool operator==(const EntityRef&) const;
             bool operator!=(const EntityRef&) const;
@@ -58,26 +59,26 @@ namespace ecs {
             requires std::constructible_from<T, Args...> T& add_component(
                 Args&&... args)
             {
-                return m_wld.add_component<T>(
+                return m_wld->add_component<T>(
                     m_id, std::forward<Args>(args)...);
             }
 
             template <Component T>
             std::optional<std::reference_wrapper<T>> get_component()
             {
-                return m_wld.get_component<T>(m_id);
+                return m_wld->get_component<T>(m_id);
             }
 
             template <Component T>
             std::optional<std::reference_wrapper<const T>> get_component() const
             {
-                return m_wld.get_component<T>(m_id);
+                return m_wld->get_component<T>(m_id);
             }
 
             template <Component T>
             std::optional<T> remove_component()
             {
-                return m_wld.remove_component<T>(m_id);
+                return m_wld->remove_component<T>(m_id);
             }
 
             EntityId id()
@@ -86,7 +87,7 @@ namespace ecs {
             }
 
         private:
-            World& m_wld;
+            World* m_wld;
             EntityId m_id;
         };
 
