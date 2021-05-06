@@ -35,22 +35,22 @@ TEST(WorldTest, SetResource)
 {
     World world;
 
-    world.set<std::string>("hello");
-    world.set<int>(65);
-    world.set<float>(48.3f);
-    world.set<double>();
-    world.set<std::pair<int, int>>(38, 19);
+    world.emplace<std::string>("hello");
+    world.emplace<int>(65);
+    world.emplace<float>(48.3f);
+    world.emplace<double>();
+    world.emplace<std::pair<int, int>>(38, 19);
 }
 
 TEST(WorldTest, GetResource)
 {
     World world;
 
-    world.set<std::string>("hello");
-    world.set<int>(65);
-    world.set<float>(48.3f);
-    world.set<double>();
-    world.set<std::pair<int, int>>(38, 19);
+    world.emplace<std::string>("hello");
+    world.emplace<int>(65);
+    world.emplace<float>(48.3f);
+    world.emplace<double>();
+    world.emplace<std::pair<int, int>>(38, 19);
 
     ASSERT_EQ(world.get<std::string>()->get(), "hello");
     ASSERT_EQ(world.get<int>()->get(), 65);

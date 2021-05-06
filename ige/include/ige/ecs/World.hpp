@@ -84,8 +84,14 @@ namespace ecs {
         EntityRef create_entity();
         bool remove_entity(EntityId);
 
+        template <Resource R>
+        R& insert(R res)
+        {
+            return m_resources.insert(std::move(res));
+        }
+
         template <Resource T, typename... Args>
-        requires std::constructible_from<T, Args...> T& set(Args&&... args)
+        requires std::constructible_from<T, Args...> T& emplace(Args&&... args)
         {
             return m_resources.emplace<T>(std::forward<Args>(args)...);
         }
@@ -123,7 +129,7 @@ namespace ecs {
             auto optstrg = get<Storage>();
 
             if (!get<Storage>().has_value()) {
-                set<Storage>();
+                emplace<Storage>();
             }
 
             auto& strg = get<Storage>()->get();
