@@ -21,6 +21,12 @@ namespace core {
     {
     }
 
+    App::Builder& App::Builder::add_plugin(const App::Plugin& plugin)
+    {
+        plugin.plug(*this);
+        return *this;
+    }
+
     App::Builder& App::Builder::add_startup_system(ecs::System sys)
     {
         m_startup.add_system(sys);

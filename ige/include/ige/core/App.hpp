@@ -24,6 +24,13 @@ namespace core {
         ecs::Schedule m_cleanup;
 
     public:
+        class Builder;
+
+        class Plugin {
+        public:
+            virtual void plug(Builder&) const = 0;
+        };
+
         class Builder {
         private:
             ecs::Schedule::Builder m_startup;
@@ -32,6 +39,7 @@ namespace core {
             ecs::Resources m_res;
 
         public:
+            App::Builder& add_plugin(const Plugin&);
             App::Builder& add_startup_system(ecs::System);
             App::Builder& add_system(ecs::System);
             App::Builder& add_cleanup_system(ecs::System);

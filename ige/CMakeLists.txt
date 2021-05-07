@@ -17,6 +17,7 @@ set(sources ${sources}
     "include/ige/ecs/World.hpp"
     "include/ige/game.hpp"
     "include/ige/game/PerspectiveCamera.hpp"
+    "include/ige/game/RenderingPlugin.hpp"
     "include/ige/game/Transform.hpp"
     "include/ige/game/WindowSettings.hpp"
     "include/ige/math.hpp"
@@ -29,6 +30,7 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/game/RenderingPlugin.cpp"
 )
 
 # static library

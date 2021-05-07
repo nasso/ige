@@ -5,6 +5,7 @@ using ige::core::App;
 using ige::core::State;
 using ige::ecs::Schedule;
 using ige::game::PerspectiveCamera;
+using ige::game::RenderingPlugin;
 using ige::game::Transform;
 using ige::game::WindowSettings;
 using ige::math::Vec3;
@@ -35,6 +36,7 @@ class RootState : public State {
 int main()
 {
     App::Builder()
+        .add_plugin(RenderingPlugin {})
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .run<RootState>();
 }
