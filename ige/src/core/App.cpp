@@ -1,30 +1,41 @@
 #include "ige/core/App.hpp"
 #include "ige/ecs/Resources.hpp"
+#include "ige/ecs/Schedule.hpp"
+#include "ige/ecs/System.hpp"
 #include <optional>
 
 namespace ige {
 namespace core {
+
+    App::App(ecs::Resources res, ecs::Schedule on_start,
+        ecs::Schedule on_update, ecs::Schedule on_cleanup)
+        : m_world(std::move(res))
+        , m_startup(std::move(on_start))
+        , m_update(std::move(on_update))
+        , m_cleanup(std::move(on_cleanup))
+    {
+    }
 
     App::App(ecs::Resources res)
         : m_world(std::move(res))
     {
     }
 
-    App::Builder& App::Builder::on_start(ecs::Schedule sch)
+    App::Builder& App::Builder::add_startup_system(ecs::System sys)
     {
-        m_startup = sch;
+        m_startup.add_system(sys);
         return *this;
     }
 
-    App::Builder& App::Builder::on_update(ecs::Schedule sch)
+    App::Builder& App::Builder::add_system(ecs::System sys)
     {
-        m_update = sch;
+        m_update.add_system(sys);
         return *this;
     }
 
-    App::Builder& App::Builder::on_stop(ecs::Schedule sch)
+    App::Builder& App::Builder::add_cleanup_system(ecs::System sys)
     {
-        m_cleanup = sch;
+        m_cleanup.add_system(sys);
         return *this;
     }
 
@@ -50,20 +61,14 @@ namespace core {
 
     void App::run()
     {
-        if (m_startup) {
-            (*m_startup)(m_world);
-        }
+        m_startup(m_world);
 
         while (m_state_machine.is_running()) {
             m_state_machine.update(*this);
-            if (m_update) {
-                (*m_update)(m_world);
-            }
+            m_update(m_world);
         }
 
-        if (m_cleanup) {
-            (*m_cleanup)(m_world);
-        }
+        m_cleanup(m_world);
     }
 
     void App::quit()
