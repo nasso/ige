@@ -24,7 +24,6 @@ jobs:
 
   build-epitest:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
     container: epitechcontent/epitest-docker
     steps:
       - uses: actions/checkout@v2
