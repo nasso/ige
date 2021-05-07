@@ -78,11 +78,13 @@ namespace ecs {
         template <Resource T>
         std::optional<T> remove()
         {
-            // TODO: fix this lol
-            return std::move(
-                remove_any(impl::type_id<T>()).map([](core::Any any) {
-                    return std::move(any.template as<T>());
-                }));
+            impl::TypeId id = impl::type_id<T>();
+
+            if (auto any = remove_any(id)) {
+                return { std::move(any->template as<T>()) };
+            } else {
+                return {};
+            }
         }
 
     private:
