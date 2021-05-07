@@ -38,6 +38,7 @@ set(sources ${sources}
     "include/ige/game/PerspectiveCamera.hpp"
     "include/ige/game/RenderingPlugin.hpp"
     "include/ige/game/Transform.hpp"
+    "include/ige/game/WindowingPlugin.hpp"
     "include/ige/game/WindowSettings.hpp"
     "include/ige/math.hpp"
     "include/ige/math/Vector.hpp"
@@ -50,6 +51,7 @@ set(sources ${sources}
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
     "src/game/RenderingPlugin.cpp"
+    "src/game/WindowingPlugin.cpp"
 )
 
 # static library
@@ -63,6 +65,7 @@ set_target_properties(ige
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
+        COMPILE_DEFINITIONS IGE_OPENGL
 )
 target_compile_options(ige
     PRIVATE

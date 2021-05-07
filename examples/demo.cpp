@@ -7,12 +7,11 @@ using ige::ecs::Schedule;
 using ige::game::PerspectiveCamera;
 using ige::game::RenderingPlugin;
 using ige::game::Transform;
+using ige::game::WindowingPlugin;
 using ige::game::WindowSettings;
 using ige::math::Vec3;
 
 class RootState : public State {
-    int counter = 0;
-
     void on_start(App& app) override
     {
         auto camera = app.world().create_entity();
@@ -23,12 +22,10 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        counter++;
-
-        std::cout << "Hello " << counter << std::endl;
-
-        if (counter >= 10) {
-            app.quit();
+        if (auto msg = app.world().get<int>()) {
+            if (msg->get() == 0xD1E) {
+                app.quit();
+            }
         }
     }
 };
@@ -36,6 +33,7 @@ class RootState : public State {
 int main()
 {
     App::Builder()
+        .add_plugin(WindowingPlugin {})
         .add_plugin(RenderingPlugin {})
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .run<RootState>();
