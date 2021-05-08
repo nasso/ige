@@ -4,6 +4,7 @@ set(sources ${sources}
     "include/ige/core.hpp"
     "include/ige/core/Any.hpp"
     "include/ige/core/App.hpp"
+    "include/ige/core/EventChannel.hpp"
     "include/ige/core/State.hpp"
     "include/ige/core/StateMachine.hpp"
     "include/ige/ecs.hpp"
