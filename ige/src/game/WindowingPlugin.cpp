@@ -1,8 +1,8 @@
 #include "ige/game/WindowingPlugin.hpp"
 #include "ige/core/App.hpp"
+#include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include "ige/game/WindowSettings.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -14,8 +14,11 @@
 #endif
 
 using ige::core::App;
+using ige::core::EventChannel;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::game::WindowEvent;
+using ige::game::WindowEventKind;
 using ige::game::WindowingPlugin;
 using ige::game::WindowSettings;
 
@@ -90,9 +93,14 @@ static void update_window_system(World& wld)
 
     GLFWwindow* win = win_ref->get();
     if (glfwWindowShouldClose(win)) {
-        // TODO
-        wld.insert<int>(0xD1E);
+        if (auto channel = wld.get<EventChannel<WindowEvent>>()) {
+            channel->get().push(WindowEvent {
+                WindowEventKind::WindowClose,
+            });
+        }
     }
+
+    glfwSwapBuffers(win);
 }
 
 static void poll_events_system(World&)
@@ -102,6 +110,7 @@ static void poll_events_system(World&)
 
 void WindowingPlugin::plug(App::Builder& builder) const
 {
+    builder.emplace<EventChannel<WindowEvent>>();
     builder.add_startup_system(System(init_glfw_system));
     builder.add_startup_system(System(create_window_system));
     builder.add_cleanup_system(System(destroy_window_system));

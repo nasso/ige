@@ -39,7 +39,6 @@ set(sources ${sources}
     "include/ige/game/RenderingPlugin.hpp"
     "include/ige/game/Transform.hpp"
     "include/ige/game/WindowingPlugin.hpp"
-    "include/ige/game/WindowSettings.hpp"
     "include/ige/math.hpp"
     "include/ige/math/Vector.hpp"
 
