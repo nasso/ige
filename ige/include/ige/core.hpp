@@ -3,6 +3,7 @@
 
 #include "core/Any.hpp"
 #include "core/App.hpp"
+#include "core/EventChannel.hpp"
 #include "core/State.hpp"
 #include "core/StateMachine.hpp"
 
