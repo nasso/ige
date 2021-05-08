@@ -23,6 +23,7 @@ namespace core {
 
         std::deque<E> m_buffer;
         std::unordered_map<Handle, Cursor> m_sub_handles;
+        std::size_t m_subs_at_zero = 0;
 
         Handle make_handle()
         {
@@ -33,24 +34,46 @@ namespace core {
             }
 
             m_sub_handles.emplace(handle, m_buffer.size());
+            m_subs_at_zero += m_buffer.empty();
             return handle;
         }
 
         void free_handle(Handle handle)
         {
-            m_sub_handles.erase(handle);
+            auto iter = m_sub_handles.find(handle);
+
+            if (iter != m_sub_handles.end()) {
+                m_subs_at_zero -= iter->second == 0;
+                m_sub_handles.erase(iter);
+            }
+        }
+
+        void pop_unreachable_events()
+        {
+            while (m_subs_at_zero == 0) {
+                m_buffer.pop_front();
+
+                for (auto& [k, v] : m_sub_handles) {
+                    v--;
+                    m_subs_at_zero += v == 0;
+                }
+            }
         }
 
         std::optional<std::reference_wrapper<const E>> read_event(Handle handle)
         {
             auto iter = m_sub_handles.find(handle);
+
             if (iter != m_sub_handles.end()) {
                 Cursor& cur = iter->second;
 
                 if (cur < m_buffer.size()) {
                     const E& event = m_buffer[cur];
 
+                    m_subs_at_zero -= cur == 0;
                     cur++;
+
+                    pop_unreachable_events();
 
                     return { std::cref(event) };
                 }
