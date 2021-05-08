@@ -17,6 +17,13 @@ if(NOT glfw_POPULATED)
     add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
 endif()
 
+# GLM - OpenGL Mathematics
+FetchContent_Declare(glm
+    URL https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip
+    URL_HASH SHA1=45408897f419944fb28d8fd835791f237be2ec19
+)
+FetchContent_MakeAvailable(glm)
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -39,8 +46,6 @@ set(sources ${sources}
     "include/ige/game/RenderingPlugin.hpp"
     "include/ige/game/Transform.hpp"
     "include/ige/game/WindowingPlugin.hpp"
-    "include/ige/math.hpp"
-    "include/ige/math/Vector.hpp"
 
     "src/core/Any.cpp"
     "src/core/App.cpp"
@@ -73,4 +78,4 @@ target_compile_options(ige
         $<$<CXX_COMPILER_ID:MSVC>:
             /W4>
 )
-target_link_libraries(ige glfw glad)
+target_link_libraries(ige glfw glad glm)

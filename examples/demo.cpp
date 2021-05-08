@@ -1,7 +1,8 @@
 #include "ige.hpp"
-#include <iostream>
+#include <glm/vec3.hpp>
 #include <optional>
 
+using glm::vec3;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
@@ -13,7 +14,6 @@ using ige::game::WindowEvent;
 using ige::game::WindowEventKind;
 using ige::game::WindowingPlugin;
 using ige::game::WindowSettings;
-using ige::math::Vec3;
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
@@ -22,7 +22,7 @@ class RootState : public State {
     {
         auto camera = app.world().create_entity();
 
-        camera.add_component(Transform::look_at(Vec3(3.0f), Vec3(0.0f)));
+        camera.add_component(Transform::look_at(vec3(3.0f), vec3(0.0f)));
         camera.add_component(PerspectiveCamera(90.0f));
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
