@@ -57,7 +57,7 @@ Material::Parameter::~Parameter()
 {
     switch (type) {
     case Material::ParameterType::FLOAT:
-        x.~float();
+        /* x.~float(); */
         break;
     case Material::ParameterType::VEC2:
         xy.~vec2();
