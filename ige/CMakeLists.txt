@@ -42,8 +42,12 @@ set(sources ${sources}
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
     "include/ige/game.hpp"
+    "include/ige/game/Material.hpp"
+    "include/ige/game/Mesh.hpp"
+    "include/ige/game/MeshRenderer.hpp"
     "include/ige/game/PerspectiveCamera.hpp"
     "include/ige/game/RenderingPlugin.hpp"
+    "include/ige/game/Texture.hpp"
     "include/ige/game/Transform.hpp"
     "include/ige/game/WindowingPlugin.hpp"
 
@@ -54,7 +58,10 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/game/Material.cpp"
+    "src/game/Mesh.cpp"
     "src/game/RenderingPlugin.cpp"
+    "src/game/Texture.cpp"
     "src/game/WindowingPlugin.cpp"
 )
 
@@ -73,9 +80,7 @@ set_target_properties(ige
 )
 target_compile_options(ige
     PRIVATE
-        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:
-            -Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:
-            /W4>
+        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
 target_link_libraries(ige glfw glad glm)

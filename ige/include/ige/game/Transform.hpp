@@ -17,7 +17,7 @@ namespace game {
             Transform xform;
 
             xform.translation = position;
-            // todo
+            // TODO
             return xform;
         }
 
