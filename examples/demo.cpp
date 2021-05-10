@@ -18,6 +18,7 @@ using ige::game::PerspectiveCamera;
 using ige::game::RenderingPlugin;
 using ige::game::Texture;
 using ige::game::Transform;
+using ige::game::TransformPlugin;
 using ige::game::WindowEvent;
 using ige::game::WindowEventKind;
 using ige::game::WindowingPlugin;
@@ -60,6 +61,7 @@ int main()
 {
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
+        .add_plugin(TransformPlugin {})
         .add_plugin(RenderingPlugin {})
         .add_plugin(WindowingPlugin {})
         .run<RootState>();

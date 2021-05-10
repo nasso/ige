@@ -7,7 +7,7 @@
 #include "game/PerspectiveCamera.hpp"
 #include "game/RenderingPlugin.hpp"
 #include "game/Texture.hpp"
-#include "game/Transform.hpp"
+#include "game/TransformPlugin.hpp"
 #include "game/WindowingPlugin.hpp"
 
 #endif /* D68260DF_381A_4181_B58C_042555A9084A */

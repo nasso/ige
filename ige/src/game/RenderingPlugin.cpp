@@ -1,13 +1,10 @@
 #include "ige/game/RenderingPlugin.hpp"
 #include "ige/core/App.hpp"
 
-namespace ige {
-namespace game {
+using ige::core::App;
+using ige::game::RenderingPlugin;
 
-    void RenderingPlugin::plug(core::App::Builder&) const
-    {
-        // todo
-    }
-
-}
+void RenderingPlugin::plug(App::Builder&) const
+{
+    // todo
 }
