@@ -284,15 +284,15 @@ namespace ecs {
             }
 
             template <Component C>
-            std::vector<std::tuple<EntityRef, Cs&...>> view_from()
+            decltype(auto) view_from()
             {
+                std::vector<std::tuple<EntityRef, Cs&...>> entities;
+
                 if (!m_storages) {
-                    return {};
+                    return entities;
                 }
 
                 auto& storage = std::get<StorageFor<C>&>(*m_storages);
-
-                std::vector<std::tuple<EntityRef, Cs&...>> entities;
 
                 for (const auto& [id, comp] : storage) {
                     EntityRef entity(m_world, id);
@@ -315,7 +315,7 @@ namespace ecs {
         {
             Query<C, Cs...> q(*this);
 
-            return q.view_from<C>();
+            return q.template view_from<C>();
         }
 
     private:
