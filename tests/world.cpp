@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
 using ige::ecs::VecStorage;
 using ige::ecs::World;
 
-TEST(WorldTest, Spawn)
+TEST(World, Spawn)
 {
     World world;
 
@@ -31,7 +31,7 @@ TEST(WorldTest, Spawn)
     ASSERT_NE(entities[2], entities[0]);
 }
 
-TEST(WorldTest, SetResource)
+TEST(World, SetResource)
 {
     World world;
 
@@ -42,7 +42,7 @@ TEST(WorldTest, SetResource)
     world.emplace<std::pair<int, int>>(38, 19);
 }
 
-TEST(WorldTest, GetResource)
+TEST(World, GetResource)
 {
     World world;
 
@@ -61,7 +61,7 @@ TEST(WorldTest, GetResource)
     ASSERT_FALSE(world.get<std::vector<int>>().has_value());
 }
 
-TEST(WorldTest, AddComponent)
+TEST(World, AddComponent)
 {
     World world;
 
@@ -75,7 +75,7 @@ TEST(WorldTest, AddComponent)
         std::make_pair(38, 19));
 }
 
-TEST(WorldTest, GetComponent)
+TEST(World, GetComponent)
 {
     World world;
 
@@ -96,7 +96,7 @@ TEST(WorldTest, GetComponent)
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
 }
 
-TEST(WorldTest, GetComponentConst)
+TEST(World, GetComponentConst)
 {
     World world;
 
@@ -119,7 +119,7 @@ TEST(WorldTest, GetComponentConst)
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
 }
 
-TEST(WorldTest, RemoveComponent)
+TEST(World, RemoveComponent)
 {
     World world;
 
@@ -143,7 +143,7 @@ TEST(WorldTest, RemoveComponent)
         std::make_pair(38, 19));
 }
 
-TEST(WorldTest, RemoveEntity)
+TEST(World, RemoveEntity)
 {
     World world;
 
@@ -172,7 +172,7 @@ struct ige::ecs::ComponentStorage<Vectorized> {
     using Type = VecStorage<Vectorized>;
 };
 
-TEST(WorldTest, CustomStorage)
+TEST(World, CustomStorage)
 {
     World world;
 
