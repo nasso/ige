@@ -28,8 +28,8 @@ namespace ecs {
         }
     }
 
-    template <typename T>
-    concept Resource = std::movable<T>;
+    template <typename R>
+    concept Resource = std::movable<R>;
 
     class Resources {
     public:
@@ -42,46 +42,57 @@ namespace ecs {
                 .template as<R>();
         }
 
-        template <Resource T, typename... Args>
-        requires std::constructible_from<T, Args...> T& emplace(Args&&... args)
+        template <Resource R, typename... Args>
+        requires std::constructible_from<R, Args...> R& emplace(Args&&... args)
         {
-            impl::TypeId id = impl::type_id<T>();
+            impl::TypeId id = impl::type_id<R>();
 
-            return set_any(id, core::Any::from<T>(std::forward<Args>(args)...))
-                .template as<T>();
+            return set_any(id, core::Any::from<R>(std::forward<Args>(args)...))
+                .template as<R>();
         }
 
-        template <Resource T>
-        std::optional<std::reference_wrapper<T>> get()
+        template <Resource R, typename... Args>
+        requires std::constructible_from<R, Args...> R& get_or_emplace(
+            Args&&... args)
         {
-            impl::TypeId id = impl::type_id<T>();
+            if (auto val = get<R>()) {
+                return val->get();
+            } else {
+                return emplace<R>(std::forward<Args>(args)...);
+            }
+        }
+
+        template <Resource R>
+        std::optional<std::reference_wrapper<R>> get()
+        {
+            impl::TypeId id = impl::type_id<R>();
 
             if (auto any = get_any(id)) {
-                return { any->get().template as<T>() };
+                return { any->get().template as<R>() };
             } else {
                 return {};
             }
         }
 
-        template <Resource T>
-        std::optional<std::reference_wrapper<const T>> get() const
+        template <Resource R>
+        std::optional<std::reference_wrapper<const R>> get() const
         {
-            impl::TypeId id = impl::type_id<T>();
+            impl::TypeId id = impl::type_id<R>();
 
             if (auto any = get_any(id)) {
-                return { any->get().template as<T>() };
+                return { any->get().template as<R>() };
             } else {
                 return {};
             }
         }
 
-        template <Resource T>
-        std::optional<T> remove()
+        template <Resource R>
+        std::optional<R> remove()
         {
-            impl::TypeId id = impl::type_id<T>();
+            impl::TypeId id = impl::type_id<R>();
 
             if (auto any = remove_any(id)) {
-                return { std::move(any->template as<T>()) };
+                return { std::move(any->template as<R>()) };
             } else {
                 return {};
             }

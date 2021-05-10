@@ -43,30 +43,30 @@ namespace ecs {
                 return m_wld->add_component(m_id, std::move(comp));
             }
 
-            template <Component T, typename... Args>
-            requires std::constructible_from<T, Args...> T& emplace_component(
+            template <Component C, typename... Args>
+            requires std::constructible_from<C, Args...> C& emplace_component(
                 Args&&... args)
             {
-                return m_wld->emplace_component<T>(
+                return m_wld->emplace_component<C>(
                     m_id, std::forward<Args>(args)...);
             }
 
-            template <Component T>
-            std::optional<std::reference_wrapper<T>> get_component()
+            template <Component C>
+            std::optional<std::reference_wrapper<C>> get_component()
             {
-                return m_wld->get_component<T>(m_id);
+                return m_wld->get_component<C>(m_id);
             }
 
-            template <Component T>
-            std::optional<std::reference_wrapper<const T>> get_component() const
+            template <Component C>
+            std::optional<std::reference_wrapper<const C>> get_component() const
             {
-                return m_wld->get_component<T>(m_id);
+                return m_wld->get_component<C>(m_id);
             }
 
-            template <Component T>
-            std::optional<T> remove_component()
+            template <Component C>
+            std::optional<C> remove_component()
             {
-                return m_wld->remove_component<T>(m_id);
+                return m_wld->remove_component<C>(m_id);
             }
 
             void add_all_components()
@@ -106,28 +106,51 @@ namespace ecs {
             return m_resources.insert(std::move(res));
         }
 
-        template <Resource T, typename... Args>
-        requires std::constructible_from<T, Args...> T& emplace(Args&&... args)
+        template <Resource R, typename... Args>
+        requires std::constructible_from<R, Args...> R& emplace(Args&&... args)
         {
-            return m_resources.emplace<T>(std::forward<Args>(args)...);
+            return m_resources.emplace<R>(std::forward<Args>(args)...);
         }
 
-        template <Resource T>
-        std::optional<std::reference_wrapper<T>> get()
+        template <Resource R, typename... Args>
+        requires std::constructible_from<R, Args...> R& get_or_emplace(
+            Args&&... args)
         {
-            return m_resources.get<T>();
+            return m_resources.get_or_emplace<R>(std::forward<Args>(args)...);
         }
 
-        template <Resource T>
-        std::optional<std::reference_wrapper<const T>> get() const
+        template <Resource R>
+        std::optional<std::reference_wrapper<R>> get()
         {
-            return m_resources.get<T>();
+            return m_resources.get<R>();
         }
 
-        template <Resource T>
-        std::optional<T> remove()
+        template <Resource R>
+        std::optional<std::reference_wrapper<const R>> get() const
         {
-            return m_resources.remove<T>();
+            return m_resources.get<R>();
+        }
+
+        template <Resource R>
+        std::optional<R> remove()
+        {
+            return m_resources.remove<R>();
+        }
+
+        template <Component C>
+        decltype(auto) get_component_storage()
+        {
+            using Storage = typename ComponentStorage<C>::Type;
+
+            return get<Storage>();
+        }
+
+        template <Component C>
+        decltype(auto) get_component_storage() const
+        {
+            using Storage = typename ComponentStorage<C>::Type;
+
+            return get<Storage>();
         }
 
         template <Component C>
@@ -136,35 +159,29 @@ namespace ecs {
             return emplace_component<C>(ent, std::move(comp));
         }
 
-        template <Component T, typename... Args>
-        requires std::constructible_from<T, Args...> T& emplace_component(
+        template <Component C, typename... Args>
+        requires std::constructible_from<C, Args...> C& emplace_component(
             EntityId ent, Args&&... args)
         {
-            using Storage = typename ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<C>::Type;
 
-            auto optstrg = get<Storage>();
-
-            if (!get<Storage>().has_value()) {
-                emplace<Storage>();
-            }
-
-            auto& strg = get<Storage>()->get();
+            auto& strg = get_or_emplace<Storage>();
 
             strg.set(std::move(ent), std::forward<Args>(args)...);
 
-            if (m_components.find(impl::type_id<T>()) == m_components.end()) {
-                m_components.emplace(impl::type_id<T>(), [&](EntityId ent) {
-                    return remove_component<T>(ent).has_value();
+            if (m_components.find(impl::type_id<C>()) == m_components.end()) {
+                m_components.emplace(impl::type_id<C>(), [&](EntityId ent) {
+                    return remove_component<C>(ent).has_value();
                 });
             }
 
             return strg.get(ent)->get();
         }
 
-        template <Component T>
-        std::optional<std::reference_wrapper<T>> get_component(EntityId ent)
+        template <Component C>
+        std::optional<std::reference_wrapper<C>> get_component(EntityId ent)
         {
-            using Storage = typename ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<C>::Type;
 
             if (auto strg = get<Storage>()) {
                 return strg->get().get(ent);
@@ -173,11 +190,11 @@ namespace ecs {
             }
         }
 
-        template <Component T>
-        std::optional<std::reference_wrapper<const T>> get_component(
+        template <Component C>
+        std::optional<std::reference_wrapper<const C>> get_component(
             EntityId ent) const
         {
-            using Storage = typename ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<C>::Type;
 
             if (auto strg = get<Storage>()) {
                 return strg->get().get(ent);
@@ -186,10 +203,10 @@ namespace ecs {
             }
         }
 
-        template <Component T>
-        std::optional<T> remove_component(EntityId ent)
+        template <Component C>
+        std::optional<C> remove_component(EntityId ent)
         {
-            using Storage = typename ComponentStorage<T>::Type;
+            using Storage = typename ComponentStorage<C>::Type;
 
             if (auto strg = get<Storage>()) {
                 return strg->get().remove(ent);
