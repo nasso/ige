@@ -30,9 +30,9 @@ namespace ecs {
         return m_wld->remove_entity(m_id);
     }
 
-    World::EntityRef World::create_entity()
+    EntityId World::EntityRef::id() const
     {
-        return { *this, ++m_last_entity };
+        return m_id;
     }
 
     bool World::remove_entity(EntityId ent)

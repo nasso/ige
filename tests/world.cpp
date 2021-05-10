@@ -75,6 +75,21 @@ TEST(World, AddComponent)
         std::make_pair(38, 19));
 }
 
+TEST(World, AddComponentsAtCreation)
+{
+    World world;
+
+    auto ent = world.create_entity(std::string("hello"), int(65), float(48.3f),
+        double(), std::make_pair<int, int>(38, 19));
+
+    ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
+    ASSERT_EQ(ent.get_component<int>(), 65);
+    ASSERT_EQ(ent.get_component<float>(), 48.3f);
+    ASSERT_EQ(ent.get_component<double>(), 0);
+    ASSERT_EQ((ent.get_component<std::pair<int, int>>())->get(),
+        std::make_pair(38, 19));
+}
+
 TEST(World, GetComponent)
 {
     World world;

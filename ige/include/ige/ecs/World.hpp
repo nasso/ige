@@ -69,10 +69,18 @@ namespace ecs {
                 return m_wld->remove_component<T>(m_id);
             }
 
-            EntityId id()
+            void add_all_components()
             {
-                return m_id;
             }
+
+            template <Component C, Component... Cs>
+            void add_all_components(C&& component, Cs&&... rest)
+            {
+                add_component(std::move(component));
+                add_all_components(std::forward<Cs>(rest)...);
+            }
+
+            EntityId id() const;
 
         private:
             World* m_wld;
@@ -81,8 +89,16 @@ namespace ecs {
 
         World(Resources = {});
 
-        EntityRef create_entity();
         bool remove_entity(EntityId);
+
+        template <Component... Cs>
+        EntityRef create_entity(Cs&&... components)
+        {
+            EntityRef entity(*this, ++m_last_entity);
+
+            entity.add_all_components(std::forward<Cs>(components)...);
+            return entity;
+        }
 
         template <Resource R>
         R& insert(R res)
