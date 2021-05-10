@@ -3,7 +3,9 @@
 
 #include <concepts>
 #include <functional>
+#include <iterator>
 #include <optional>
+#include <utility>
 #include <vector>
 
 namespace ige {
@@ -11,7 +13,83 @@ namespace ecs {
 
     template <typename T>
     class VecStorage {
+    private:
+        std::vector<std::optional<T>> m_data;
+
     public:
+        class Iterator {
+        private:
+            VecStorage& m_storage;
+            std::size_t m_index = 0;
+
+            std::optional<std::pair<std::size_t, T&>> m_value;
+
+            void fetch()
+            {
+                if (m_index < m_storage.m_data.size()) {
+                    m_value.emplace(m_index, *m_storage.m_data[m_index]);
+                } else {
+                    m_value.reset();
+                }
+            }
+
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using difference_type = std::size_t;
+            using value_type = std::pair<std::size_t, T&>;
+            using pointer = const value_type*;
+            using reference = const value_type&;
+
+            Iterator(VecStorage& storage, std::size_t index)
+                : m_storage(storage)
+                , m_index(index)
+            {
+                while (m_index < m_storage.m_data.size()
+                    && !m_storage.m_data[m_index].has_value()) {
+                    m_index++;
+                }
+
+                fetch();
+            }
+
+            reference operator*() const
+            {
+                return *m_value;
+            }
+
+            pointer operator->()
+            {
+                return &*m_value;
+            }
+
+            Iterator& operator++()
+            {
+                do {
+                    m_index++;
+                } while (m_index < m_storage.m_data.size()
+                    && !m_storage.m_data[m_index].has_value());
+                fetch();
+                return *this;
+            }
+
+            Iterator operator++(int)
+            {
+                Iterator retval = *this;
+                ++(*this);
+                return retval;
+            }
+
+            friend bool operator==(const Iterator& a, const Iterator& b)
+            {
+                return a.m_index == b.m_index;
+            }
+
+            friend bool operator!=(const Iterator& a, const Iterator& b)
+            {
+                return a.m_index != b.m_index;
+            }
+        };
+
         VecStorage() = default;
         virtual ~VecStorage() = default;
 
@@ -73,8 +151,15 @@ namespace ecs {
             return element;
         }
 
-    private:
-        std::vector<std::optional<T>> m_data;
+        Iterator begin()
+        {
+            return { *this, 0 };
+        }
+
+        Iterator end()
+        {
+            return { *this, m_data.size() };
+        }
     };
 
 }

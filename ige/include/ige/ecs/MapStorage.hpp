@@ -11,7 +11,12 @@ namespace ecs {
 
     template <typename K, typename V>
     class MapStorage {
+    private:
+        std::unordered_map<K, V> m_data;
+
     public:
+        using Iterator = std::unordered_map<K, V>::iterator;
+
         MapStorage() = default;
         virtual ~MapStorage() = default;
 
@@ -71,8 +76,15 @@ namespace ecs {
             }
         }
 
-    private:
-        std::unordered_map<K, V> m_data;
+        Iterator begin()
+        {
+            return m_data.begin();
+        }
+
+        Iterator end()
+        {
+            return m_data.end();
+        }
     };
 
 }

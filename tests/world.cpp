@@ -1,7 +1,11 @@
 #include "ige/ecs/World.hpp"
 #include "ige/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
+#include <algorithm>
+#include <iostream>
 #include <optional>
+#include <tuple>
+#include <vector>
 
 namespace std {
 
@@ -13,8 +17,48 @@ std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
 
 }
 
+using ige::ecs::ComponentStorage;
 using ige::ecs::VecStorage;
 using ige::ecs::World;
+
+struct A {
+    int i;
+};
+
+struct B {
+    int i;
+};
+
+struct C {
+    int i;
+};
+
+struct D {
+    int i;
+};
+
+template <>
+struct ComponentStorage<D> {
+    using Type = VecStorage<D>;
+};
+
+struct E {
+    int i;
+};
+
+template <>
+struct ComponentStorage<E> {
+    using Type = VecStorage<E>;
+};
+
+struct F {
+    int i;
+};
+
+template <>
+struct ComponentStorage<F> {
+    using Type = VecStorage<F>;
+};
 
 TEST(World, Spawn)
 {
@@ -206,3 +250,218 @@ TEST(World, CustomStorage)
     ASSERT_TRUE(strg.get(ent[1].id()).has_value());
     ASSERT_TRUE(strg.get(ent[2].id()).has_value());
 }
+
+TEST(World, EntityQueryBasicUsage)
+{
+    World world;
+
+    world.create_entity(A { 1 }, C { 2 });
+    world.create_entity(A { 3 }, B { 4 }, C { 5 });
+    world.create_entity(A { 6 }, B { 7 });
+    world.create_entity(A { 8 });
+    world.create_entity();
+    world.create_entity(B { 9 });
+
+    for (auto [entity, a, b] : world.query<A, B>()) {
+        ASSERT_GT(a.i, 0);
+        ASSERT_GT(b.i, 0);
+        a.i = -1;
+        b.i = -2;
+    }
+
+    for (auto [entity, a, b] : world.query<A, B>()) {
+        ASSERT_EQ(a.i, -1);
+        ASSERT_EQ(b.i, -2);
+    }
+}
+
+TEST(World, EntityQueryMapStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(A { 1 }, C { 2 }) },
+        { true, world.create_entity(A { 3 }, B { 4 }, C { 5 }) },
+        { true, world.create_entity(A { 6 }, B { 7 }) },
+        { false, world.create_entity(A { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(B { 9 }) },
+    };
+
+    auto query = world.query<A, B>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+
+TEST(World, EntityQueryVecStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(D { 1 }, F { 2 }) },
+        { true, world.create_entity(D { 3 }, E { 4 }, F { 5 }) },
+        { true, world.create_entity(D { 6 }, E { 7 }) },
+        { false, world.create_entity(D { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(E { 9 }) },
+    };
+
+    auto query = world.query<D, E>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+
+TEST(World, EntityQueryMixedStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(A { 1 }, B { 2 }) },
+        { true, world.create_entity(A { 3 }, E { 4 }, B { 5 }) },
+        { true, world.create_entity(A { 6 }, E { 7 }) },
+        { false, world.create_entity(A { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(E { 9 }) },
+    };
+
+    auto query = world.query<A, E>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+
+/* TODO: constant World queries
+TEST(World, ConstEntityQueryMapStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(A { 1 }, C { 2 }) },
+        { true, world.create_entity(A { 3 }, B { 4 }, C { 5 }) },
+        { true, world.create_entity(A { 6 }, B { 7 }) },
+        { false, world.create_entity(A { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(B { 9 }) },
+    };
+
+    const World& world_ref = world;
+    auto query = world_ref.query<A, B>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+
+TEST(World, ConstEntityQueryVecStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(D { 1 }, F { 2 }) },
+        { true, world.create_entity(D { 3 }, E { 4 }, F { 5 }) },
+        { true, world.create_entity(D { 6 }, E { 7 }) },
+        { false, world.create_entity(D { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(E { 9 }) },
+    };
+
+    const World& world_ref = world;
+    auto query = world_ref.query<D, E>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+
+TEST(World, ConstEntityQueryMixedStorage)
+{
+    World world;
+
+    std::tuple<bool, World::EntityRef> entities[] = {
+        { false, world.create_entity(A { 1 }, B { 2 }) },
+        { true, world.create_entity(A { 3 }, E { 4 }, B { 5 }) },
+        { true, world.create_entity(A { 6 }, E { 7 }) },
+        { false, world.create_entity(A { 8 }) },
+        { false, world.create_entity() },
+        { false, world.create_entity(E { 9 }) },
+    };
+
+    const World& world_ref = world;
+    auto query = world_ref.query<A, E>();
+
+    for (auto [should_match, entity] : entities) {
+        auto count = std::count_if(
+            query.begin(), query.end(), [entity](const auto& tuple) {
+                const auto& [e, a, b] = tuple;
+
+                return e == entity;
+            });
+
+        if (should_match) {
+            ASSERT_EQ(count, 1);
+        } else {
+            ASSERT_EQ(count, 0);
+        }
+    }
+}
+*/

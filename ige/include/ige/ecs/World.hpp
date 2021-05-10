@@ -11,6 +11,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <tuple>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
@@ -25,9 +26,16 @@ namespace ecs {
         using Type = MapStorage<EntityId, C>;
     };
 
+    template <Component C>
+    using StorageFor = typename ComponentStorage<C>::Type;
+
     class World {
     public:
         class EntityRef {
+        private:
+            World* m_wld;
+            EntityId m_id;
+
         public:
             EntityRef(World&, EntityId);
             EntityRef(const EntityRef&) = default;
@@ -63,6 +71,54 @@ namespace ecs {
                 return m_wld->get_component<C>(m_id);
             }
 
+            template <Component... Cs>
+            std::optional<std::tuple<Cs&...>> get_component_bundle()
+            {
+                auto components = std::make_tuple(get_component<Cs>()...);
+
+                bool has_all
+                    = (std::get<std::optional<std::reference_wrapper<Cs>>>(
+                           components)
+                            .has_value()
+                        && ...);
+
+                std::optional<std::tuple<Cs&...>> bundle;
+
+                if (has_all) {
+                    bundle.emplace(
+                        std::get<std::optional<std::reference_wrapper<Cs>>>(
+                            components)
+                            ->get()...);
+                }
+
+                return bundle;
+            }
+
+            template <Component... Cs>
+            std::optional<std::tuple<const Cs&...>> get_component_bundle() const
+            {
+                auto components = std::make_tuple(get_component<Cs>()...);
+
+                bool has_all
+                    = (std::get<
+                           std::optional<std::reference_wrapper<const Cs>>>(
+                           components)
+                            .has_value()
+                        && ...);
+
+                std::optional<std::tuple<const Cs&...>> bundle;
+
+                if (has_all) {
+                    bundle.emplace(
+                        std::get<
+                            std::optional<std::reference_wrapper<const Cs>>>(
+                            components)
+                            ->get()...);
+                }
+
+                return bundle;
+            }
+
             template <Component C>
             std::optional<C> remove_component()
             {
@@ -81,10 +137,6 @@ namespace ecs {
             }
 
             EntityId id() const;
-
-        private:
-            World* m_wld;
-            EntityId m_id;
         };
 
         World(Resources = {});
@@ -140,17 +192,13 @@ namespace ecs {
         template <Component C>
         decltype(auto) get_component_storage()
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            return get<Storage>();
+            return get<StorageFor<C>>();
         }
 
         template <Component C>
         decltype(auto) get_component_storage() const
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            return get<Storage>();
+            return get<StorageFor<C>>();
         }
 
         template <Component C>
@@ -163,9 +211,7 @@ namespace ecs {
         requires std::constructible_from<C, Args...> C& emplace_component(
             EntityId ent, Args&&... args)
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            auto& strg = get_or_emplace<Storage>();
+            auto& strg = get_or_emplace<StorageFor<C>>();
 
             strg.set(std::move(ent), std::forward<Args>(args)...);
 
@@ -181,9 +227,7 @@ namespace ecs {
         template <Component C>
         std::optional<std::reference_wrapper<C>> get_component(EntityId ent)
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            if (auto strg = get<Storage>()) {
+            if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().get(ent);
             } else {
                 return {};
@@ -194,9 +238,7 @@ namespace ecs {
         std::optional<std::reference_wrapper<const C>> get_component(
             EntityId ent) const
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            if (auto strg = get<Storage>()) {
+            if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().get(ent);
             } else {
                 return {};
@@ -206,13 +248,74 @@ namespace ecs {
         template <Component C>
         std::optional<C> remove_component(EntityId ent)
         {
-            using Storage = typename ComponentStorage<C>::Type;
-
-            if (auto strg = get<Storage>()) {
+            if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().remove(ent);
             } else {
                 return {};
             }
+        }
+
+    private:
+        template <Component... Cs>
+        class Query {
+        private:
+            std::optional<std::tuple<StorageFor<Cs>&...>> m_storages;
+            World& m_world;
+
+        public:
+            Query(World& world)
+                : m_world(world)
+            {
+                auto opt_strgs
+                    = std::make_tuple(world.get_component_storage<Cs>()...);
+                bool empty = !(
+                    std::get<
+                        std::optional<std::reference_wrapper<StorageFor<Cs>>>>(
+                        opt_strgs)
+                        .has_value()
+                    && ...);
+
+                if (!empty) {
+                    m_storages.emplace(std::tie(
+                        std::get<std::optional<
+                            std::reference_wrapper<StorageFor<Cs>>>>(opt_strgs)
+                            ->get()...));
+                }
+            }
+
+            template <Component C>
+            std::vector<std::tuple<EntityRef, Cs&...>> view_from()
+            {
+                if (!m_storages) {
+                    return {};
+                }
+
+                auto& storage = std::get<StorageFor<C>&>(*m_storages);
+
+                std::vector<std::tuple<EntityRef, Cs&...>> entities;
+
+                for (const auto& [id, comp] : storage) {
+                    EntityRef entity(m_world, id);
+
+                    auto components = entity.get_component_bundle<Cs...>();
+
+                    if (components) {
+                        entities.emplace_back(
+                            entity, std::get<Cs&>(*components)...);
+                    }
+                }
+
+                return entities;
+            }
+        };
+
+    public:
+        template <Component C, Component... Cs>
+        decltype(auto) query()
+        {
+            Query<C, Cs...> q(*this);
+
+            return q.view_from<C>();
         }
 
     private:
