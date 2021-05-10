@@ -17,7 +17,6 @@ std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
 
 }
 
-using ige::ecs::ComponentStorage;
 using ige::ecs::VecStorage;
 using ige::ecs::World;
 
@@ -38,7 +37,7 @@ struct D {
 };
 
 template <>
-struct ComponentStorage<D> {
+struct ige::ecs::ComponentStorage<D> {
     using Type = VecStorage<D>;
 };
 
@@ -47,7 +46,7 @@ struct E {
 };
 
 template <>
-struct ComponentStorage<E> {
+struct ige::ecs::ComponentStorage<E> {
     using Type = VecStorage<E>;
 };
 
@@ -56,8 +55,16 @@ struct F {
 };
 
 template <>
-struct ComponentStorage<F> {
+struct ige::ecs::ComponentStorage<F> {
     using Type = VecStorage<F>;
+};
+
+struct Vectorized {
+};
+
+template <>
+struct ige::ecs::ComponentStorage<Vectorized> {
+    using Type = VecStorage<Vectorized>;
 };
 
 TEST(World, Spawn)
@@ -222,14 +229,6 @@ TEST(World, RemoveEntity)
     ASSERT_FALSE(ent.get_component<double>().has_value());
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
 }
-
-struct Vectorized {
-};
-
-template <>
-struct ige::ecs::ComponentStorage<Vectorized> {
-    using Type = VecStorage<Vectorized>;
-};
 
 TEST(World, CustomStorage)
 {
