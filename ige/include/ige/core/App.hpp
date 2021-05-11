@@ -19,22 +19,30 @@ namespace core {
     private:
         core::StateMachine m_state_machine;
         ecs::World m_world;
-        std::optional<ecs::Schedule> m_startup;
-        std::optional<ecs::Schedule> m_update;
-        std::optional<ecs::Schedule> m_cleanup;
+        ecs::Schedule m_startup;
+        ecs::Schedule m_update;
+        ecs::Schedule m_cleanup;
 
     public:
+        class Builder;
+
+        class Plugin {
+        public:
+            virtual void plug(Builder&) const = 0;
+        };
+
         class Builder {
         private:
-            std::optional<ecs::Schedule> m_startup;
-            std::optional<ecs::Schedule> m_update;
-            std::optional<ecs::Schedule> m_cleanup;
+            ecs::Schedule::Builder m_startup;
+            ecs::Schedule::Builder m_update;
+            ecs::Schedule::Builder m_cleanup;
             ecs::Resources m_res;
 
         public:
-            App::Builder& on_start(ecs::Schedule);
-            App::Builder& on_update(ecs::Schedule);
-            App::Builder& on_stop(ecs::Schedule);
+            App::Builder& add_plugin(const Plugin&);
+            App::Builder& add_startup_system(ecs::System);
+            App::Builder& add_system(ecs::System);
+            App::Builder& add_cleanup_system(ecs::System);
 
             template <ecs::Resource R>
             App::Builder& insert(R res)
@@ -55,18 +63,17 @@ namespace core {
                 requires std::constructible_from<S, Args...>
             void run(Args&&... args)
             {
-                App app(std::move(m_res));
+                App app(std::move(m_res), m_startup.build(), m_update.build(),
+                    m_cleanup.build());
                 m_res = ecs::Resources();
-
-                app.m_startup.swap(m_startup);
-                app.m_update.swap(m_update);
-                app.m_cleanup.swap(m_cleanup);
 
                 app.state_machine().push<S>(std::forward<Args>(args)...);
                 app.run();
             }
         };
 
+        App(ecs::Resources, ecs::Schedule on_start, ecs::Schedule on_update,
+            ecs::Schedule on_cleanup);
         App(ecs::Resources = {});
 
         ecs::World& world();

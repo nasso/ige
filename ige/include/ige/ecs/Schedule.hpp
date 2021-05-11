@@ -3,6 +3,7 @@
 
 #include "System.hpp"
 #include "World.hpp"
+#include <concepts>
 #include <vector>
 
 namespace ige {
@@ -21,7 +22,8 @@ namespace ecs {
 
         public:
             template <typename F>
-            Builder& add_system(F&& sys)
+            requires std::constructible_from<System, F> Builder& add_system(
+                F&& sys)
             {
                 m_systems.emplace_back(std::forward<F>(sys));
 
@@ -30,6 +32,8 @@ namespace ecs {
 
             Schedule build() const;
         };
+
+        Schedule() = default;
 
         void operator()(World&);
     };

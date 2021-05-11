@@ -12,6 +12,8 @@ jobs:
       CXX: g++-10
     steps:
       - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo apt install xorg-dev
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE=Release -B build
       - name: Build
@@ -22,7 +24,6 @@ jobs:
 
   build-epitest:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
     container: epitechcontent/epitest-docker
     steps:
       - uses: actions/checkout@v2

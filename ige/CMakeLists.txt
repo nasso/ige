@@ -1,6 +1,36 @@
+include(FetchContent)
+
+# GLAD - OpenGL & Vulkan loader
+add_subdirectory(glad)
+
+# GLFW - Windowing library
+FetchContent_Declare(glfw
+    URL https://github.com/glfw/glfw/releases/download/3.3.4/glfw-3.3.4.zip
+    URL_HASH SHA1=29ce5f24fede4935b4872606df1e987400c9d060
+)
+FetchContent_GetProperties(glfw)
+if(NOT glfw_POPULATED)
+    FetchContent_Populate(glfw)
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${glfw_SOURCE_DIR} ${glfw_BINARY_DIR})
+endif()
+
+# GLM - OpenGL Mathematics
+FetchContent_Declare(glm
+    URL https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip
+    URL_HASH SHA1=45408897f419944fb28d8fd835791f237be2ec19
+)
+FetchContent_MakeAvailable(glm)
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
+    "include/ige/asset.hpp"
+    "include/ige/asset/Material.hpp"
+    "include/ige/asset/Mesh.hpp"
+    "include/ige/asset/Texture.hpp"
     "include/ige/core.hpp"
     "include/ige/core/Any.hpp"
     "include/ige/core/App.hpp"
@@ -15,13 +45,14 @@ set(sources ${sources}
     "include/ige/ecs/System.hpp"
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
-    "include/ige/game.hpp"
-    "include/ige/game/PerspectiveCamera.hpp"
-    "include/ige/game/Transform.hpp"
-    "include/ige/game/WindowSettings.hpp"
-    "include/ige/math.hpp"
-    "include/ige/math/Vector.hpp"
+    "include/ige/plugin.hpp"
+    "include/ige/plugin/RenderingPlugin.hpp"
+    "include/ige/plugin/TransformPlugin.hpp"
+    "include/ige/plugin/WindowingPlugin.hpp"
 
+    "src/asset/Material.cpp"
+    "src/asset/Mesh.cpp"
+    "src/asset/Texture.cpp"
     "src/core/Any.cpp"
     "src/core/App.cpp"
     "src/core/State.cpp"
@@ -29,6 +60,9 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/plugin/RenderingPlugin.cpp"
+    "src/plugin/TransformPlugin.cpp"
+    "src/plugin/WindowingPlugin.cpp"
 )
 
 # static library
@@ -42,11 +76,11 @@ set_target_properties(ige
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
+        COMPILE_DEFINITIONS "IGE_OPENGL;GLM_FORCE_SILENT_WARNINGS"
 )
 target_compile_options(ige
     PRIVATE
-        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:
-            -Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:
-            /W4>
+        $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
+target_link_libraries(ige glfw glad glm)
