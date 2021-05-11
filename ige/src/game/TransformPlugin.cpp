@@ -1,4 +1,5 @@
 #include <glm/gtc/quaternion.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
@@ -8,6 +9,7 @@
 #include "ige/game/TransformPlugin.hpp"
 #include <cstdint>
 
+using glm::mat4;
 using glm::quat;
 using glm::vec3;
 using ige::core::App;
@@ -43,32 +45,45 @@ vec3 Transform::scale() const
 void Transform::set_translation(vec3 value)
 {
     m_translation = value;
-    m_version++;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
 }
 
 void Transform::set_rotation(quat value)
 {
     m_rotation = value;
-    m_version++;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
 }
 
 void Transform::set_scale(vec3 value)
 {
     m_scale = value;
-    m_version++;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
 }
 
-std::uint64_t Transform::version() const
+const mat4& Transform::compute_matrix()
 {
-    return m_version;
+    if (!m_local_to_world) {
+        mat4 mat(1.0f);
+
+        mat = glm::translate(mat, m_translation) * glm::mat4_cast(m_rotation);
+        m_local_to_world = glm::scale(mat, m_scale);
+    }
+
+    return *m_local_to_world;
 }
 
-static void compute_local_to_world(World&)
+const mat4& Transform::compute_inverse()
 {
-    // TODO
+    if (!m_world_to_local) {
+        m_world_to_local = glm::inverse(compute_matrix());
+    }
+
+    return *m_world_to_local;
 }
 
-void TransformPlugin::plug(App::Builder& builder) const
+void TransformPlugin::plug(App::Builder&) const
 {
-    builder.add_system(System(compute_local_to_world));
 }
