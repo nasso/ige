@@ -18,12 +18,12 @@ using ige::ecs::World;
 using ige::game::Transform;
 using ige::game::TransformPlugin;
 
-Transform Transform::look_at(vec3 position, vec3 target, vec3 up)
+Transform Transform::make_look_at(vec3 position, vec3 target, vec3 up)
 {
     Transform xform;
 
     xform.set_translation(position);
-    xform.set_rotation(glm::quatLookAt(glm::normalize(target - position), up));
+    xform.look_at(target, up);
     return xform;
 }
 
@@ -61,6 +61,11 @@ void Transform::set_scale(vec3 value)
     m_scale = value;
     m_local_to_world.reset();
     m_world_to_local.reset();
+}
+
+void Transform::look_at(vec3 target, vec3 up)
+{
+    set_rotation(glm::quatLookAt(glm::normalize(target - m_translation), up));
 }
 
 const mat4& Transform::compute_matrix()
