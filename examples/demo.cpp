@@ -7,22 +7,22 @@
 
 using glm::vec3;
 using glm::vec4;
+using ige::asset::Material;
+using ige::asset::Mesh;
+using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
-using ige::game::Material;
-using ige::game::Mesh;
-using ige::game::MeshRenderer;
-using ige::game::PerspectiveCamera;
-using ige::game::RenderingPlugin;
-using ige::game::Texture;
-using ige::game::Transform;
-using ige::game::TransformPlugin;
-using ige::game::WindowEvent;
-using ige::game::WindowEventKind;
-using ige::game::WindowingPlugin;
-using ige::game::WindowSettings;
+using ige::plugin::MeshRenderer;
+using ige::plugin::PerspectiveCamera;
+using ige::plugin::RenderingPlugin;
+using ige::plugin::Transform;
+using ige::plugin::TransformPlugin;
+using ige::plugin::WindowEvent;
+using ige::plugin::WindowEventKind;
+using ige::plugin::WindowingPlugin;
+using ige::plugin::WindowSettings;
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;

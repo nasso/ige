@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace ige {
-namespace game {
+namespace asset {
 
     class Mesh {
     public:

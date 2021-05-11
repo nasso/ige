@@ -1,4 +1,4 @@
-#include "ige/game/WindowingPlugin.hpp"
+#include "ige/plugin/WindowingPlugin.hpp"
 #include "ige/core/App.hpp"
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
@@ -17,10 +17,11 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::game::WindowEvent;
-using ige::game::WindowEventKind;
-using ige::game::WindowingPlugin;
-using ige::game::WindowSettings;
+using ige::plugin::WindowEvent;
+using ige::plugin::WindowEventKind;
+using ige::plugin::WindowInfo;
+using ige::plugin::WindowingPlugin;
+using ige::plugin::WindowSettings;
 
 static void init_glfw_system(World&)
 {
@@ -65,6 +66,7 @@ static void create_window_system(World& wld)
     glfwSwapInterval(1);
 
     wld.insert(win);
+    wld.insert(WindowInfo { settings.width, settings.height });
 }
 
 static void destroy_window_system(World& wld)

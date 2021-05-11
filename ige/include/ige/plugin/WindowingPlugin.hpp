@@ -2,14 +2,20 @@
 #define A68DBC66_D5CF_4EE6_B409_AFF8B6AE00F6
 
 #include "ige/core/App.hpp"
+#include <cstdint>
 
 namespace ige {
-namespace game {
+namespace plugin {
 
     struct WindowSettings {
         std::string title;
-        unsigned int width;
-        unsigned int height;
+        std::uint32_t width;
+        std::uint32_t height;
+    };
+
+    struct WindowInfo {
+        std::uint32_t width;
+        std::uint32_t height;
     };
 
     enum class WindowEventKind {

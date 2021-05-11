@@ -14,7 +14,7 @@
 #include <tuple>
 #include <type_traits>
 #include <unordered_map>
-#include <unordered_set>
+#include <utility>
 
 namespace ige {
 namespace ecs {
@@ -69,6 +69,14 @@ namespace ecs {
             std::optional<std::reference_wrapper<const C>> get_component() const
             {
                 return m_wld->get_component<C>(m_id);
+            }
+
+            template <Component C, typename... Args>
+            requires std::constructible_from<C, Args...> C&
+            get_or_emplace_component(Args&&... args)
+            {
+                return m_wld->get_or_emplace_component<C>(
+                    m_id, std::forward<Args>(args)...);
             }
 
             template <Component... Cs>
@@ -242,6 +250,17 @@ namespace ecs {
                 return strg->get().get(ent);
             } else {
                 return {};
+            }
+        }
+
+        template <Component C, typename... Args>
+        requires std::constructible_from<C, Args...> C&
+        get_or_emplace_component(EntityId ent, Args&&... args)
+        {
+            if (auto comp = get_component<C>(ent)) {
+                return comp->get();
+            } else {
+                return emplace_component(ent, std::forward<Args>(args)...);
             }
         }
 

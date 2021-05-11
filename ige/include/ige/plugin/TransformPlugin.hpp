@@ -9,7 +9,7 @@
 #include <optional>
 
 namespace ige {
-namespace game {
+namespace plugin {
 
     class Transform {
     private:
@@ -36,8 +36,8 @@ namespace game {
 
         void look_at(glm::vec3 target, glm::vec3 up);
 
-        const glm::mat4& compute_matrix();
-        const glm::mat4& compute_inverse();
+        glm::mat4 compute_matrix();
+        glm::mat4 compute_inverse();
     };
 
     class TransformPlugin : public core::App::Plugin {

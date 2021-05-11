@@ -1,8 +1,8 @@
-#include "ige/game/Texture.hpp"
+#include "ige/asset/Texture.hpp"
 #include <filesystem>
 #include <memory>
 
-using ige::game::Texture;
+using ige::asset::Texture;
 
 std::shared_ptr<Texture> Texture::load_file(const std::filesystem::path&)
 {

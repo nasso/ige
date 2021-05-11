@@ -1,7 +1,7 @@
 #ifndef B12DD5E2_528E_44A1_B116_AFED4336D66A
 #define B12DD5E2_528E_44A1_B116_AFED4336D66A
 
-#include "ige/game/Texture.hpp"
+#include "ige/asset/Texture.hpp"
 #include <memory>
 #include <optional>
 #include <string>
@@ -13,7 +13,7 @@
 ; // TODO: https://bit.ly/3hhMJ58
 
 namespace ige {
-namespace game {
+namespace asset {
 
     class Material {
     public:

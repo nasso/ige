@@ -1,4 +1,4 @@
-#include "ige/game/Mesh.hpp"
+#include "ige/asset/Mesh.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <glm/vec2.hpp>
@@ -8,7 +8,7 @@
 
 using glm::vec2;
 using glm::vec3;
-using ige::game::Mesh;
+using ige::asset::Mesh;
 
 Mesh::Mesh(std::vector<Mesh::Vertex> vertices,
     std::vector<std::uint16_t> indices, Topology topology)

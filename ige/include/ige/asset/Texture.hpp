@@ -5,7 +5,7 @@
 #include <memory>
 
 namespace ige {
-namespace game {
+namespace asset {
 
     class Texture {
     public:

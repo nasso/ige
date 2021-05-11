@@ -1,5 +1,5 @@
-#include "ige/game/Material.hpp"
-#include "ige/game/Texture.hpp"
+#include "ige/asset/Material.hpp"
+#include "ige/asset/Texture.hpp"
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -15,7 +15,7 @@
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-using ige::game::Material;
+using ige::asset::Material;
 
 Material::Parameter::Parameter(const Material::Parameter& other)
     : type(other.type)
