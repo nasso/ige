@@ -24,8 +24,8 @@ namespace gl {
         GLuint m_id = 0;
 
         template <typename T>
-        void attrib(GLuint idx, std::size_t size, Type type, const T* data,
-            std::size_t len)
+        void attrib(
+            GLuint idx, GLint size, Type type, const T* data, std::size_t len)
         {
             gl::Buffer vbo;
             vbo.load_static(data, len);
@@ -41,10 +41,12 @@ namespace gl {
         VertexArray& operator=(VertexArray&&);
         ~VertexArray();
 
+        static void unbind();
         void bind() const;
         GLuint id() const;
 
-        void attrib(GLuint idx, std::size_t size, Type type, gl::Buffer vbo);
+        void attrib(GLuint idx, GLint size, Type type, const gl::Buffer& vbo,
+            GLsizei stride = 0, GLsizei offset = 0);
         void attrib(GLuint idx, const float* data, std::size_t len);
         void attrib(GLuint idx, const glm::vec2* data, std::size_t len);
         void attrib(GLuint idx, const glm::vec3* data, std::size_t len);

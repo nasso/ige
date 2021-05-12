@@ -4,6 +4,7 @@
 #include "glad/gl.h"
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 namespace ige {
 namespace gl {
@@ -20,7 +21,7 @@ namespace gl {
             CompileError(const std::string& info_log);
         };
 
-        Shader(ShaderType type, const std::string& source);
+        Shader(ShaderType type, std::string_view source);
         Shader(const Shader&) = delete;
         Shader& operator=(const Shader&) = delete;
         Shader(Shader&&);

@@ -10,10 +10,11 @@ namespace gl {
 
     class Buffer {
     private:
+        GLenum m_target = GL_ARRAY_BUFFER;
         GLuint m_id = 0;
 
     public:
-        Buffer();
+        Buffer(GLenum target = GL_ARRAY_BUFFER);
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;
         Buffer(Buffer&& other);
@@ -24,8 +25,7 @@ namespace gl {
         void load_static(const T* data, std::size_t len)
         {
             bind();
-            glBufferData(
-                GL_ARRAY_BUFFER, sizeof(T) * len, data, GL_STATIC_DRAW);
+            glBufferData(m_target, sizeof(T) * len, data, GL_STATIC_DRAW);
         }
 
         void bind() const;

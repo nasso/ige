@@ -2,14 +2,15 @@
 #include "glad/gl.h"
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 using ige::gl::Shader;
 
-Shader::Shader(Shader::ShaderType type, const std::string& source)
+Shader::Shader(Shader::ShaderType type, std::string_view source)
 {
     GLint len = static_cast<GLint>(source.size());
-    const char* src = source.c_str();
+    const char* src = source.data();
 
     m_id = glCreateShader(type);
     glShaderSource(m_id, 1, &src, &len);

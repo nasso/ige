@@ -38,6 +38,11 @@ VertexArray::~VertexArray()
     }
 }
 
+void VertexArray::unbind()
+{
+    glBindVertexArray(0);
+}
+
 void VertexArray::bind() const
 {
     glBindVertexArray(m_id);
@@ -48,14 +53,14 @@ GLuint VertexArray::id() const
     return m_id;
 }
 
-void VertexArray::attrib(
-    GLuint idx, std::size_t size, VertexArray::Type type, Buffer vbo)
+void VertexArray::attrib(GLuint idx, GLint size, VertexArray::Type type,
+    const Buffer& vbo, GLsizei stride, GLsizei offset)
 {
     bind();
     glEnableVertexAttribArray(idx);
     vbo.bind();
-    glVertexAttribPointer(idx, size, type, GL_FALSE, 0, 0);
-    glBindVertexArray(0);
+    glVertexAttribPointer(idx, size, type, GL_FALSE, stride,
+        reinterpret_cast<const GLvoid*>(static_cast<GLsizeiptr>(offset)));
 }
 
 void VertexArray::attrib(GLuint idx, const float* data, std::size_t len)

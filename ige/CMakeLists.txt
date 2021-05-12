@@ -34,7 +34,9 @@ set(sources ${sources}
     "include/ige/core.hpp"
     "include/ige/core/Any.hpp"
     "include/ige/core/App.hpp"
+    "include/ige/core/DataStore.hpp"
     "include/ige/core/EventChannel.hpp"
+    "include/ige/core/FileSystemDataStore.hpp"
     "include/ige/core/State.hpp"
     "include/ige/core/StateMachine.hpp"
     "include/ige/ecs.hpp"
@@ -62,6 +64,8 @@ set(sources ${sources}
     "src/asset/Texture.cpp"
     "src/core/Any.cpp"
     "src/core/App.cpp"
+    "src/core/DataStore.cpp"
+    "src/core/FileSystemDataStore.cpp"
     "src/core/State.cpp"
     "src/core/StateMachine.cpp"
     "src/ecs/Schedule.cpp"
@@ -89,6 +93,14 @@ set(sources ${sources}
     "src/plugin/input/Keyboard.cpp"
 )
 
+# compile options
+get_filename_component(data_store_path data ABSOLUTE)
+set(compile_flags
+    GLM_FORCE_SILENT_WARNINGS
+    IGE_OPENGL
+    IGE_ENGINE_FS_DATA_STORE_PATH=${data_store_path}
+)
+
 # static library
 add_library(ige STATIC ${sources})
 target_include_directories(ige
@@ -100,11 +112,11 @@ set_target_properties(ige
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
-        COMPILE_DEFINITIONS "IGE_OPENGL;GLM_FORCE_SILENT_WARNINGS"
 )
 target_compile_options(ige
     PRIVATE
         $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
         $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
+target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige glfw glad glm)

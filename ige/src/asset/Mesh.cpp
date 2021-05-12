@@ -82,11 +82,6 @@ std::shared_ptr<Mesh> Mesh::make_cube(float size)
     return std::make_shared<Mesh>(Mesh::cube(size));
 }
 
-std::size_t Mesh::size() const
-{
-    return m_vertices.size();
-}
-
 const std::vector<Mesh::Vertex>& Mesh::vertices() const
 {
     return m_vertices;
