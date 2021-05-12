@@ -34,7 +34,7 @@ class RootState : public State {
         auto material = Material::load_default();
 
         auto camera = app.world().create_entity();
-        camera.add_component(Transform::make_look_at(vec3(3.0f), vec3(0.0f)));
+        camera.add_component(Transform::make_look_at(vec3(1.0f), vec3(0.0f)));
         camera.emplace_component<PerspectiveCamera>(90.0f);
 
         auto cube = app.world().create_entity();

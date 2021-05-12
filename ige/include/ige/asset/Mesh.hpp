@@ -13,11 +13,13 @@ namespace asset {
 
     class Mesh {
     public:
+#pragma pack(push, 1)
         struct Vertex {
             glm::vec3 position;
             glm::vec3 normal;
             glm::vec2 uv;
         };
+#pragma pack(pop)
 
         enum class Topology {
             TRIANGLES,
@@ -26,8 +28,6 @@ namespace asset {
 
         static Mesh cube(float size);
         static std::shared_ptr<Mesh> make_cube(float size);
-
-        std::size_t size() const;
 
         const std::vector<Vertex>& vertices() const;
         const std::vector<std::uint16_t>& indices() const;

@@ -4,7 +4,8 @@
 
 using ige::gl::Buffer;
 
-Buffer::Buffer()
+Buffer::Buffer(GLenum target)
+    : m_target(target)
 {
     glGenBuffers(1, &m_id);
 }
@@ -34,7 +35,7 @@ Buffer::~Buffer()
 
 void Buffer::bind() const
 {
-    glBindBuffer(GL_ARRAY_BUFFER, m_id);
+    glBindBuffer(m_target, m_id);
 }
 
 GLuint Buffer::id() const
