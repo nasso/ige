@@ -10,7 +10,7 @@
 #include <unordered_set>
 
 #ifdef IGE_OPENGL
-#include <glad/gl.h>
+#include "glad/gl.h"
 #endif
 
 using ige::core::App;
