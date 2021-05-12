@@ -34,12 +34,18 @@ class RootState : public State {
         auto material = Material::load_default();
 
         auto camera = app.world().create_entity();
-        camera.add_component(Transform::make_look_at(vec3(1.0f), vec3(0.0f)));
+        camera.add_component(Transform::make_look_at(vec3(2.0f), vec3(0.0f)));
         camera.emplace_component<PerspectiveCamera>(90.0f);
 
-        auto cube = app.world().create_entity();
-        cube.emplace_component<Transform>();
-        cube.emplace_component<MeshRenderer>(mesh, material);
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                auto cube = app.world().create_entity();
+                auto& xform = cube.emplace_component<Transform>();
+                cube.emplace_component<MeshRenderer>(mesh, material);
+
+                xform.set_translation(vec3(x, 0.0f, y));
+            }
+        }
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
         m_win_events.emplace(channel->get().subscribe());
