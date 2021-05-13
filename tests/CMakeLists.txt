@@ -54,7 +54,6 @@ endmacro()
 
 package_add_test(any any.cpp)
 package_add_test(eventchannel eventchannel.cpp)
-package_add_test(state state.cpp)
 package_add_test(statemachine statemachine.cpp)
 package_add_test(storage storage.cpp)
 package_add_test(world world.cpp)

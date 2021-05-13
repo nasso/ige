@@ -1,74 +1,99 @@
 #include "ige/core/StateMachine.hpp"
 #include "ige/core/App.hpp"
+#include "ige/core/State.hpp"
 #include <functional>
 #include <optional>
 
-namespace ige {
-namespace core {
+using ige::core::App;
+using ige::core::State;
+using ige::core::StateMachine;
 
-    void StateMachine::remove_current_state()
-    {
+void StateMachine::perform(StateMachine::Command cmd, App& app)
+{
+    switch (cmd.type) {
+    case StateMachine::CommandType::POP:
         if (!m_states.empty()) {
-            m_stopping.insert(m_stopping.end(),
-                std::make_move_iterator(m_states.end() - 1),
-                std::make_move_iterator(m_states.end()));
+            m_states.back()->on_stop(app);
             m_states.pop_back();
         }
-    }
 
-    void StateMachine::pop()
-    {
-        if (auto cur = current()) {
-            cur->get().stop();
+        if (!m_states.empty()) {
+            m_states.back()->on_resume(app);
+        }
+        break;
+    case StateMachine::CommandType::PUSH:
+        if (!m_states.empty()) {
+            m_states.back()->on_pause(app);
         }
 
-        remove_current_state();
-
-        if (auto cur = current()) {
-            cur->get().resume();
-        }
-    }
-
-    void StateMachine::update(App& app)
-    {
-        for (auto& state : m_stopping) {
-            state->update(app);
-        }
-        m_stopping.clear();
-
+        m_states.push_back(std::move(cmd.state));
+        m_states.back()->on_start(app);
+        break;
+    case StateMachine::CommandType::QUIT:
         for (auto& state : m_states) {
-            state->update(app);
+            state->on_stop(app);
         }
-    }
 
-    void StateMachine::quit()
-    {
         m_states.clear();
-    }
-
-    bool StateMachine::is_running() const
-    {
-        return !m_states.empty();
-    }
-
-    std::optional<std::reference_wrapper<State>> StateMachine::current()
-    {
-        if (m_states.empty()) {
-            return {};
-        } else {
-            return { **(m_states.end() - 1) };
+        break;
+    case StateMachine::CommandType::SWITCH:
+        if (!m_states.empty()) {
+            m_states.back()->on_stop(app);
+            m_states.pop_back();
         }
-    }
 
-    std::optional<std::reference_wrapper<const State>>
-    StateMachine::current() const
-    {
-        if (m_states.empty()) {
-            return {};
-        } else {
-            return { **(m_states.end() - 1) };
-        }
+        m_states.push_back(std::move(cmd.state));
+        m_states.back()->on_start(app);
+        break;
     }
-
 }
+
+void StateMachine::queue(StateMachine::Command cmd)
+{
+    m_command_queue.push(std::move(cmd));
+}
+
+void StateMachine::pop()
+{
+    queue({ CommandType::POP, nullptr });
+}
+
+void StateMachine::quit()
+{
+    queue({ CommandType::QUIT, nullptr });
+}
+
+void StateMachine::update(App& app)
+{
+    while (!m_command_queue.empty()) {
+        perform(std::move(m_command_queue.front()), app);
+        m_command_queue.pop();
+    }
+
+    for (auto& state : m_states) {
+        state->on_update(app);
+    }
+}
+
+bool StateMachine::is_running() const
+{
+    return !m_states.empty();
+}
+
+std::optional<std::reference_wrapper<State>> StateMachine::current()
+{
+    if (m_states.empty()) {
+        return {};
+    } else {
+        return { **(m_states.end() - 1) };
+    }
+}
+
+std::optional<std::reference_wrapper<const State>> StateMachine::current() const
+{
+    if (m_states.empty()) {
+        return {};
+    } else {
+        return { **(m_states.end() - 1) };
+    }
 }

@@ -1,4 +1,5 @@
 #include "ige.hpp"
+#include <iostream>
 #include <optional>
 
 #include <glm/vec3.hpp>
@@ -59,10 +60,14 @@ class RootState : public State {
 
 int main()
 {
+    std::cout << "Starting application..." << std::endl;
+
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(TransformPlugin {})
         .add_plugin(RenderingPlugin {})
         .add_plugin(WindowingPlugin {})
         .run<RootState>();
+
+    std::cout << "Bye bye!" << std::endl;
 }

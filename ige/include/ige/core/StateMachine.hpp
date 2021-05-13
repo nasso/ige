@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <queue>
 #include <type_traits>
 #include <vector>
 
@@ -16,10 +17,23 @@ namespace core {
 
     class StateMachine {
     private:
-        std::vector<std::unique_ptr<State>> m_states;
-        std::vector<std::unique_ptr<State>> m_stopping;
+        enum class CommandType {
+            PUSH,
+            POP,
+            SWITCH,
+            QUIT,
+        };
 
-        void remove_current_state();
+        struct Command {
+            CommandType type;
+            std::unique_ptr<State> state;
+        };
+
+        std::vector<std::unique_ptr<State>> m_states;
+        std::queue<Command> m_command_queue;
+
+        void perform(Command, App&);
+        void queue(Command);
 
     public:
         /**
@@ -32,18 +46,15 @@ namespace core {
         requires std::constructible_from<S, Args...> S& switch_to(
             Args&&... args)
         {
-            if (auto cur = current()) {
-                cur->get().stop();
-            }
+            auto state = std::make_unique<S>(std::forward<Args>(args)...);
+            auto& state_ref = *state;
 
-            remove_current_state();
+            queue({
+                CommandType::SWITCH,
+                std::move(state),
+            });
 
-            m_states.push_back(
-                std::make_unique<S>(std::forward<Args>(args)...));
-
-            auto& cur = current()->get();
-            cur.start();
-            return static_cast<S&>(cur);
+            return state_ref;
         }
 
         /**
@@ -55,16 +66,15 @@ namespace core {
         template <std::derived_from<State> S, typename... Args>
         requires std::constructible_from<S, Args...> S& push(Args&&... args)
         {
-            if (auto cur = current()) {
-                cur->get().pause();
-            }
+            auto state = std::make_unique<S>(std::forward<Args>(args)...);
+            auto& state_ref = *state;
 
-            m_states.push_back(
-                std::make_unique<S>(std::forward<Args>(args)...));
+            queue({
+                CommandType::PUSH,
+                std::move(state),
+            });
 
-            auto& cur = current()->get();
-            cur.start();
-            return static_cast<S&>(cur);
+            return state_ref;
         }
 
         void pop();

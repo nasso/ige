@@ -38,23 +38,22 @@ TEST(StateMachine, SingleStateCycle)
     App app;
     StateMachine machine;
 
-    machine.push<StrictMock<MockState>>();
+    auto& st = machine.push<StrictMock<MockState>>();
 
-    ASSERT_TRUE(machine.is_running());
-    ASSERT_TRUE(machine.current());
-
-    auto& st = static_cast<StrictMock<MockState>&>(machine.current()->get());
+    ASSERT_FALSE(machine.is_running());
+    ASSERT_FALSE(machine.current());
 
     {
         InSequence seq;
 
         EXPECT_CALL(st, on_start(Ref(app)));
-        EXPECT_CALL(st, on_update(Ref(app)));
-        EXPECT_CALL(st, on_update(Ref(app)));
-        EXPECT_CALL(st, on_update(Ref(app)));
+        EXPECT_CALL(st, on_update(Ref(app))).Times(3);
     }
 
     machine.update(app);
+    ASSERT_TRUE(machine.is_running());
+    ASSERT_TRUE(machine.current());
+
     machine.update(app);
     machine.update(app);
 }
@@ -78,8 +77,8 @@ TEST(StateMachine, MultiStateCycle)
         auto& st1 = machine.push<StrictMock<MockState>>();
 
         EXPECT_CALL(st0, on_pause(Ref(app)));
-        EXPECT_CALL(st0, on_update(Ref(app)));
         EXPECT_CALL(st1, on_start(Ref(app)));
+        EXPECT_CALL(st0, on_update(Ref(app)));
         EXPECT_CALL(st1, on_update(Ref(app)));
         EXPECT_CALL(st0, on_update(Ref(app)));
         EXPECT_CALL(st1, on_update(Ref(app)));

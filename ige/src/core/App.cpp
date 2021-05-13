@@ -69,10 +69,10 @@ namespace core {
     {
         m_startup(m_world);
 
-        while (m_state_machine.is_running()) {
+        do {
             m_state_machine.update(*this);
             m_update(m_world);
-        }
+        } while (m_state_machine.is_running());
 
         m_cleanup(m_world);
     }
