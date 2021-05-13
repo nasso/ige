@@ -85,12 +85,14 @@ public:
         gl::Error::audit("mesh cache - buffers");
 
         const auto f32 = gl::VertexArray::Type::FLOAT;
-        const auto f32s = sizeof(float);
         const auto stride = sizeof(Mesh::Vertex);
+        const auto pos_off = offsetof(Mesh::Vertex, position);
+        const auto norm_off = offsetof(Mesh::Vertex, normal);
+        const auto uv_off = offsetof(Mesh::Vertex, uv);
 
-        vertex_array.attrib(0, 3, f32, vertex_buffer, stride);
-        vertex_array.attrib(1, 3, f32, vertex_buffer, stride, 3 * f32s);
-        vertex_array.attrib(2, 2, f32, vertex_buffer, stride, 6 * f32s);
+        vertex_array.attrib(0, 3, f32, vertex_buffer, stride, pos_off);
+        vertex_array.attrib(1, 3, f32, vertex_buffer, stride, norm_off);
+        vertex_array.attrib(2, 2, f32, vertex_buffer, stride, uv_off);
 
         vertex_buffer.bind();
         index_buffer.bind();
