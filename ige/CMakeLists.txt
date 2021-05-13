@@ -83,6 +83,8 @@ set(sources ${sources}
     "src/plugin/renderer/opengl/Texture.hpp"
     "src/plugin/renderer/opengl/VertexArray.cpp"
     "src/plugin/renderer/opengl/VertexArray.hpp"
+    "src/plugin/renderer/backend.hpp"
+    "src/plugin/renderer/opengl.cpp"
     "src/plugin/RenderingPlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowingPlugin.cpp"
@@ -116,7 +118,7 @@ set_target_properties(ige
 target_compile_options(ige
     PRIVATE
         $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4103>
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige glfw glad glm)
