@@ -177,6 +177,7 @@ static void draw_mesh(
 
     // TODO: remove wireframe mode
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
     glCullFace(GL_BACK);
     glDrawElements(
         topology, model.mesh->indices().size(), GL_UNSIGNED_SHORT, 0);
@@ -213,7 +214,13 @@ static void render_meshes(World& world)
     }
 }
 
+static void clear_buffers(World&)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 void RenderingPlugin::plug(App::Builder& builder) const
 {
+    builder.add_system(System(clear_buffers));
     builder.add_system(System(render_meshes));
 }
