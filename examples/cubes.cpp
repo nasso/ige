@@ -1,4 +1,5 @@
 #include "ige.hpp"
+#include <chrono>
 #include <iostream>
 #include <optional>
 
@@ -15,6 +16,7 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
+using ige::ecs::World;
 using ige::plugin::MeshRenderer;
 using ige::plugin::PerspectiveCamera;
 using ige::plugin::RenderingPlugin;
@@ -26,16 +28,24 @@ using ige::plugin::WindowingPlugin;
 using ige::plugin::WindowSettings;
 
 class RootState : public State {
+    using Instant = std::chrono::time_point<std::chrono::steady_clock>;
+
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
+
+    std::vector<World::EntityRef> cubes;
+
+    Instant start_time;
 
     void on_start(App& app) override
     {
+        start_time = std::chrono::steady_clock::now();
+
         auto mesh = Mesh::make_cube(1.0f);
         auto material = Material::load_default();
 
         auto camera = app.world().create_entity();
         camera.add_component(
-            Transform::make_look_at(vec3(2.0f, 2.0f, 0.0f), vec3(0.0f)));
+            Transform::make_look_at(vec3(-3.0f, 3.0f, 0.0f), vec3(0.0f)));
         camera.emplace_component<PerspectiveCamera>(90.0f);
 
         for (int x = -1; x <= 1; x++) {
@@ -43,8 +53,9 @@ class RootState : public State {
                 auto cube = app.world().create_entity();
                 auto& xform = cube.emplace_component<Transform>();
                 cube.emplace_component<MeshRenderer>(mesh, material);
+                cubes.push_back(cube);
 
-                xform.set_translation(vec3(x, 0.0f, y));
+                xform.set_translation({ x * 1.5f, 0.0f, y * 1.5f });
             }
         }
 
@@ -54,6 +65,18 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
+        Instant now = std::chrono::steady_clock::now();
+        std::chrono::duration<float> dur = now - start_time;
+        float t = dur.count();
+
+        for (auto cube : cubes) {
+            Transform& xform = cube.get_component<Transform>()->get();
+
+            xform.set_rotation(vec3(t, 0.0f, t));
+
+            t /= 2.0f;
+        }
+
         while (const auto& event = m_win_events->next_event()) {
             if (event->get().kind == WindowEventKind::WindowClose) {
                 app.quit();

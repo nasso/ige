@@ -198,7 +198,7 @@ static void render_meshes(World& world)
     auto& camera = std::get<1>(cameras[0]);
     auto& camera_xform = std::get<2>(cameras[0]);
 
-    mat4 projection = glm::perspective(camera.fov,
+    mat4 projection = glm::perspective(glm::radians(camera.fov),
         float(wininfo.width) / float(wininfo.height), camera.near, camera.far);
     mat4 view = camera_xform.compute_inverse();
 
