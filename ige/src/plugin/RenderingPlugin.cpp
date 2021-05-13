@@ -52,8 +52,8 @@ struct WeakRefHash {
 
 template <typename T>
 struct WeakRefEq {
-    bool operator()(
-        const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const
+    bool
+    operator()(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const
     {
         if (lhs.expired() || rhs.expired()) {
             return lhs.expired() && rhs.expired();
@@ -134,8 +134,8 @@ private:
     }
 
 public:
-    std::unordered_map<std::weak_ptr<Mesh>, MeshCache, WeakRefHash<Mesh>,
-        WeakRefEq<Mesh>>
+    std::unordered_map<
+        std::weak_ptr<Mesh>, MeshCache, WeakRefHash<Mesh>, WeakRefEq<Mesh>>
         meshes;
     gl::Program main_program;
 
@@ -145,8 +145,8 @@ public:
     }
 };
 
-static void draw_mesh(
-    RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
+static void
+draw_mesh(RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
 {
     auto iter = cache.meshes.find(model.mesh);
 
@@ -199,8 +199,8 @@ static void render_meshes(World& world)
     auto& camera_xform = std::get<2>(cameras[0]);
 
     mat4 projection = glm::perspective(
-        camera.fov, float(wininfo.width) / float(wininfo.height), camera.near,
-        camera.far);
+        glm::radians(camera.fov), float(wininfo.width) / float(wininfo.height),
+        camera.near, camera.far);
     mat4 view = camera_xform.compute_inverse();
 
     auto& cache = world.get_or_emplace<RenderCache>();

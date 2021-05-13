@@ -63,6 +63,41 @@ void Transform::set_scale(vec3 value)
     m_world_to_local.reset();
 }
 
+void Transform::translate(vec3 v)
+{
+    m_translation += v;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
+}
+
+void Transform::rotate(vec3 angles)
+{
+    const vec3 X_AXIS { 1.0f, 0.0f, 0.0f };
+    const vec3 Y_AXIS { 0.0f, 1.0f, 0.0f };
+    const vec3 Z_AXIS { 0.0f, 0.0f, 1.0f };
+
+    // order of rotation: ZXY (same as Unity)
+    // m_rotation = glm::rotate(m_rotation, glm::radians(angles.z), Z_AXIS);
+    // m_rotation = glm::rotate(m_rotation, glm::radians(angles.x), X_AXIS);
+    m_rotation = glm::rotate(m_rotation, glm::radians(angles.y), Y_AXIS);
+    m_local_to_world.reset();
+    m_world_to_local.reset();
+}
+
+void Transform::rotate(quat rot)
+{
+    m_rotation *= rot;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
+}
+
+void Transform::scale(vec3 f)
+{
+    m_scale *= f;
+    m_local_to_world.reset();
+    m_world_to_local.reset();
+}
+
 void Transform::look_at(vec3 target, vec3 up)
 {
     set_rotation(glm::quatLookAt(glm::normalize(target - m_translation), up));

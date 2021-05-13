@@ -14,7 +14,7 @@ namespace plugin {
     class Transform {
     private:
         glm::vec3 m_translation;
-        glm::quat m_rotation;
+        glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 m_scale = glm::vec3(1.0f);
 
         std::optional<glm::mat4> m_local_to_world;
@@ -34,6 +34,11 @@ namespace plugin {
         void set_translation(glm::vec3);
         void set_rotation(glm::quat);
         void set_scale(glm::vec3);
+
+        void translate(glm::vec3);
+        void rotate(glm::vec3);
+        void rotate(glm::quat);
+        void scale(glm::vec3);
 
         void look_at(glm::vec3 target, glm::vec3 up);
 
