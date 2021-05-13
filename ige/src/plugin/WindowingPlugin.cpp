@@ -30,6 +30,19 @@ static void init_glfw_system(World&)
     }
 }
 
+static void window_resize_callback(GLFWwindow* win, int width, int height)
+{
+    World& wld = *static_cast<World*>(glfwGetWindowUserPointer(win));
+
+    auto& info = wld.get_or_emplace<WindowInfo>();
+    info.width = width;
+    info.height = height;
+
+#ifdef IGE_OPENGL
+    glViewport(0, 0, width, height);
+#endif
+}
+
 static void create_window_system(World& wld)
 {
     auto settings_ref = wld.get<WindowSettings>();
@@ -54,6 +67,9 @@ static void create_window_system(World& wld)
         glfwTerminate();
         throw std::runtime_error("Unable to create GLFW window");
     }
+
+    glfwSetWindowUserPointer(win, &wld);
+    glfwSetWindowSizeCallback(win, window_resize_callback);
 
 #ifdef IGE_OPENGL
     // Make the window's OpenGL context current
