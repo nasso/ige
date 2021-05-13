@@ -12,6 +12,8 @@ namespace core {
     public:
         static const DataStore& get_engine_data_store();
 
+        virtual ~DataStore() = default;
+
         virtual std::vector<std::byte> get(std::string_view key) const = 0;
 
         std::string get_str(std::string_view key) const;
