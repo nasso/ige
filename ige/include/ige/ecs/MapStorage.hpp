@@ -18,7 +18,6 @@ namespace ecs {
         using Iterator = std::unordered_map<K, V>::iterator;
 
         MapStorage() = default;
-        virtual ~MapStorage() = default;
 
         MapStorage(MapStorage&& other)
             : m_data(std::move(other.m_data))

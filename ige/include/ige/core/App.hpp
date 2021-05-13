@@ -28,6 +28,8 @@ namespace core {
 
         class Plugin {
         public:
+            virtual ~Plugin() = default;
+
             virtual void plug(Builder&) const = 0;
         };
 

@@ -91,7 +91,6 @@ namespace ecs {
         };
 
         VecStorage() = default;
-        virtual ~VecStorage() = default;
 
         VecStorage(VecStorage&& other)
             : m_data(std::move(other.m_data))
