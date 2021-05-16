@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sudo apt-get install clang-format
+      - name: Install clang-format
+        run: |
+          sudo apt-get install clang-format
+          clang-format --version
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
