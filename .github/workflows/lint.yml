@@ -7,30 +7,30 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    env:
-      LLVM_DOWNLOAD_URL: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
-      CLANG_FORMAT_BIN: /tmp/llvm/*/bin/clang-format
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache LLVM
-        id: cache-llvm
+      - name: Cache clang-format
+        id: cache-clang-format
         uses: actions/cache@v2
         with:
-          path: /tmp/llvm
-          key: ${{ runner.os }}-llvm-12.0.0
+          path: ~/cache/clang-format
+          key: ${{ runner.os }}-clang-format-12.0.0
 
       - name: Download & Extract LLVM
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
+        if: steps.cache-clang-format.outputs.cache-hit != 'true'
         run: |
-          wget --progress=bar:force:noscroll -q --show-progress -O /tmp/llvm.tar.xz $LLVM_DOWNLOAD_URL
-          mkdir /tmp/llvm
-          tar -xf /tmp/llvm.tar.xz -C /tmp/llvm
+          wget --progress=bar:force:noscroll -q --show-progress -O /tmp/llvm.tar.xz \
+            https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
+          mkdir -p /tmp/llvm
+          tar -xf /tmp/llvm.tar.xz -C /tmp/llvm --strip-components=1
+          mkdir -p ~/cache
+          cp /tmp/llvm/bin/clang-format ~/cache/clang-format
 
       - name: Check clang-format version
-        run: $CLANG_FORMAT_BIN --version
+        run: ~/cache/clang-format --version
 
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec $CLANG_FORMAT_BIN --verbose --Werror --style=file --dry-run {} +
+          -exec ~/cache/clang-format --verbose --Werror --style=file --dry-run {} +
