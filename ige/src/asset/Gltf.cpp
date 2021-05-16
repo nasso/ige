@@ -40,8 +40,7 @@ Gltf Gltf::from_bin(std::istream& in, const std::string& root_path)
     return Gltf { gltf::LoadFromBinary(in, root_path) };
 }
 
-static std::pair<bool, std::size_t>
-element_type(const gltf::Accessor& accessor) noexcept
+static std::pair<bool, std::size_t> element_type(const gltf::Accessor& accessor)
 {
     bool is_signed = false;
     std::size_t component_size = 0;
@@ -65,6 +64,8 @@ element_type(const gltf::Accessor& accessor) noexcept
     case gltf::Accessor::ComponentType::UnsignedInt:
         component_size = 4;
         break;
+    default:
+        throw std::runtime_error("Unsupported accessor component type");
     }
 
     switch (accessor.type) {
@@ -81,6 +82,8 @@ element_type(const gltf::Accessor& accessor) noexcept
         return { is_signed, component_size * 9 };
     case gltf::Accessor::Type::Mat4:
         return { is_signed, component_size * 16 };
+    default:
+        throw std::runtime_error("Unsupported accessor type");
     }
 
     return { false, 0 };
