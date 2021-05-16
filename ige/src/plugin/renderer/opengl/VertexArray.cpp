@@ -53,32 +53,34 @@ GLuint VertexArray::id() const
     return m_id;
 }
 
-void VertexArray::attrib(GLuint idx, GLint size, VertexArray::Type type,
-    const Buffer& vbo, GLsizei stride, GLsizei offset)
+void VertexArray::attrib(
+    GLuint idx, GLint size, VertexArray::Type type, const Buffer& vbo,
+    GLsizei stride, GLsizei offset)
 {
     bind();
     glEnableVertexAttribArray(idx);
     vbo.bind();
-    glVertexAttribPointer(idx, size, type, GL_FALSE, stride,
+    glVertexAttribPointer(
+        idx, size, static_cast<GLenum>(type), GL_FALSE, stride,
         reinterpret_cast<const GLvoid*>(static_cast<GLsizeiptr>(offset)));
 }
 
-void VertexArray::attrib(GLuint idx, const float* data, std::size_t len)
+void VertexArray::attrib(GLuint idx, std::span<const float> data)
 {
-    attrib(idx, 1, VertexArray::FLOAT, data, len);
+    attrib(idx, 1, VertexArray::Type::FLOAT, data);
 }
 
-void VertexArray::attrib(GLuint idx, const vec2* data, std::size_t len)
+void VertexArray::attrib(GLuint idx, std::span<const vec2> data)
 {
-    attrib(idx, 2, VertexArray::FLOAT, data, len);
+    attrib(idx, 2, VertexArray::Type::FLOAT, data);
 }
 
-void VertexArray::attrib(GLuint idx, const vec3* data, std::size_t len)
+void VertexArray::attrib(GLuint idx, std::span<const vec3> data)
 {
-    attrib(idx, 3, VertexArray::FLOAT, data, len);
+    attrib(idx, 3, VertexArray::Type::FLOAT, data);
 }
 
-void VertexArray::attrib(GLuint idx, const vec4* data, std::size_t len)
+void VertexArray::attrib(GLuint idx, std::span<const vec4> data)
 {
-    attrib(idx, 4, VertexArray::FLOAT, data, len);
+    attrib(idx, 4, VertexArray::Type::FLOAT, data);
 }

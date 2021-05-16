@@ -15,6 +15,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <unordered_map>
 
@@ -45,8 +46,8 @@ struct WeakRefHash {
 
 template <typename T>
 struct WeakRefEq {
-    bool operator()(
-        const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const
+    bool
+    operator()(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const
     {
         if (lhs.expired() || rhs.expired()) {
             return lhs.expired() && rhs.expired();
@@ -62,39 +63,62 @@ private:
 
     std::size_t m_id;
 
+    static gl::VertexArray::Type convert_data_type(Mesh::DataType type)
+    {
+        switch (type) {
+        case Mesh::DataType::FLOAT:
+            return gl::VertexArray::Type::FLOAT;
+        default:
+            throw std::runtime_error("Unsupported data type");
+        }
+    }
+
 public:
     gl::VertexArray vertex_array;
+    std::optional<gl::Buffer> index_buffer;
+    std::vector<gl::Buffer> vertex_buffers;
 
     MeshCache(const Mesh& mesh)
         : m_id(++GID)
     {
-        const auto& vertices = mesh.vertices();
-        const auto& indices = mesh.indices();
-
-        gl::Buffer vertex_buffer, index_buffer(GL_ELEMENT_ARRAY_BUFFER);
-        vertex_buffer.load_static(vertices.data(), vertices.size());
-        index_buffer.load_static(indices.data(), indices.size());
+        auto mesh_data = mesh.buffers();
+        vertex_buffers.resize(mesh_data.size());
+        for (std::size_t i = 0; i < vertex_buffers.size(); i++) {
+            vertex_buffers[i].load<std::byte>(mesh_data[i]);
+        }
 
         gl::Error::audit("mesh cache - buffers");
 
-        const auto f32 = gl::VertexArray::Type::FLOAT;
-        const auto stride = sizeof(Mesh::Vertex);
-        const auto pos_off = offsetof(Mesh::Vertex, position);
-        const auto norm_off = offsetof(Mesh::Vertex, normal);
-        const auto uv_off = offsetof(Mesh::Vertex, uv);
+        const auto pos = mesh.attr_position();
+        const auto norm = mesh.attr_normal();
+        const auto uv = mesh.attr_tex_coords();
 
-        vertex_array.attrib(0, 3, f32, vertex_buffer, stride, pos_off);
-        vertex_array.attrib(1, 3, f32, vertex_buffer, stride, norm_off);
-        vertex_array.attrib(2, 2, f32, vertex_buffer, stride, uv_off);
+        vertex_array.attrib(
+            0, 3, convert_data_type(pos.type), vertex_buffers[pos.buffer],
+            static_cast<GLsizei>(pos.stride), static_cast<GLsizei>(pos.offset));
+        vertex_array.attrib(
+            1, 3, convert_data_type(norm.type), vertex_buffers[norm.buffer],
+            static_cast<GLsizei>(norm.stride),
+            static_cast<GLsizei>(norm.offset));
 
-        vertex_buffer.bind();
-        index_buffer.bind();
+        if (!uv.empty()) {
+            const auto& uvs = uv[0];
+            vertex_array.attrib(
+                2, 2, convert_data_type(uvs.type), vertex_buffers[uvs.buffer],
+                static_cast<GLsizei>(uvs.stride),
+                static_cast<GLsizei>(uvs.offset));
+        }
+
+        index_buffer.emplace(GL_ELEMENT_ARRAY_BUFFER);
+        index_buffer->load(mesh.index_buffer());
+        gl::Error::audit("mesh cache - index buffer");
+
         gl::VertexArray::unbind();
 
         gl::Error::audit("mesh cache - vertex array");
 
-        std::cerr << "Made mesh cache " << m_id << " - " << vertices.size()
-                  << " vertices, " << indices.size() << " indices" << std::endl;
+        std::cerr << "Made mesh cache " << m_id << " - "
+                  << mesh.index_buffer().size() << " vertices" << std::endl;
     }
 
     ~MeshCache()
@@ -127,8 +151,8 @@ private:
     }
 
 public:
-    std::unordered_map<std::weak_ptr<Mesh>, MeshCache, WeakRefHash<Mesh>,
-        WeakRefEq<Mesh>>
+    std::unordered_map<
+        std::weak_ptr<Mesh>, MeshCache, WeakRefHash<Mesh>, WeakRefEq<Mesh>>
         meshes;
     gl::Program main_program;
 
@@ -138,8 +162,8 @@ public:
     }
 };
 
-static void draw_mesh(
-    RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
+static void
+draw_mesh(RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
 {
     auto iter = cache.meshes.find(model.mesh);
 
@@ -168,12 +192,12 @@ static void draw_mesh(
 
     gl::Error::audit("before draw elements");
 
-    // TODO: remove wireframe mode
-    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glDrawElements(topology, static_cast<GLsizei>(model.mesh->indices().size()),
-        GL_UNSIGNED_SHORT, 0);
+    glDrawElements(
+        topology, static_cast<GLsizei>(model.mesh->index_buffer().size()),
+        GL_UNSIGNED_INT, 0);
 
     gl::Error::audit("draw elements");
 }
@@ -193,8 +217,9 @@ void backend::render_meshes(World& world)
     auto& camera = std::get<1>(cameras[0]);
     auto& camera_xform = std::get<2>(cameras[0]);
 
-    mat4 projection = glm::perspective(glm::radians(camera.fov),
-        float(wininfo.width) / float(wininfo.height), camera.near, camera.far);
+    mat4 projection = glm::perspective(
+        glm::radians(camera.fov), float(wininfo.width) / float(wininfo.height),
+        camera.near, camera.far);
     mat4 view = camera_xform.compute_inverse();
 
     auto& cache = world.get_or_emplace<RenderCache>();

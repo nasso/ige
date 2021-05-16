@@ -3,6 +3,7 @@
 
 #include "glad/gl.h"
 #include <cstddef>
+#include <span>
 #include <vector>
 
 namespace ige {
@@ -22,10 +23,11 @@ namespace gl {
         ~Buffer();
 
         template <typename T>
-        void load_static(const T* data, std::size_t len)
+        void load(std::span<const T> data)
         {
             bind();
-            glBufferData(m_target, sizeof(T) * len, data, GL_STATIC_DRAW);
+            glBufferData(
+                m_target, data.size_bytes(), data.data(), GL_STATIC_DRAW);
         }
 
         void bind() const;
