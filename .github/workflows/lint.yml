@@ -12,5 +12,5 @@ jobs:
       - run: sudo apt-get install clang-format
       - name: Check for clang-format errors
         run: >
-          find -iname "*.cpp" -or -iname "*.hpp" -or -iname "*.h"
-          -exec clang-format --Werror --style=file --dry-run {} \;
+          find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
+          -exec clang-format --Werror --style=file --dry-run {} +
