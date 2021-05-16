@@ -33,4 +33,4 @@ jobs:
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec $CLANG_FORMAT_BIN --Werror --style=file --dry-run {} +
+          -exec $CLANG_FORMAT_BIN --verbose --Werror --style=file --dry-run {} +
