@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install clang-format
+      - name: Download clang-format 12
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-          sudo apt-get install clang-format-12
-          clang-format-12 --version
+          wget -O llvm.tar.xz https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
+          tar xzvf llvm.tar.xz
+          ./clang*/bin/clang-format --version
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec clang-format-12 --Werror --style=file --dry-run {} +
+          -exec ./clang*/bin/clang-format --Werror --style=file --dry-run {} +
