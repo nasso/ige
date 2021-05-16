@@ -7,15 +7,18 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      LLVM_DOWNLOAD_URL: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
+      LLVM_DEST: /tmp/llvm
+      CLANG_FORMAT_BIN: /tmp/llvm/*/bin/clang-format
     steps:
       - uses: actions/checkout@v2
       - name: Install clang-format 12
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
-          sudo add-apt-repository 'deb http://apt.llvm.org/hirsute/ llvm-toolchain-hirsute-12 main'
-          sudo apt-get install clang-format-12
-          clang-format-12 --version
+          wget --progress=bar:force:noscroll -q --show-progress -O /tmp/llvm.tar.xz $LLVM_DOWNLOAD_URL
+          tar xf /tmp/llvm.tar.xz $LLVM_DEST
+          $CLANG_FORMAT_BIN --version
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec clang-format-12 --Werror --style=file --dry-run {} +
+          -exec $CLANG_FORMAT_BIN --Werror --style=file --dry-run {} +
