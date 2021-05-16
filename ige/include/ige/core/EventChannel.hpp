@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <deque>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <unordered_map>
 #include <vector>
@@ -21,6 +22,10 @@ namespace core {
         using Cursor = std::size_t;
         using Handle = std::size_t;
 
+        struct ChannelGuard {
+        };
+
+        std::shared_ptr<ChannelGuard> m_channel_guard;
         std::deque<E> m_buffer;
         std::unordered_map<Handle, Cursor> m_sub_handles;
         std::size_t m_subs_at_zero = 0;
@@ -86,32 +91,64 @@ namespace core {
         class Subscription {
         public:
             Subscription(EventChannel& channel)
-                : m_channel(channel)
+                : m_channel_guard(channel.m_channel_guard)
+                , m_channel(channel)
                 , m_handle(channel.make_handle())
             {
             }
 
             Subscription(const Subscription& other)
-                : Subscription(other.m_channel)
+                : Subscription(other.m_channel.get())
             {
+            }
+
+            Subscription(Subscription&& other)
+                : m_channel_guard(other.m_channel_guard)
+                , m_channel(other.m_channel)
+                , m_handle(other.m_handle)
+            {
+                other.m_moved = true;
+            }
+
+            Subscription& operator=(Subscription&& rhs)
+            {
+                if (m_moved) {
+                    m_channel.get().free_handle(m_handle);
+                }
+                m_channel_guard = rhs.m_channel_guard;
+                m_channel = rhs.m_channel;
+                m_handle = rhs.m_handle;
+                m_moved = false;
+                rhs.m_moved = true;
             }
 
             ~Subscription()
             {
-                m_channel.free_handle(m_handle);
+                if (!m_moved && !m_channel_guard.expired()) {
+                    m_channel.get().free_handle(m_handle);
+                }
             }
 
             std::optional<std::reference_wrapper<const E>> next_event()
             {
-                return m_channel.read_event(m_handle);
+                if (!m_channel_guard.expired()) {
+                    return m_channel.get().read_event(m_handle);
+                } else {
+                    return {};
+                }
             }
 
         private:
-            EventChannel& m_channel;
+            std::weak_ptr<ChannelGuard> m_channel_guard;
+            std::reference_wrapper<EventChannel> m_channel;
             Handle m_handle;
+            bool m_moved = false;
         };
 
-        EventChannel() = default;
+        EventChannel()
+        {
+            m_channel_guard = std::make_shared<ChannelGuard>();
+        }
 
         Subscription subscribe()
         {
