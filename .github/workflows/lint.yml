@@ -11,9 +11,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install clang-format
         run: |
-          sudo apt-get install clang-format
-          clang-format --version
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add -
+          sudo apt-get install clang-format-12
+          clang-format-12 --version
       - name: Check for clang-format errors
         run: >
           find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec clang-format --Werror --style=file --dry-run {} +
+          -exec clang-format-12 --Werror --style=file --dry-run {} +
