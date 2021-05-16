@@ -77,8 +77,8 @@ void Transform::rotate(vec3 angles)
     const vec3 Z_AXIS { 0.0f, 0.0f, 1.0f };
 
     // order of rotation: ZXY (same as Unity)
-    // m_rotation = glm::rotate(m_rotation, glm::radians(angles.z), Z_AXIS);
-    // m_rotation = glm::rotate(m_rotation, glm::radians(angles.x), X_AXIS);
+    m_rotation = glm::rotate(m_rotation, glm::radians(angles.z), Z_AXIS);
+    m_rotation = glm::rotate(m_rotation, glm::radians(angles.x), X_AXIS);
     m_rotation = glm::rotate(m_rotation, glm::radians(angles.y), Y_AXIS);
     m_local_to_world.reset();
     m_world_to_local.reset();

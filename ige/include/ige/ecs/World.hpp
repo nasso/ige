@@ -260,7 +260,7 @@ namespace ecs {
             if (auto comp = get_component<C>(ent)) {
                 return comp->get();
             } else {
-                return emplace_component(ent, std::forward<Args>(args)...);
+                return emplace_component<C>(ent, std::forward<Args>(args)...);
             }
         }
 

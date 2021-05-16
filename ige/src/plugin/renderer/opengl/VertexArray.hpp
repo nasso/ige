@@ -4,6 +4,7 @@
 #include "Buffer.hpp"
 #include "glad/gl.h"
 #include <cstddef>
+#include <span>
 
 ; // TODO: https://bit.ly/3hhMJ58
 #include <glm/vec2.hpp>
@@ -16,7 +17,7 @@ namespace gl {
 
     class VertexArray {
     public:
-        enum Type : GLenum {
+        enum class Type : GLenum {
             FLOAT = GL_FLOAT,
         };
 
@@ -24,11 +25,10 @@ namespace gl {
         GLuint m_id = 0;
 
         template <typename T>
-        void attrib(
-            GLuint idx, GLint size, Type type, const T* data, std::size_t len)
+        void attrib(GLuint idx, GLint size, Type type, std::span<const T> data)
         {
             gl::Buffer vbo;
-            vbo.load_static(data, len);
+            vbo.load(data);
 
             attrib(idx, size, type, std::move(vbo));
         }
@@ -45,12 +45,13 @@ namespace gl {
         void bind() const;
         GLuint id() const;
 
-        void attrib(GLuint idx, GLint size, Type type, const gl::Buffer& vbo,
+        void attrib(
+            GLuint idx, GLint size, Type type, const gl::Buffer& vbo,
             GLsizei stride = 0, GLsizei offset = 0);
-        void attrib(GLuint idx, const float* data, std::size_t len);
-        void attrib(GLuint idx, const glm::vec2* data, std::size_t len);
-        void attrib(GLuint idx, const glm::vec3* data, std::size_t len);
-        void attrib(GLuint idx, const glm::vec4* data, std::size_t len);
+        void attrib(GLuint idx, std::span<const float> data);
+        void attrib(GLuint idx, std::span<const glm::vec2> data);
+        void attrib(GLuint idx, std::span<const glm::vec3> data);
+        void attrib(GLuint idx, std::span<const glm::vec4> data);
     };
 
 }
