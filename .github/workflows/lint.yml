@@ -24,7 +24,8 @@ jobs:
         if: steps.cache-llvm.outputs.cache-hit != 'true'
         run: |
           wget --progress=bar:force:noscroll -q --show-progress -O /tmp/llvm.tar.xz $LLVM_DOWNLOAD_URL
-          tar xf /tmp/llvm.tar.xz -C /tmp/llvm
+          mkdir /tmp/llvm
+          tar -xf /tmp/llvm.tar.xz -C /tmp/llvm
 
       - name: Check clang-format version
         run: $CLANG_FORMAT_BIN --version
