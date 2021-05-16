@@ -85,8 +85,6 @@ static std::pair<bool, std::size_t> element_type(const gltf::Accessor& accessor)
     default:
         throw std::runtime_error("Unsupported accessor type");
     }
-
-    return { false, 0 };
 }
 
 static Mesh convert_mesh_primitive(
