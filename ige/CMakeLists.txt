@@ -24,10 +24,30 @@ FetchContent_Declare(glm
 )
 FetchContent_MakeAvailable(glm)
 
+# nlohmann/json - JSON library
+FetchContent_Declare(json
+    GIT_REPOSITORY https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
+    GIT_TAG v3.9.1
+)
+FetchContent_MakeAvailable(json)
+
+# fx-gltf - glTF loader
+FetchContent_Declare(fx-gltf
+    URL https://github.com/jessey-git/fx-gltf/archive/refs/tags/v1.2.0.zip
+    URL_HASH SHA1=cce676d80f5329ea76e54549bda96e319b9badba
+)
+FetchContent_GetProperties(fx-gltf)
+if(NOT fx-gltf_POPULATED)
+    FetchContent_Populate(fx-gltf)
+    set(FX_GLTF_INSTALL OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${fx-gltf_SOURCE_DIR} ${fx-gltf_BINARY_DIR})
+endif()
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
     "include/ige/asset.hpp"
+    "include/ige/asset/Gltf.hpp"
     "include/ige/asset/Material.hpp"
     "include/ige/asset/Mesh.hpp"
     "include/ige/asset/Texture.hpp"
@@ -60,6 +80,7 @@ set(sources ${sources}
     "include/ige/plugin/input/Mouse.hpp"
 
 
+    "src/asset/Gltf.cpp"
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
     "src/asset/Texture.cpp"
@@ -123,4 +144,10 @@ target_compile_options(ige
         $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4103>
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
-target_link_libraries(ige glfw glad glm)
+target_link_libraries(ige
+    glfw
+    glad
+    glm
+    nlohmann_json::nlohmann_json
+    fx-gltf::fx-gltf
+)
