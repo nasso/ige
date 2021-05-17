@@ -20,8 +20,8 @@ namespace gl {
 
         static std::optional<Error> get();
         static std::vector<Error> get_all();
-        static bool audit(
-            const std::string& tag, std::ostream& out = std::cerr);
+        static bool
+        audit(const std::string& tag, std::ostream& out = std::cerr);
         static void expect_none(const std::string& tag);
     };
 
