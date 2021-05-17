@@ -23,3 +23,4 @@ macro(package_add_example_data EXAMPLE_NAME DATA_DIR)
 endmacro()
 
 package_add_example(cubes cubes.cpp)
+package_add_example(hierarchy hierarchy.cpp)
