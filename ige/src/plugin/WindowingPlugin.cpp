@@ -67,6 +67,7 @@ static void create_window_system(World& wld)
 
     wld.insert(win);
     wld.insert(WindowInfo { settings.width, settings.height });
+    glfwSetWindowUserPointer(win, &wld);
 }
 
 static void destroy_window_system(World& wld)
