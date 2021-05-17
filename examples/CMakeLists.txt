@@ -24,3 +24,5 @@ endmacro()
 
 package_add_example(cubes cubes.cpp)
 package_add_example(hierarchy hierarchy.cpp)
+package_add_example(gltf gltf.cpp)
+package_add_example_data(gltf gltf)
