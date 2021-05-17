@@ -39,7 +39,7 @@ class RootState : public State {
         m_win_events.emplace(channel->get().subscribe());
 
         try {
-            auto model = Gltf::from_bin("gltf/BoxTextured.glb");
+            auto model = Gltf::from_bin("assets/BoxTextured.glb");
             m_model = model.create_entities(app.world());
         } catch (const std::exception& e) {
             std::cerr << "Couldn't load model: " << e.what() << std::endl;
