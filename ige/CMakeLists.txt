@@ -33,13 +33,13 @@ FetchContent_MakeAvailable(json)
 
 # fx-gltf - glTF loader
 FetchContent_Declare(fx-gltf
-    URL https://github.com/jessey-git/fx-gltf/archive/refs/tags/v1.2.0.zip
-    URL_HASH SHA1=cce676d80f5329ea76e54549bda96e319b9badba
+    URL https://github.com/nasso/fx-gltf/archive/refs/heads/ige.zip
 )
 FetchContent_GetProperties(fx-gltf)
 if(NOT fx-gltf_POPULATED)
     FetchContent_Populate(fx-gltf)
     set(FX_GLTF_INSTALL OFF CACHE BOOL "" FORCE)
+    set(FX_GLTF_BUILD_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(${fx-gltf_SOURCE_DIR} ${fx-gltf_BINARY_DIR})
 endif()
 
