@@ -22,8 +22,8 @@ namespace ecs {
 
         public:
             template <typename F>
-            requires std::constructible_from<System, F> Builder& add_system(
-                F&& sys)
+            requires std::constructible_from<System, F> Builder&
+            add_system(F&& sys)
             {
                 m_systems.emplace_back(std::forward<F>(sys));
 

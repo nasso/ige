@@ -21,7 +21,8 @@ namespace plugin {
         std::optional<glm::mat4> m_world_to_local;
 
     public:
-        static Transform make_look_at(glm::vec3 position, glm::vec3 target,
+        static Transform make_look_at(
+            glm::vec3 position, glm::vec3 target,
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
         constexpr explicit Transform() = default;

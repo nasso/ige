@@ -32,8 +32,9 @@ Texture::~Texture()
     }
 }
 
-void Texture::load_pixels(GLsizei w, GLsizei h, Texture::Format fmt,
-    Texture::Type type, const void* data)
+void Texture::load_pixels(
+    GLsizei w, GLsizei h, Texture::Format fmt, Texture::Type type,
+    const void* data)
 {
     bind();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, fmt, type, data);

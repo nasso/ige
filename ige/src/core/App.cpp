@@ -7,8 +7,9 @@
 namespace ige {
 namespace core {
 
-    App::App(ecs::Resources res, ecs::Schedule on_start,
-        ecs::Schedule on_update, ecs::Schedule on_cleanup)
+    App::App(
+        ecs::Resources res, ecs::Schedule on_start, ecs::Schedule on_update,
+        ecs::Schedule on_cleanup)
         : m_world(std::move(res))
         , m_startup(std::move(on_start))
         , m_update(std::move(on_update))

@@ -54,8 +54,8 @@ namespace core {
             }
 
             template <ecs::Resource R, typename... Args>
-            requires std::constructible_from<R, Args...> App::Builder& emplace(
-                Args&&... args)
+            requires std::constructible_from<R, Args...> App::Builder&
+            emplace(Args&&... args)
             {
                 m_res.emplace<R>(std::forward<Args>(args)...);
                 return *this;
@@ -65,7 +65,8 @@ namespace core {
                 requires std::constructible_from<S, Args...>
             void run(Args&&... args)
             {
-                App app(std::move(m_res), m_startup.build(), m_update.build(),
+                App app(
+                    std::move(m_res), m_startup.build(), m_update.build(),
                     m_cleanup.build());
                 m_res = ecs::Resources();
 

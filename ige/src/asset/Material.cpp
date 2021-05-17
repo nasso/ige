@@ -74,8 +74,8 @@ Material::Parameter::~Parameter()
     }
 }
 
-Material::Parameter& Material::Parameter::operator=(
-    const Material::Parameter& other)
+Material::Parameter&
+Material::Parameter::operator=(const Material::Parameter& other)
 {
     if (type != other.type) {
         this->~Parameter();
