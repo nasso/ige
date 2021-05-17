@@ -32,9 +32,6 @@ class RootState : public State {
     {
         auto mesh = Mesh::make_cube(1.0f);
         auto material = Material::load_default();
-        auto texture = Texture::load_file("examples/texture.png");
-
-        material->set("base_color", texture);
 
         auto camera = app.world().create_entity();
         camera.add_component(Transform::make_look_at(vec3(3.0f), vec3(0.0f)));
