@@ -28,9 +28,9 @@ using glm::mat4;
 using ige::asset::Mesh;
 using ige::core::DataStore;
 using ige::ecs::World;
+using ige::plugin::GlobalTransform;
 using ige::plugin::MeshRenderer;
 using ige::plugin::PerspectiveCamera;
-using ige::plugin::Transform;
 using ige::plugin::WindowInfo;
 
 template <typename T>
@@ -208,7 +208,7 @@ void backend::render_meshes(World& world)
 {
     // TODO: gracefully handle the case where no WindowInfo is present
     auto& wininfo = world.get<WindowInfo>()->get();
-    auto cameras = world.query<PerspectiveCamera, Transform>();
+    auto cameras = world.query<PerspectiveCamera, GlobalTransform>();
 
     if (cameras.empty()) {
         return;
@@ -224,7 +224,7 @@ void backend::render_meshes(World& world)
 
     auto& cache = world.get_or_emplace<RenderCache>();
 
-    auto meshes = world.query<MeshRenderer, Transform>();
+    auto meshes = world.query<MeshRenderer, GlobalTransform>();
     for (auto& [entity, renderer, xform] : meshes) {
         mat4 model = xform.compute_matrix();
         mat4 pvm = projection * view * model;
