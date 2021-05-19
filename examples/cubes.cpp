@@ -43,10 +43,9 @@ class RootState : public State {
         auto mesh = Mesh::make_cube(1.0f);
         auto material = Material::load_default();
 
-        auto camera = app.world().create_entity();
-        camera.add_component(
-            Transform::make_look_at(vec3(-3.0f, 3.0f, 0.0f), vec3(0.0f)));
-        camera.emplace_component<PerspectiveCamera>(90.0f);
+        auto camera = app.world().create_entity(
+            Transform::from_pos(vec3(-3.0f, 3.0f, 0.0f)).look_at(vec3(0.0f)),
+            PerspectiveCamera(90.0f));
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
