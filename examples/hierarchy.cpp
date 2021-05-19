@@ -18,7 +18,9 @@ using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
 using ige::ecs::World;
+using ige::plugin::Children;
 using ige::plugin::MeshRenderer;
+using ige::plugin::Parent;
 using ige::plugin::PerspectiveCamera;
 using ige::plugin::RenderingPlugin;
 using ige::plugin::Transform;
@@ -32,7 +34,6 @@ class RootState : public State {
     using Instant = std::chrono::time_point<std::chrono::steady_clock>;
 
     std::optional<EventChannel<WindowEvent>::Subscription> win_events;
-
     std::optional<World::EntityRef> root_cube;
 
     Instant start_time;
@@ -49,7 +50,7 @@ class RootState : public State {
 
         // create camera
         app.world().create_entity(
-            Transform::make_look_at(vec3(-3.0f, 3.0f, 0.0f), vec3(0.0f)),
+            Transform::from_pos({ -3.0f, 3.0f, 0.0f }).look_at(vec3(0.0f)),
             PerspectiveCamera(90.0f));
 
         // the mesh and material for each cube
@@ -58,6 +59,10 @@ class RootState : public State {
 
         root_cube = app.world().create_entity(
             Transform {}, MeshRenderer { cube_mesh, cube_mat });
+
+        app.world().create_entity(
+            Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(vec3 { 0.2f }),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
     }
 
     void on_update(App& app) override
@@ -68,14 +73,14 @@ class RootState : public State {
 
         // make the root cube move & rotate
         if (root_cube) {
-            auto [xform] = *root_cube->get_component_bundle<Transform>();
-
-            xform.set_rotation(vec3(t, 0.0f, t));
-            xform.set_translation({
-                glm::cos(t) * 2.0f,
-                0.0f,
-                glm::sin(t) * 2.0f,
-            });
+            root_cube->get_component<Transform>()
+                ->get()
+                .set_rotation(vec3(t, 0.0f, t))
+                .set_translation({
+                    glm::cos(t) * 2.0f,
+                    0.0f,
+                    glm::sin(t) * 2.0f,
+                });
         }
 
         // quit the app when the window closes

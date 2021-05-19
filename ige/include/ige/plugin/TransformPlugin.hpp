@@ -1,15 +1,36 @@
 #ifndef F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 #define F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 
+#include "ige/ecs/World.hpp"
+#include <optional>
+#include <unordered_set>
+#include <vector>
+
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
-#include <optional>
-
 namespace ige {
 namespace plugin {
+
+    /**
+     * @brief Component giving a parent to an entity.
+     */
+    struct Parent {
+        ecs::EntityId entity;
+    };
+
+    /**
+     * @brief Component holding a list of entities that have this entity as
+     * their parent.
+     *
+     * This component is automatically added and updated by the parenting
+     * system. Any modification made to it will be overwritten by the engine!
+     */
+    struct Children {
+        std::unordered_set<ecs::EntityId> entities;
+    };
 
     class Transform {
     private:
@@ -49,6 +70,9 @@ namespace plugin {
 
         glm::mat4 compute_matrix();
         glm::mat4 compute_inverse();
+    };
+
+    class GlobalTransform : public Transform {
     };
 
     class TransformPlugin : public core::App::Plugin {
