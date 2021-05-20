@@ -35,6 +35,7 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
+
         auto sources = app.world().query<Transform>();
 
         for (auto& [entity, xform] : sources) { }
