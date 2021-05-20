@@ -69,6 +69,12 @@ FetchContent_Declare(libnyquist
     URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip)
 FetchContent_MakeAvailable(libnyquist)
 
+# OpenAL - Open Audio Library
+FetchContent_Declare(OpenAL
+    URL https://github.com/kcat/openal-soft/archive/refs/tags/1.21.1.zip
+)
+FetchContent_MakeAvailable(OpenAL)
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
