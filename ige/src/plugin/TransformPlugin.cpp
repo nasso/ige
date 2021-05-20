@@ -71,6 +71,11 @@ Transform& Transform::set_scale(vec3 value) &
     return *this;
 }
 
+Transform& Transform::set_scale(float value) &
+{
+    return set_scale(vec3 { value });
+}
+
 Transform& Transform::translate(vec3 v)
 {
     m_translation += v;
@@ -123,6 +128,11 @@ Transform Transform::set_rotation(quat value) &&
 }
 
 Transform Transform::set_scale(vec3 value) &&
+{
+    return std::move(set_scale(value));
+}
+
+Transform Transform::set_scale(float value) &&
 {
     return std::move(set_scale(value));
 }

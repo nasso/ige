@@ -58,6 +58,7 @@ namespace plugin {
         Transform& set_translation(glm::vec3) &;
         Transform& set_rotation(glm::quat) &;
         Transform& set_scale(glm::vec3) &;
+        Transform& set_scale(float) &;
 
         Transform& translate(glm::vec3);
         Transform& rotate(glm::vec3);
@@ -70,6 +71,7 @@ namespace plugin {
         Transform set_translation(glm::vec3) &&;
         Transform set_rotation(glm::quat) &&;
         Transform set_scale(glm::vec3) &&;
+        Transform set_scale(float) &&;
         Transform look_at(
             glm::vec3 target, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)) &&;
 
