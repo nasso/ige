@@ -43,6 +43,20 @@ namespace audio {
         alcDestroyContext(this->m_context);
         alcCloseDevice(this->m_device);
     }
+
+    std::vector<std::string> AudioEngine::get_available_devices()
+    {
+        std::vector<std::string> ret = {};
+        const ALchar *devices_raw = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
+
+        if (!devices_raw)
+            throw AudioPluginException(
+                "Couldn't retrieve devices: " + get_native_exception());
+        while (strlen(devices_raw) > 0) {
+            ret.push_back(devices_raw);
+            devices_raw += strlen(devices_raw) + 1;
+        }
+        return ret;
     }
 
     std::string AudioEngine::get_native_exception()

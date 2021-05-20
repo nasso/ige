@@ -18,6 +18,7 @@ namespace audio {
 
         ~AudioEngine();
 
+        std::vector<std::string> get_available_devices();
 
     protected:
     private:
