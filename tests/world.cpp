@@ -300,7 +300,7 @@ TEST(World, EntityQueryMapStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity;
+                return e == entity.id();
             });
 
         if (should_match) {
@@ -331,7 +331,7 @@ TEST(World, EntityQueryVecStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity;
+                return e == entity.id();
             });
 
         if (should_match) {
@@ -362,7 +362,7 @@ TEST(World, EntityQueryMixedStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity;
+                return e == entity.id();
             });
 
         if (should_match) {
