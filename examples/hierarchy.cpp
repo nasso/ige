@@ -51,7 +51,7 @@ class RootState : public State {
 
         // create camera
         app.world().create_entity(
-            Transform::from_pos({ -3.0f, 3.0f, 0.0f }).look_at(vec3(0.0f)),
+            Transform::from_pos({ 3.0f, 2.0f, 0.0f }).look_at(vec3(0.0f)),
             PerspectiveCamera(90.0f));
 
         // the mesh and material for each cube
@@ -61,15 +61,19 @@ class RootState : public State {
         root_cube = app.world().create_entity(
             Transform {}, MeshRenderer { cube_mesh, cube_mat });
 
+        auto satellite = app.world().create_entity(
+            Transform::from_pos({ 2.0f, 0.0f, 0.0f }).set_scale(0.5f),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
+
         children.push_back(app.world().create_entity(
-            Transform::from_pos({ 1.0f, 0.0f, 0.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
+            Transform::from_pos({ 1.0f, 0.0f, 0.0f }).set_scale(0.5f),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
         children.push_back(app.world().create_entity(
-            Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
+            Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(0.5f),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
         children.push_back(app.world().create_entity(
-            Transform::from_pos({ 0.0f, 0.0f, 1.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
+            Transform::from_pos({ 0.0f, 0.0f, 1.0f }).set_scale(0.5f),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
     }
 
     void on_update(App& app) override
@@ -80,14 +84,8 @@ class RootState : public State {
 
         // make the root cube move & rotate
         if (root_cube) {
-            root_cube->get_component<Transform>()
-                ->get()
-                .set_rotation(vec3(t, 0.0f, t))
-                .set_translation({
-                    glm::cos(t) * 2.0f,
-                    0.0f,
-                    glm::sin(t) * 2.0f,
-                });
+            root_cube->get_component<Transform>()->get().set_rotation(
+                vec3(0.0f, t, 0.0f));
         }
 
         // make the little cubes rotate too!!
