@@ -8,6 +8,7 @@
 #include "plugin/ScriptPlugin.hpp"
 #include "plugin/TimePlugin.hpp"
 #include "plugin/TransformPlugin.hpp"
-#include "plugin/WindowPlugin.hpp"
+#include "plugin/WindowingPlugin.hpp"
+#include "plugin/AudioPlugin/AudioPlugin.hpp"
 
 #endif /* D68260DF_381A_4181_B58C_042555A9084A */
