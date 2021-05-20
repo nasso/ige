@@ -80,51 +80,15 @@ namespace ecs {
             }
 
             template <Component... Cs>
-            std::optional<std::tuple<Cs&...>> get_component_bundle()
+            decltype(auto) get_component_bundle()
             {
-                auto components = std::make_tuple(get_component<Cs>()...);
-
-                bool has_all
-                    = (std::get<std::optional<std::reference_wrapper<Cs>>>(
-                           components)
-                           .has_value()
-                       && ...);
-
-                std::optional<std::tuple<Cs&...>> bundle;
-
-                if (has_all) {
-                    bundle.emplace(
-                        std::get<std::optional<std::reference_wrapper<Cs>>>(
-                            components)
-                            ->get()...);
-                }
-
-                return bundle;
+                return m_wld->get_component_bundle<Cs...>();
             }
 
             template <Component... Cs>
-            std::optional<std::tuple<const Cs&...>> get_component_bundle() const
+            decltype(auto) get_component_bundle() const
             {
-                auto components = std::make_tuple(get_component<Cs>()...);
-
-                bool has_all
-                    = (std::get<
-                           std::optional<std::reference_wrapper<const Cs>>>(
-                           components)
-                           .has_value()
-                       && ...);
-
-                std::optional<std::tuple<const Cs&...>> bundle;
-
-                if (has_all) {
-                    bundle.emplace(
-                        std::get<
-                            std::optional<std::reference_wrapper<const Cs>>>(
-                            components)
-                            ->get()...);
-                }
-
-                return bundle;
+                return m_wld->get_component_bundle<Cs...>();
             }
 
             template <Component C>
@@ -251,6 +215,53 @@ namespace ecs {
             } else {
                 return std::nullopt;
             }
+        }
+
+        template <Component... Cs>
+        std::optional<std::tuple<Cs&...>> get_component_bundle(EntityId entity)
+        {
+            auto components = std::make_tuple(get_component<Cs>(entity)...);
+
+            bool has_all
+                = (std::get<std::optional<std::reference_wrapper<Cs>>>(
+                       components)
+                       .has_value()
+                   && ...);
+
+            std::optional<std::tuple<Cs&...>> bundle;
+
+            if (has_all) {
+                bundle.emplace(
+                    std::get<std::optional<std::reference_wrapper<Cs>>>(
+                        components)
+                        ->get()...);
+            }
+
+            return bundle;
+        }
+
+        template <Component... Cs>
+        std::optional<std::tuple<const Cs&...>>
+        get_component_bundle(EntityId entity) const
+        {
+            auto components = std::make_tuple(get_component<Cs>(entity)...);
+
+            bool has_all
+                = (std::get<std::optional<std::reference_wrapper<const Cs>>>(
+                       components)
+                       .has_value()
+                   && ...);
+
+            std::optional<std::tuple<const Cs&...>> bundle;
+
+            if (has_all) {
+                bundle.emplace(
+                    std::get<std::optional<std::reference_wrapper<const Cs>>>(
+                        components)
+                        ->get()...);
+            }
+
+            return bundle;
         }
 
         template <Component C, typename... Args>
