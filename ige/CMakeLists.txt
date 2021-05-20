@@ -191,4 +191,6 @@ target_link_libraries(ige
     BulletDynamics
     BulletCollision
     LinearMath
+    OpenAL
 )
+
