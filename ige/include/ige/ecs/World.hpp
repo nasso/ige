@@ -316,7 +316,7 @@ namespace ecs {
             template <Component C>
             decltype(auto) view_from()
             {
-                std::vector<std::tuple<EntityRef, Cs&...>> entities;
+                std::vector<std::tuple<EntityId, Cs&...>> entities;
 
                 if (!m_storages) {
                     return entities;
@@ -325,13 +325,11 @@ namespace ecs {
                 auto& storage = std::get<StorageFor<C>&>(*m_storages);
 
                 for (const auto& [id, comp] : storage) {
-                    EntityRef entity(m_world, id);
-
-                    auto components = entity.get_component_bundle<Cs...>();
+                    auto components = m_world.get_component_bundle<Cs...>(id);
 
                     if (components) {
                         entities.emplace_back(
-                            entity, std::get<Cs&>(*components)...);
+                            id, std::get<Cs&>(*components)...);
                     }
                 }
 
