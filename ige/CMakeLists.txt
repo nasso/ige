@@ -105,6 +105,7 @@ set(sources ${sources}
     "include/ige/plugin/TimePlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
     "include/ige/plugin/WindowPlugin.hpp"
+    "include/ige/plugin/AudioPlugin/AudioEngine.hpp"
 
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
