@@ -47,7 +47,7 @@ namespace ecs {
             if (it != m_data.end()) {
                 return { it->second };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -58,7 +58,7 @@ namespace ecs {
             if (it != m_data.end()) {
                 return { it->second };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -72,7 +72,7 @@ namespace ecs {
                 m_data.erase(it);
                 return { std::move(opt) };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 

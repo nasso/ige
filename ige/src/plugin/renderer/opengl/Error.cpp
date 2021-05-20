@@ -36,7 +36,7 @@ std::optional<Error> Error::get()
     if (err) {
         return Error(err);
     } else {
-        return {};
+        return std::nullopt;
     }
 }
 

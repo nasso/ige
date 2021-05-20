@@ -83,7 +83,7 @@ bool StateMachine::is_running() const
 std::optional<std::reference_wrapper<State>> StateMachine::current()
 {
     if (m_states.empty()) {
-        return {};
+        return std::nullopt;
     } else {
         return { **(m_states.end() - 1) };
     }
@@ -92,7 +92,7 @@ std::optional<std::reference_wrapper<State>> StateMachine::current()
 std::optional<std::reference_wrapper<const State>> StateMachine::current() const
 {
     if (m_states.empty()) {
-        return {};
+        return std::nullopt;
     } else {
         return { **(m_states.end() - 1) };
     }

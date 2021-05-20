@@ -270,7 +270,7 @@ namespace ecs {
             if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().remove(ent);
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
