@@ -61,7 +61,13 @@ class RootState : public State {
             Transform {}, MeshRenderer { cube_mesh, cube_mat });
 
         app.world().create_entity(
+            Transform::from_pos({ 1.0f, 0.0f, 0.0f }).set_scale(vec3 { 0.2f }),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
+        app.world().create_entity(
             Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(vec3 { 0.2f }),
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
+        app.world().create_entity(
+            Transform::from_pos({ 0.0f, 0.0f, 1.0f }).set_scale(vec3 { 0.2f }),
             MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
     }
 

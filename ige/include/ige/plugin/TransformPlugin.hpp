@@ -19,6 +19,10 @@ namespace plugin {
      */
     struct Parent {
         ecs::EntityId entity;
+
+        Parent(ecs::EntityId parent_entity);
+
+        bool operator==(const Parent&) const = default;
     };
 
     /**
@@ -38,8 +42,9 @@ namespace plugin {
         glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 m_scale = glm::vec3(1.0f);
 
-        std::optional<glm::mat4> m_local_to_world;
-        std::optional<glm::mat4> m_world_to_local;
+        bool m_dirty = false;
+        glm::mat4 m_local_to_world { 1.0f };
+        glm::mat4 m_world_to_local { 1.0f };
 
     public:
         static Transform from_pos(glm::vec3 position);
@@ -68,11 +73,11 @@ namespace plugin {
         Transform look_at(
             glm::vec3 target, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f)) &&;
 
-        glm::mat4 compute_matrix();
-        glm::mat4 compute_inverse();
-    };
+        void force_update(const glm::mat4& parent);
+        bool needs_update() const;
 
-    class GlobalTransform : public Transform {
+        const glm::mat4& local_to_world() const;
+        const glm::mat4& world_to_local() const;
     };
 
     class TransformPlugin : public core::App::Plugin {
