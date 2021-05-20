@@ -49,16 +49,19 @@ element_type(const gltf::Accessor& accessor) noexcept
     switch (accessor.componentType) {
     case gltf::Accessor::ComponentType::Byte:
         is_signed = true;
+        [[fallthrough]];
     case gltf::Accessor::ComponentType::UnsignedByte:
         component_size = 1;
         break;
     case gltf::Accessor::ComponentType::Short:
         is_signed = true;
+        [[fallthrough]];
     case gltf::Accessor::ComponentType::UnsignedShort:
         component_size = 2;
         break;
     case gltf::Accessor::ComponentType::Float:
         is_signed = true;
+        [[fallthrough]];
     case gltf::Accessor::ComponentType::UnsignedInt:
         component_size = 4;
         break;
