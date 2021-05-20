@@ -30,5 +30,6 @@ namespace plugin {
     }
 }
 }
+}
 
 #endif /* !KAL_HPP_ */
