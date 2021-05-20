@@ -35,6 +35,7 @@ class RootState : public State {
 
     std::optional<EventChannel<WindowEvent>::Subscription> win_events;
     std::optional<World::EntityRef> root_cube;
+    std::vector<World::EntityRef> children;
 
     Instant start_time;
 
@@ -60,15 +61,15 @@ class RootState : public State {
         root_cube = app.world().create_entity(
             Transform {}, MeshRenderer { cube_mesh, cube_mat });
 
-        app.world().create_entity(
+        children.push_back(app.world().create_entity(
             Transform::from_pos({ 1.0f, 0.0f, 0.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
-        app.world().create_entity(
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
+        children.push_back(app.world().create_entity(
             Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
-        app.world().create_entity(
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
+        children.push_back(app.world().create_entity(
             Transform::from_pos({ 0.0f, 0.0f, 1.0f }).set_scale(vec3 { 0.2f }),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
+            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() }));
     }
 
     void on_update(App& app) override
@@ -87,6 +88,12 @@ class RootState : public State {
                     0.0f,
                     glm::sin(t) * 2.0f,
                 });
+        }
+
+        // make the little cubes rotate too!!
+        for (auto cube : children) {
+            cube.get_component<Transform>()->get().set_rotation(
+                vec3(0.0f, t, t));
         }
 
         // quit the app when the window closes
