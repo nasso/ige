@@ -238,7 +238,7 @@ namespace ecs {
             if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().get(ent);
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -249,7 +249,7 @@ namespace ecs {
             if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().get(ent);
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 

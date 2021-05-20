@@ -139,7 +139,7 @@ Mesh Mesh::Builder::build()
     mesh.m_attr_uvs = std::move(m_attr_uvs);
     m_attr_uvs.clear();
 
-    return std::move(mesh);
+    return mesh;
 }
 
 Mesh::Builder& Mesh::Builder::set_topology(Mesh::Topology v)
