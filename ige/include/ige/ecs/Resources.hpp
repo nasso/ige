@@ -70,7 +70,7 @@ namespace ecs {
             if (auto any = get_any(id)) {
                 return { any->get().template as<R>() };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -82,7 +82,7 @@ namespace ecs {
             if (auto any = get_any(id)) {
                 return { any->get().template as<R>() };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -94,7 +94,7 @@ namespace ecs {
             if (auto any = remove_any(id)) {
                 return { std::move(any->template as<R>()) };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -116,7 +116,7 @@ namespace ecs {
             if (it != m_resources.end()) {
                 return { it->second };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -128,7 +128,7 @@ namespace ecs {
             if (it != m_resources.end()) {
                 return { it->second };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
 
@@ -141,7 +141,7 @@ namespace ecs {
                 m_resources.erase(id);
                 return { std::move(any) };
             } else {
-                return {};
+                return std::nullopt;
             }
         }
     };

@@ -84,7 +84,7 @@ namespace core {
                 }
             }
 
-            return {};
+            return std::nullopt;
         }
 
     public:
@@ -134,7 +134,7 @@ namespace core {
                 if (!m_channel_guard.expired()) {
                     return m_channel.get().read_event(m_handle);
                 } else {
-                    return {};
+                    return std::nullopt;
                 }
             }
 

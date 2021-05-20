@@ -121,6 +121,6 @@ std::optional<Material::Parameter> Material::get(const std::string& name) const
     if (iter != m_parameters.end()) {
         return { iter->second };
     } else {
-        return {};
+        return std::nullopt;
     }
 }
