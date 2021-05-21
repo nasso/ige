@@ -11,10 +11,10 @@
 namespace ige {
 namespace ecs {
 
-    template <typename T>
+    template <typename V>
     class VecStorage {
     private:
-        std::vector<std::optional<T>> m_data;
+        std::vector<std::optional<V>> m_data;
 
     public:
         class Iterator {
@@ -22,7 +22,7 @@ namespace ecs {
             VecStorage& m_storage;
             std::size_t m_index = 0;
 
-            std::optional<std::pair<std::size_t, T&>> m_value;
+            std::optional<std::pair<std::size_t, V&>> m_value;
 
             void fetch()
             {
@@ -36,7 +36,7 @@ namespace ecs {
         public:
             using iterator_category = std::forward_iterator_tag;
             using difference_type = std::size_t;
-            using value_type = std::pair<std::size_t, T&>;
+            using value_type = std::pair<std::size_t, V&>;
             using pointer = const value_type*;
             using reference = const value_type&;
 
@@ -104,19 +104,19 @@ namespace ecs {
         }
 
         template <typename... Args>
-            requires std::constructible_from<T, Args...>
+            requires std::constructible_from<V, Args...>
         void set(std::size_t idx, Args&&... args)
         {
             m_data.resize(idx + 1);
             m_data.emplace(
                 m_data.begin() + idx,
-                std::make_optional<T>(std::forward<Args>(args)...));
+                std::make_optional<V>(std::forward<Args>(args)...));
         }
 
-        std::optional<std::reference_wrapper<const T>>
-        get(const std::size_t& idx) const
+        std::optional<std::reference_wrapper<const V>>
+        get(std::size_t idx) const
         {
-            std::optional<std::reference_wrapper<const T>> element;
+            std::optional<std::reference_wrapper<const V>> element;
 
             if (idx < m_data.size()) {
                 if (auto& value = m_data[idx]) {
@@ -127,9 +127,9 @@ namespace ecs {
             return element;
         }
 
-        std::optional<std::reference_wrapper<T>> get(const std::size_t& idx)
+        std::optional<std::reference_wrapper<V>> get(std::size_t idx)
         {
-            std::optional<std::reference_wrapper<T>> element;
+            std::optional<std::reference_wrapper<V>> element;
 
             if (idx < m_data.size()) {
                 if (auto& value = m_data[idx]) {
@@ -140,9 +140,9 @@ namespace ecs {
             return element;
         }
 
-        std::optional<T> remove(const std::size_t& idx)
+        std::optional<V> remove(std::size_t idx)
         {
-            std::optional<T> element;
+            std::optional<V> element;
 
             if (idx < m_data.size()) {
                 m_data[idx].swap(element);

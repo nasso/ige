@@ -2,6 +2,7 @@
 #define F171BC61_6D7C_4555_A4C6_5073CCB074F3
 
 #include <concepts>
+#include <cstddef>
 #include <functional>
 #include <optional>
 #include <unordered_map>
@@ -9,13 +10,13 @@
 namespace ige {
 namespace ecs {
 
-    template <typename K, typename V>
+    template <typename V>
     class MapStorage {
     private:
-        std::unordered_map<K, V> m_data;
+        std::unordered_map<std::size_t, V> m_data;
 
     public:
-        using Iterator = std::unordered_map<K, V>::iterator;
+        using Iterator = std::unordered_map<std::size_t, V>::iterator;
 
         MapStorage() = default;
 
@@ -32,7 +33,7 @@ namespace ecs {
 
         template <typename... Args>
             requires std::constructible_from<V, Args...>
-        void set(K&& key, Args&&... args)
+        void set(std::size_t key, Args&&... args)
         {
             remove(key);
             m_data.emplace(
@@ -40,7 +41,8 @@ namespace ecs {
                 std::forward_as_tuple(std::forward<Args>(args)...));
         }
 
-        std::optional<std::reference_wrapper<const V>> get(const K& key) const
+        std::optional<std::reference_wrapper<const V>>
+        get(std::size_t key) const
         {
             auto it = m_data.find(key);
 
@@ -51,7 +53,7 @@ namespace ecs {
             }
         }
 
-        std::optional<std::reference_wrapper<V>> get(const K& key)
+        std::optional<std::reference_wrapper<V>> get(std::size_t key)
         {
             auto it = m_data.find(key);
 
@@ -62,7 +64,7 @@ namespace ecs {
             }
         }
 
-        std::optional<V> remove(const K& key)
+        std::optional<V> remove(std::size_t key)
         {
             auto it = m_data.find(key);
 

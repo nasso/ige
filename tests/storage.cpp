@@ -10,8 +10,7 @@ struct StorageTest : public testing::Test {
     using Storage = T;
 };
 
-using StorageTypes
-    = testing::Types<VecStorage<int>, MapStorage<std::size_t, int>>;
+using StorageTypes = testing::Types<VecStorage<int>, MapStorage<int>>;
 
 TYPED_TEST_SUITE(StorageTest, StorageTypes);
 

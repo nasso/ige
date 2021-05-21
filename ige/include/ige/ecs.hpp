@@ -1,6 +1,7 @@
 #ifndef ACD1A8AC_AE17_4757_A597_433E6FF3097E
 #define ACD1A8AC_AE17_4757_A597_433E6FF3097E
 
+#include "ecs/Entity.hpp"
 #include "ecs/MapStorage.hpp"
 #include "ecs/Schedule.hpp"
 #include "ecs/System.hpp"

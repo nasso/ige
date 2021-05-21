@@ -251,9 +251,9 @@ TEST(World, CustomStorage)
     ent[2].emplace_component<Vectorized>();
 
     auto& strg = world.get<VecStorage<Vectorized>>()->get();
-    ASSERT_TRUE(strg.get(ent[0].id()).has_value());
-    ASSERT_TRUE(strg.get(ent[1].id()).has_value());
-    ASSERT_TRUE(strg.get(ent[2].id()).has_value());
+    ASSERT_TRUE(strg.get(ent[0].id().index()).has_value());
+    ASSERT_TRUE(strg.get(ent[1].id().index()).has_value());
+    ASSERT_TRUE(strg.get(ent[2].id().index()).has_value());
 }
 
 TEST(World, EntityQueryBasicUsage)
