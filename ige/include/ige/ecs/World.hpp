@@ -3,6 +3,7 @@
 
 #include "ige/core/Any.hpp"
 #include "ige/ecs/Component.hpp"
+#include "ige/ecs/Entity.hpp"
 #include "ige/ecs/MapStorage.hpp"
 #include "ige/ecs/Resources.hpp"
 #include <concepts>
@@ -19,11 +20,9 @@
 namespace ige {
 namespace ecs {
 
-    using EntityId = std::uint64_t;
-
     template <Component C>
     struct ComponentStorage {
-        using Type = MapStorage<EntityId, C>;
+        using Type = MapStorage<C>;
     };
 
     template <Component C>
@@ -113,16 +112,18 @@ namespace ecs {
 
         World(Resources = {});
 
-        bool remove_entity(EntityId);
+        bool remove_entity(const EntityId&);
 
         template <Component... Cs>
         EntityRef create_entity(Cs&&... components)
         {
-            EntityRef entity(*this, ++m_last_entity);
+            EntityRef entity(*this, m_entities.allocate());
 
             entity.add_all_components(std::forward<Cs>(components)...);
             return entity;
         }
+
+        bool exists(const EntityId&);
 
         template <Resource R>
         R& insert(R res)
@@ -174,18 +175,18 @@ namespace ecs {
         }
 
         template <Component C>
-        C& add_component(EntityId ent, C comp)
+        C& add_component(const EntityId& ent, C comp)
         {
             return emplace_component<C>(ent, std::move(comp));
         }
 
         template <Component C, typename... Args>
         requires std::constructible_from<C, Args...> C&
-        emplace_component(EntityId ent, Args&&... args)
+        emplace_component(const EntityId& ent, Args&&... args)
         {
             auto& strg = get_or_emplace<StorageFor<C>>();
 
-            strg.set(std::move(ent), std::forward<Args>(args)...);
+            strg.set(ent.index(), std::forward<Args>(args)...);
 
             if (m_components.find(impl::type_id<C>()) == m_components.end()) {
                 m_components.emplace(impl::type_id<C>(), [&](EntityId ent) {
@@ -193,14 +194,15 @@ namespace ecs {
                 });
             }
 
-            return strg.get(ent)->get();
+            return strg.get(ent.index())->get();
         }
 
         template <Component C>
-        std::optional<std::reference_wrapper<C>> get_component(EntityId ent)
+        std::optional<std::reference_wrapper<C>>
+        get_component(const EntityId& ent)
         {
             if (auto strg = get<StorageFor<C>>()) {
-                return strg->get().get(ent);
+                return strg->get().get(ent.index());
             } else {
                 return std::nullopt;
             }
@@ -208,17 +210,28 @@ namespace ecs {
 
         template <Component C>
         std::optional<std::reference_wrapper<const C>>
-        get_component(EntityId ent) const
+        get_component(const EntityId& ent) const
         {
             if (auto strg = get<StorageFor<C>>()) {
-                return strg->get().get(ent);
+                return strg->get().get(ent.index());
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        template <Component C>
+        std::optional<C> remove_component(const EntityId& ent)
+        {
+            if (auto strg = get<StorageFor<C>>()) {
+                return strg->get().remove(ent.index());
             } else {
                 return std::nullopt;
             }
         }
 
         template <Component... Cs>
-        std::optional<std::tuple<Cs&...>> get_component_bundle(EntityId entity)
+        std::optional<std::tuple<Cs&...>>
+        get_component_bundle(const EntityId& entity)
         {
             auto components = std::make_tuple(get_component<Cs>(entity)...);
 
@@ -242,7 +255,7 @@ namespace ecs {
 
         template <Component... Cs>
         std::optional<std::tuple<const Cs&...>>
-        get_component_bundle(EntityId entity) const
+        get_component_bundle(const EntityId& entity) const
         {
             auto components = std::make_tuple(get_component<Cs>(entity)...);
 
@@ -266,22 +279,12 @@ namespace ecs {
 
         template <Component C, typename... Args>
         requires std::constructible_from<C, Args...> C&
-        get_or_emplace_component(EntityId ent, Args&&... args)
+        get_or_emplace_component(const EntityId& ent, Args&&... args)
         {
             if (auto comp = get_component<C>(ent)) {
                 return comp->get();
             } else {
                 return emplace_component<C>(ent, std::forward<Args>(args)...);
-            }
-        }
-
-        template <Component C>
-        std::optional<C> remove_component(EntityId ent)
-        {
-            if (auto strg = get<StorageFor<C>>()) {
-                return strg->get().remove(ent);
-            } else {
-                return std::nullopt;
             }
         }
 
@@ -349,7 +352,7 @@ namespace ecs {
     private:
         using CompRemover = std::function<bool(EntityId)>;
 
-        EntityId m_last_entity = 0;
+        EntityPool m_entities;
         std::unordered_map<impl::TypeId, CompRemover> m_components;
         Resources m_resources;
     };
