@@ -18,7 +18,7 @@ namespace plugin {
                 this->insert_or_assign(key, state);
             }
 
-            InputRegistryState get_state(T key) const
+            InputRegistryState get_state(const T& key) const
             {
                 auto state = this->find(key);
                 if (state == this->end()) {
@@ -27,7 +27,7 @@ namespace plugin {
                 return state->second;
             }
 
-            bool is_pressed(T key) const
+            bool is_pressed(const T& key) const
             {
                 auto state = this->find(key);
                 if (state == this->end()) {
@@ -36,7 +36,7 @@ namespace plugin {
                 return state->second == InputRegistryState::PRESSED;
             }
 
-            bool is_down(T key) const
+            bool is_down(const T& key) const
             {
                 auto state = this->find(key);
                 if (state == this->end()) {
@@ -45,7 +45,7 @@ namespace plugin {
                 return state->second == InputRegistryState::DOWN;
             }
 
-            bool is_released(T key) const
+            bool is_released(const T& key) const
             {
                 auto state = this->find(key);
                 if (state == this->end()) {

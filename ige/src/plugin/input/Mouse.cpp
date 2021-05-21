@@ -1,18 +1,18 @@
 #include "ige/plugin/input/Mouse.hpp"
 
 using ige::plugin::input::Mouse;
+using ige::plugin::input::MouseButtonEvent;
 using ige::plugin::input::MouseEvent;
-using ige::plugin::input::MouseEventButton;
-using ige::plugin::input::MouseEventPos;
 using ige::plugin::input::MouseEventType;
+using ige::plugin::input::MouseMouveEvent;
 
-void Mouse::set_pos(double xpos, double ypos)
+void Mouse::set_position(float xpos, float ypos)
 {
     m_xpos = xpos;
     m_ypos = ypos;
 }
 
-Mouse::MousePos Mouse::get_pos() const
+Mouse::MousePos Mouse::get_position() const
 {
     return { m_xpos, m_ypos };
 }
@@ -20,7 +20,7 @@ Mouse::MousePos Mouse::get_pos() const
 void Mouse::handle_mouse_event(MouseEvent event)
 {
     switch (event.type) {
-    case MouseEventType::MOUSEPOS:
+    case MouseEventType::MOUSE_MOVE:
         handle_position_event(event.pos);
         break;
     case MouseEventType::BUTTON:
@@ -32,13 +32,13 @@ void Mouse::handle_mouse_event(MouseEvent event)
     }
 }
 
-void Mouse::handle_button_event(MouseEventButton event)
+void Mouse::handle_button_event(MouseButtonEvent event)
 {
     set_state(event.button, event.state);
 }
 
-void Mouse::handle_position_event(MouseEventPos event)
+void Mouse::handle_position_event(MouseMouveEvent event)
 {
-    m_xpos = event.xpos;
-    m_ypos = event.ypos;
+    m_xpos = event.x;
+    m_ypos = event.y;
 }

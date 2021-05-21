@@ -9,7 +9,14 @@ namespace plugin {
     namespace input {
         using ControllerId = std::size_t;
 
-        enum class ControllerAxe { LEFT_X, LEFT_Y, RIGHT_X, RIGHT_Y };
+        enum class ControllerAxis {
+            LEFT_X,
+            LEFT_Y,
+            RIGHT_X,
+            RIGHT_Y,
+            LEFT_TRIGGER,
+            RIGHT_TRIGGER
+        };
 
         enum class ControllerButton {
             A,
@@ -20,13 +27,13 @@ namespace plugin {
             DPAD_LEFT,
             DPAD_RIGHT,
             DPAD_UP,
-            LeftShoulder,
-            RightShoulder,
-            LeftStick,
-            RightStick,
-            Back,
-            Start,
-            Guide,
+            LEFT_SHOULDER,
+            RIGHT_SHOULDER,
+            LEFT_STICK,
+            RIGHT_STICK,
+            BACK,
+            START,
+            GUIDE,
         };
 
         enum class ControllerEventType {
@@ -37,7 +44,7 @@ namespace plugin {
         };
 
         struct ControllerEventJoystick {
-            ControllerAxe axe;
+            ControllerAxis axis;
             float value;
         };
 
@@ -58,14 +65,14 @@ namespace plugin {
         class Controller : public InputRegistry<ControllerButton> {
 
         public:
-            void set_axe_value(ControllerAxe axe, float value);
+            void set_axis_value(ControllerAxis axis, float value);
 
-            void get_axe_value(ControllerAxe axe);
+            void get_axis_value(ControllerAxis axis);
 
             void handle_controller_event(ControllerEvent event);
 
         private:
-            std::unordered_map<ControllerAxe, float> m_axes;
+            std::unordered_map<ControllerAxis, float> m_axiss;
         };
     }
 }

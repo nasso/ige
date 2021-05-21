@@ -10,14 +10,14 @@ namespace plugin {
     namespace input {
         enum class MouseButton { LEFT, RIGHT, MIDDLE };
 
-        enum class MouseEventType { MOUSEPOS, BUTTON, SCROLL };
+        enum class MouseEventType { MOUSE_MOVE, BUTTON, SCROLL };
 
-        struct MouseEventPos {
-            double xpos;
-            double ypos;
+        struct MouseMouveEvent {
+            float x;
+            float y;
         };
 
-        struct MouseEventButton {
+        struct MouseButtonEvent {
             MouseButton button;
             InputRegistryState state;
         };
@@ -25,30 +25,29 @@ namespace plugin {
         struct MouseEvent {
             MouseEventType type;
             union {
-                MouseEventPos pos;
-                MouseEventButton button;
+                MouseMouveEvent pos;
+                MouseButtonEvent button;
             };
         };
 
         class Mouse : public InputRegistry<MouseButton> {
         public:
             struct MousePos {
-                double xpos;
-                double ypos;
+                float x;
+                float y;
             };
 
-            void set_pos(double xpos, double ypox);
-            MousePos get_pos() const;
+            void set_position(float x, float y);
+            MousePos get_position() const;
 
             void handle_mouse_event(MouseEvent event);
 
-        protected:
         private:
-            void handle_button_event(MouseEventButton event);
-            void handle_position_event(MouseEventPos event);
+            void handle_button_event(MouseButtonEvent event);
+            void handle_position_event(MouseMouveEvent event);
 
-            double m_xpos = 0;
-            double m_ypos = 0;
+            float m_xpos = 0;
+            float m_ypos = 0;
         };
     }
 }

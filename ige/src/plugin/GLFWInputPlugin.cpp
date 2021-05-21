@@ -22,7 +22,7 @@ using ige::plugin::input::MouseButton;
 using ige::plugin::input::MouseEvent;
 using ige::plugin::input::MouseEventType;
 
-const std::unordered_map<int, InputRegistryState> GLFW_TO_REGISTRYSTATE = {
+const std::unordered_map<int, InputRegistryState> GLFW_TO_REGISTRY_STATE = {
     { GLFW_PRESS, InputRegistryState::PRESSED },
     { GLFW_RELEASE, InputRegistryState::RELEASED },
     { GLFW_REPEAT, InputRegistryState::DOWN },
@@ -80,19 +80,21 @@ static void key_callback(GLFWwindow* win, int key, int, int action, int)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    if (!wld)
+    if (!wld) {
         return;
+    }
 
     auto events_opt = wld->get<EventChannel<InputEvent>>();
 
-    if (!events_opt)
+    if (!events_opt) {
         return;
+    }
     auto& events = events_opt->get();
 
     auto k = GLFW_TO_KEYBOARD_KEYS.find(key);
-    auto s = GLFW_TO_REGISTRYSTATE.find(action);
+    auto s = GLFW_TO_REGISTRY_STATE.find(action);
 
-    if (k != GLFW_TO_KEYBOARD_KEYS.end() && s != GLFW_TO_REGISTRYSTATE.end()) {
+    if (k != GLFW_TO_KEYBOARD_KEYS.end() && s != GLFW_TO_REGISTRY_STATE.end()) {
         events.push({ InputEventType::KEYBOARD, { k->second, s->second } });
     }
 }
@@ -101,17 +103,19 @@ static void mouse_button_callback(GLFWwindow* win, int button, int action, int)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    if (!wld)
+    if (!wld) {
         return;
+    }
     auto events_opt = wld->get<EventChannel<InputEvent>>();
 
-    if (!events_opt)
+    if (!events_opt) {
         return;
+    }
     auto& events = events_opt->get();
 
     auto b = GLFW_TO_MOUSE_BUTTON.find(button);
-    auto s = GLFW_TO_REGISTRYSTATE.find(action);
-    if (b != GLFW_TO_MOUSE_BUTTON.end() && s != GLFW_TO_REGISTRYSTATE.end()) {
+    auto s = GLFW_TO_REGISTRY_STATE.find(action);
+    if (b != GLFW_TO_MOUSE_BUTTON.end() && s != GLFW_TO_REGISTRY_STATE.end()) {
         InputEvent event;
         event.type = InputEventType::MOUSE;
         event.mouse.type = MouseEventType::BUTTON;
@@ -124,17 +128,19 @@ static void cursor_position_callback(GLFWwindow* win, double xpos, double ypos)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    if (!wld)
+    if (!wld) {
         return;
+    }
     auto events_opt = wld->get<EventChannel<InputEvent>>();
 
-    if (!events_opt)
+    if (!events_opt) {
         return;
+    }
     auto& events = events_opt->get();
     InputEvent event;
     event.type = InputEventType::MOUSE;
-    event.mouse.type = MouseEventType::MOUSEPOS;
-    event.mouse.pos = { xpos, ypos };
+    event.mouse.type = MouseEventType::MOUSE_MOVE;
+    event.mouse.pos = { static_cast<float>(xpos), static_cast<float>(ypos) };
     events.push(event);
 }
 

@@ -15,8 +15,6 @@ namespace ige {
 namespace plugin {
     namespace input {
 
-        enum class JoystickAxe { HORIZONTALE, VERTICALE };
-
         enum class InputEventType { KEYBOARD, MOUSE };
 
         struct InputEvent {
@@ -36,7 +34,6 @@ namespace plugin {
 
             static void input_manager_updater(ecs::World& wld);
 
-        protected:
         private:
             void handle_new_events();
 

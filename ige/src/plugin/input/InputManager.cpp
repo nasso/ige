@@ -1,5 +1,4 @@
 #include "ige/plugin/input/InputManager.hpp"
-#include "GLFW/glfw3.h"
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/World.hpp"
 
