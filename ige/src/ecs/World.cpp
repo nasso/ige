@@ -38,7 +38,7 @@ EntityId World::EntityRef::id() const
 
 bool World::exists(const EntityId& ent)
 {
-    return m_entities.contains(ent);
+    return m_entities.exists(ent);
 }
 
 bool World::remove_entity(const EntityId& ent)

@@ -39,9 +39,12 @@ EntityId EntityPool::allocate()
     if (it_available != m_released.end()) {
         EntityId entity = it_available->next_gen();
         m_released.erase(it_available);
+        m_entities.insert(entity);
         return entity;
     } else {
-        return *m_entities.emplace(m_size++).first;
+        EntityId entity { m_size++ };
+        m_entities.insert(entity);
+        return entity;
     }
 }
 
@@ -58,7 +61,7 @@ bool EntityPool::release(EntityId entity)
     return false;
 }
 
-bool EntityPool::contains(EntityId entity) const
+bool EntityPool::exists(EntityId entity) const
 {
     return m_entities.contains(entity);
 }

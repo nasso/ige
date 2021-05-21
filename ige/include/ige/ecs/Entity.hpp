@@ -81,7 +81,7 @@ namespace ecs {
          * @return true
          * @return false
          */
-        bool contains(EntityId entity) const;
+        bool exists(EntityId entity) const;
     };
 
 }
