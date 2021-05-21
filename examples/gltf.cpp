@@ -47,7 +47,7 @@ class RootState : public State {
 
         auto camera = app.world().create_entity();
         camera.add_component(
-            Transform::make_look_at(vec3(2.0f, 1.0f, 0.0f), vec3(0.0f)));
+            Transform::from_pos(vec3(2.0f, 1.0f, 0.0f)).look_at(vec3(0.0f)));
         camera.emplace_component<PerspectiveCamera>(90.0f);
     }
 
