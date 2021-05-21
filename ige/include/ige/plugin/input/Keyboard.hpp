@@ -83,7 +83,7 @@ namespace plugin {
 
         class Keyboard : public InputRegistry<KeyboardKey> {
         public:
-            void handle_keyboard_event(KeyboardEvent event);
+            void handle_keyboard_event(const KeyboardEvent& event);
         };
     }
 }

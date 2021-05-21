@@ -12,7 +12,7 @@ namespace plugin {
 
         enum class MouseEventType { MOUSE_MOVE, BUTTON, SCROLL };
 
-        struct MouseMouveEvent {
+        struct MouseMoveEvent {
             float x;
             float y;
         };
@@ -25,7 +25,7 @@ namespace plugin {
         struct MouseEvent {
             MouseEventType type;
             union {
-                MouseMouveEvent pos;
+                MouseMoveEvent pos;
                 MouseButtonEvent button;
             };
         };
@@ -40,11 +40,11 @@ namespace plugin {
             void set_position(float x, float y);
             MousePos get_position() const;
 
-            void handle_mouse_event(MouseEvent event);
+            void handle_mouse_event(const MouseEvent& event);
 
         private:
-            void handle_button_event(MouseButtonEvent event);
-            void handle_position_event(MouseMouveEvent event);
+            void handle_button_event(const MouseButtonEvent& event);
+            void handle_position_event(const MouseMoveEvent& event);
 
             float m_xpos = 0;
             float m_ypos = 0;

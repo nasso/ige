@@ -67,12 +67,12 @@ namespace plugin {
         public:
             void set_axis_value(ControllerAxis axis, float value);
 
-            void get_axis_value(ControllerAxis axis);
+            float get_axis_value(ControllerAxis axis);
 
-            void handle_controller_event(ControllerEvent event);
+            void handle_controller_event(const ControllerEvent& event);
 
         private:
-            std::unordered_map<ControllerAxis, float> m_axiss;
+            std::unordered_map<ControllerAxis, float> m_axes;
         };
     }
 }

@@ -4,7 +4,7 @@ using ige::plugin::input::Mouse;
 using ige::plugin::input::MouseButtonEvent;
 using ige::plugin::input::MouseEvent;
 using ige::plugin::input::MouseEventType;
-using ige::plugin::input::MouseMouveEvent;
+using ige::plugin::input::MouseMoveEvent;
 
 void Mouse::set_position(float xpos, float ypos)
 {
@@ -17,7 +17,7 @@ Mouse::MousePos Mouse::get_position() const
     return { m_xpos, m_ypos };
 }
 
-void Mouse::handle_mouse_event(MouseEvent event)
+void Mouse::handle_mouse_event(const MouseEvent& event)
 {
     switch (event.type) {
     case MouseEventType::MOUSE_MOVE:
@@ -32,12 +32,12 @@ void Mouse::handle_mouse_event(MouseEvent event)
     }
 }
 
-void Mouse::handle_button_event(MouseButtonEvent event)
+void Mouse::handle_button_event(const MouseButtonEvent& event)
 {
     set_state(event.button, event.state);
 }
 
-void Mouse::handle_position_event(MouseMouveEvent event)
+void Mouse::handle_position_event(const MouseMoveEvent& event)
 {
     m_xpos = event.x;
     m_ypos = event.y;
