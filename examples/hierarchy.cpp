@@ -86,6 +86,11 @@ class RootState : public State {
         if (root_cube) {
             root_cube->get_component<Transform>()->get().set_rotation(
                 vec3(0.0f, t, 0.0f));
+
+            if (t > 5.0f) {
+                root_cube->remove();
+                root_cube.reset();
+            }
         }
 
         // make the little cubes rotate too!!
