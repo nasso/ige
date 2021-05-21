@@ -200,16 +200,19 @@ static void compute_children_sets(World& world)
     auto all_children = world.query<Parent>();
 
     // clear the children set for each parent
-    for (auto [entity, children] : all_parents) {
+    for (auto [parent, children] : all_parents) {
         children.entities.clear();
     }
 
-    // re-insert children back in their parents
-    for (auto [entity, parent] : all_children) {
-        auto& children
-            = world.get_or_emplace_component<Children>(parent.entity);
-
-        children.entities.insert(entity);
+    // insert children in their parents children set
+    for (auto [child, parent] : all_children) {
+        if (world.exists(parent.entity)) {
+            world.get_or_emplace_component<Children>(parent.entity)
+                .entities.insert(child);
+        } else {
+            // orphans are detached from their parent
+            world.remove_component<Parent>(child);
+        }
     }
 }
 
