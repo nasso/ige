@@ -217,8 +217,12 @@ namespace detail {
     }
 
     class GltfSceneData {
+    public:
+        using Primitive
+            = std::tuple<std::shared_ptr<Mesh>, std::shared_ptr<Material>>;
+
     private:
-        std::vector<std::vector<std::shared_ptr<Mesh>>> m_meshes;
+        std::vector<std::vector<Primitive>> m_meshes;
         std::vector<std::shared_ptr<Material>> m_materials;
 
         fx::gltf::Document m_doc;
@@ -227,20 +231,38 @@ namespace detail {
         GltfSceneData(const GltfScene& scene)
             : m_doc(read_document(scene.uri, scene.format))
         {
+            // create materials
+            m_materials.reserve(m_doc.materials.size());
+            for (const auto& material : m_doc.materials) {
+                auto mat = Material::load_default();
+
+                if (!material.pbrMetallicRoughness.empty()) {
+                    mat->set(
+                        "base_color_factor",
+                        glm::make_vec4(material.pbrMetallicRoughness
+                                           .baseColorFactor.data()));
+                }
+
+                m_materials.push_back(mat);
+            }
+
+            // create meshes
             m_meshes.reserve(m_doc.meshes.size());
             for (const auto& mesh : m_doc.meshes) {
-                std::vector<std::shared_ptr<Mesh>> mesh_prims;
+                std::vector<Primitive> mesh_prims;
 
                 mesh_prims.reserve(mesh.primitives.size());
                 for (const auto& primitive : mesh.primitives) {
-                    mesh_prims.push_back(std::make_shared<Mesh>(
-                        convert_mesh_primitive(m_doc, primitive)));
+                    mesh_prims.push_back(std::make_tuple(
+                        std::make_shared<Mesh>(
+                            convert_mesh_primitive(m_doc, primitive)),
+                        primitive.material >= 0
+                            ? m_materials[primitive.material]
+                            : nullptr));
                 }
 
                 m_meshes.emplace_back(std::move(mesh_prims));
             }
-
-            m_materials.push_back(Material::load_default());
         }
 
         const fx::gltf::Document& document() const
@@ -248,12 +270,12 @@ namespace detail {
             return m_doc;
         }
 
-        std::span<std::shared_ptr<Mesh>> mesh(std::size_t idx)
+        std::span<Primitive> mesh(std::size_t idx)
         {
             return { m_meshes[idx] };
         }
 
-        std::span<const std::shared_ptr<Mesh>> mesh(std::size_t idx) const
+        std::span<const Primitive> mesh(std::size_t idx) const
         {
             return { m_meshes[idx] };
         }
@@ -341,17 +363,15 @@ namespace detail {
             m_entities.push_back(entity.id());
 
             if (node.mesh >= 0) {
-                auto primitives = data.mesh(node.mesh);
-
-                for (std::size_t i = 0; i < primitives.size(); i++) {
+                for (auto [mesh, material] : data.mesh(node.mesh)) {
                     auto primitive_entity = world.create_entity(
                         Transform {},
                         Parent {
                             entity.id(),
                         },
                         MeshRenderer {
-                            primitives[i],
-                            Material::load_default(),
+                            mesh,
+                            material,
                         });
                     m_entities.push_back(primitive_entity.id());
                 }
