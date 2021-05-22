@@ -209,11 +209,12 @@ namespace detail {
 
             builder.set_index_buffer(index_vec);
         } else {
-            throw std::runtime_error(
-                (std::stringstream {}
-                 << "Unsupported index data type: " << (is_signed ? 'i' : 'u')
-                 << (index_data_size * 8))
-                    .str());
+            std::stringstream ss;
+
+            ss << "Unsupported index data type: " << (is_signed ? 'i' : 'u')
+               << (index_data_size * 8);
+
+            throw std::runtime_error(ss.str());
         }
 
         return builder.build();
