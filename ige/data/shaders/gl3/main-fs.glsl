@@ -17,7 +17,7 @@ void main()
     // 0.0 -> the light doesn't hit the surface (darkest)
     // 1.0 -> the light is perfectly aligned with the surface normal (brightest)
     // 0.0 .. 1.0 -> the light hits the surface with some angle
-    float cos_theta = max(dot(v_Normal, sun_dir), 0.0);
+    float cos_theta = max(dot(normalize(v_Normal), sun_dir), 0.0);
 
     vec3 light_factor = ambient_light + (sun_color * cos_theta);
     vec3 diffuse = u_BaseColorFactor.rgb * light_factor;
