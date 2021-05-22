@@ -143,8 +143,9 @@ void Texture::load(std::span<const std::byte> buffer)
     if (!data) {
         throw std::runtime_error(stbi_failure_reason());
     } else if (channels < 1 || channels > 4) {
+        stbi_image_free(data);
         throw std::runtime_error(
-            "invalid channel count (" + std::to_string(channels) + ")");
+            "Invalid channel count (" + std::to_string(channels) + ")");
     }
 
     const Texture::Format formats[] = {
