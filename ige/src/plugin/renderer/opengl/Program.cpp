@@ -102,6 +102,12 @@ GLuint Program::uniform(const std::string& name)
     return glGetUniformLocation(m_id, name.c_str());
 }
 
+void Program::uniform(const std::string& name, bool value)
+{
+    use();
+    glUniform1i(uniform(name), value ? 1 : 0);
+}
+
 void Program::uniform(const std::string& name, float value)
 {
     use();
