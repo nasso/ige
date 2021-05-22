@@ -130,35 +130,37 @@ public:
 std::size_t MeshCache::GID = 0;
 
 class RenderCache {
-private:
-    static gl::Program load_main_program()
-    {
-        const auto& store = DataStore::get_engine_data_store();
-
-        std::cerr << "Loading shaders..." << std::endl;
-        auto vs_src = store.get_str("shaders/gl3/main-vs.glsl");
-        auto fs_src = store.get_str("shaders/gl3/main-fs.glsl");
-
-        std::cerr << "Compiling shaders..." << std::endl;
-        gl::Shader vs(gl::Shader::VERTEX, vs_src);
-        gl::Shader fs(gl::Shader::FRAGMENT, fs_src);
-
-        std::cerr << "Linking program..." << std::endl;
-        gl::Program program { std::move(vs), std::move(fs) };
-
-        gl::Error::audit("load_main_program");
-        return program;
-    }
-
 public:
     std::unordered_map<
         std::weak_ptr<Mesh>, MeshCache, WeakRefHash<Mesh>, WeakRefEq<Mesh>>
         meshes;
-    gl::Program main_program;
+    std::optional<gl::Program> main_program;
 
-    RenderCache()
-        : main_program(load_main_program())
+    RenderCache() noexcept
     {
+        try {
+            const auto& store = DataStore::get_engine_data_store();
+
+            std::cerr << "Loading shaders..." << std::endl;
+            auto vs_src = store.get_str("shaders/gl3/main-vs.glsl");
+            auto fs_src = store.get_str("shaders/gl3/main-fs.glsl");
+
+            std::cerr << "Compiling shaders..." << std::endl;
+            gl::Shader vs(gl::Shader::VERTEX, vs_src);
+            gl::Shader fs(gl::Shader::FRAGMENT, fs_src);
+
+            std::cerr << "Linking program..." << std::endl;
+            main_program.emplace(std::move(vs), std::move(fs));
+
+            gl::Error::audit("load_main_program");
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+
+    bool is_valid() const
+    {
+        return main_program.has_value();
     }
 };
 
@@ -173,8 +175,8 @@ draw_mesh(RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
 
     const MeshCache& mesh_cache = iter->second;
 
-    cache.main_program.use();
-    cache.main_program.uniform("u_ProjViewModel", pvm);
+    cache.main_program->use();
+    cache.main_program->uniform("u_ProjViewModel", pvm);
     mesh_cache.vertex_array.bind();
     GLenum topology = GL_TRIANGLES;
 
@@ -206,6 +208,12 @@ namespace backend = ige::renderer::backend;
 
 void backend::render_meshes(World& world)
 {
+    auto& cache = world.get_or_emplace<RenderCache>();
+
+    if (!cache.is_valid()) {
+        return;
+    }
+
     // TODO: gracefully handle the case where no WindowInfo is present
     auto& wininfo = world.get<WindowInfo>()->get();
     auto cameras = world.query<PerspectiveCamera, Transform>();
@@ -221,8 +229,6 @@ void backend::render_meshes(World& world)
         glm::radians(camera.fov), float(wininfo.width) / float(wininfo.height),
         camera.near, camera.far);
     mat4 view = camera_xform.world_to_local();
-
-    auto& cache = world.get_or_emplace<RenderCache>();
 
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
