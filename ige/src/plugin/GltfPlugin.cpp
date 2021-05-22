@@ -1,6 +1,7 @@
 #include "ige/plugin/GltfPlugin.hpp"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
+#include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
@@ -8,6 +9,7 @@
 #include "ige/plugin/TransformPlugin.hpp"
 #include <cstddef>
 #include <cstdint>
+#include <filesystem>
 #include <fx/gltf.h>
 #include <iostream>
 #include <memory>
@@ -33,6 +35,7 @@ using glm::vec3;
 using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
+using ige::asset::Texture;
 using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
@@ -224,44 +227,167 @@ namespace detail {
     private:
         std::vector<std::vector<Primitive>> m_meshes;
         std::vector<std::shared_ptr<Material>> m_materials;
+        std::vector<std::shared_ptr<Texture>> m_textures;
 
         fx::gltf::Document m_doc;
+        std::filesystem::path m_root;
+
+        std::shared_ptr<Texture> load_texture(const fx::gltf::Texture& texture)
+        {
+            const auto& image = m_doc.images[texture.source];
+
+            bool embedded = image.IsEmbeddedResource();
+            bool has_uri = !image.uri.empty();
+
+            std::shared_ptr<Texture> tex = nullptr;
+
+            if (has_uri && !embedded) {
+                // external file
+                tex = std::make_shared<Texture>(m_root / image.uri);
+            } else if (embedded) {
+                // base64
+                std::vector<std::uint8_t> data;
+                image.MaterializeData(data);
+
+                tex = std::make_shared<Texture>(std::as_bytes(std::span(data)));
+            } else {
+                // buffer
+                const auto& view = m_doc.bufferViews[image.bufferView];
+                const auto& buffer = m_doc.buffers[view.buffer];
+
+                std::cerr << "Loading " << image.mimeType << " image..."
+                          << std::endl;
+                tex = std::make_shared<Texture>(
+                    std::as_bytes(std::span(buffer.data))
+                        .subspan(view.byteOffset, view.byteLength));
+            }
+
+            if (texture.sampler >= 0) {
+                const auto& sampler = m_doc.samplers[texture.sampler];
+
+                switch (sampler.magFilter) {
+                case fx::gltf::Sampler::MagFilter::Linear:
+                    tex->set_mag_filter(Texture::MagFilter::LINEAR);
+                    break;
+                case fx::gltf::Sampler::MagFilter::Nearest:
+                    tex->set_mag_filter(Texture::MagFilter::NEAREST);
+                    break;
+                default:
+                    break;
+                }
+
+                switch (sampler.minFilter) {
+                case fx::gltf::Sampler::MinFilter::Linear:
+                    tex->set_min_filter(Texture::MinFilter::LINEAR);
+                    break;
+                case fx::gltf::Sampler::MinFilter::LinearMipMapLinear:
+                    tex->set_min_filter(
+                        Texture::MinFilter::LINEAR_MIPMAP_LINEAR);
+                    break;
+                case fx::gltf::Sampler::MinFilter::LinearMipMapNearest:
+                    tex->set_min_filter(
+                        Texture::MinFilter::LINEAR_MIPMAP_NEAREST);
+                    break;
+                case fx::gltf::Sampler::MinFilter::Nearest:
+                    tex->set_min_filter(Texture::MinFilter::NEAREST);
+                    break;
+                case fx::gltf::Sampler::MinFilter::NearestMipMapLinear:
+                    tex->set_min_filter(
+                        Texture::MinFilter::NEAREST_MIPMAP_LINEAR);
+                    break;
+                case fx::gltf::Sampler::MinFilter::NearestMipMapNearest:
+                    tex->set_min_filter(
+                        Texture::MinFilter::NEAREST_MIPMAP_NEAREST);
+                    break;
+                default:
+                    break;
+                }
+
+                auto convert_wrap_mode
+                    = [](fx::gltf::Sampler::WrappingMode mode) {
+                          switch (mode) {
+                          case fx::gltf::Sampler::WrappingMode::ClampToEdge:
+                              return Texture::WrappingMode::CLAMP_TO_EDGE;
+                          case fx::gltf::Sampler::WrappingMode::MirroredRepeat:
+                              return Texture::WrappingMode::MIRRORED_REPEAT;
+                          case fx::gltf::Sampler::WrappingMode::Repeat:
+                              return Texture::WrappingMode::REPEAT;
+                          default:
+                              return Texture::WrappingMode::REPEAT;
+                          }
+                      };
+
+                tex->set_wrap_s(convert_wrap_mode(sampler.wrapS));
+                tex->set_wrap_t(convert_wrap_mode(sampler.wrapT));
+            }
+
+            return tex;
+        }
+
+        std::shared_ptr<Material>
+        load_material(const fx::gltf::Material& material)
+        {
+            auto mat = Material::load_default();
+
+            if (!material.pbrMetallicRoughness.empty()) {
+                mat->set(
+                    "base_color_factor",
+                    glm::make_vec4(
+                        material.pbrMetallicRoughness.baseColorFactor.data()));
+
+                const auto& base_color_texture
+                    = material.pbrMetallicRoughness.baseColorTexture;
+
+                if (!base_color_texture.empty()
+                    && base_color_texture.texCoord == 0) {
+                    mat->set(
+                        "base_color_texture",
+                        m_textures[base_color_texture.index]);
+                }
+
+                mat->set_double_sided(material.doubleSided);
+            }
+
+            return mat;
+        }
+
+        std::vector<Primitive> load_mesh(const fx::gltf::Mesh& mesh)
+        {
+            std::vector<Primitive> mesh_prims;
+
+            mesh_prims.reserve(mesh.primitives.size());
+            for (const auto& primitive : mesh.primitives) {
+                mesh_prims.push_back(std::make_tuple(
+                    std::make_shared<Mesh>(
+                        convert_mesh_primitive(m_doc, primitive)),
+                    primitive.material >= 0 ? m_materials[primitive.material]
+                                            : nullptr));
+            }
+
+            return mesh_prims;
+        }
 
     public:
         GltfSceneData(const GltfScene& scene)
             : m_doc(read_document(scene.uri, scene.format))
+            , m_root(std::filesystem::path(scene.uri).parent_path())
         {
+            // create textures
+            m_textures.reserve(m_doc.textures.size());
+            for (const auto& texture : m_doc.textures) {
+                m_textures.emplace_back(load_texture(texture));
+            }
+
             // create materials
             m_materials.reserve(m_doc.materials.size());
             for (const auto& material : m_doc.materials) {
-                auto mat = Material::load_default();
-
-                if (!material.pbrMetallicRoughness.empty()) {
-                    mat->set(
-                        "base_color_factor",
-                        glm::make_vec4(material.pbrMetallicRoughness
-                                           .baseColorFactor.data()));
-                }
-
-                m_materials.push_back(mat);
+                m_materials.emplace_back(load_material(material));
             }
 
             // create meshes
             m_meshes.reserve(m_doc.meshes.size());
             for (const auto& mesh : m_doc.meshes) {
-                std::vector<Primitive> mesh_prims;
-
-                mesh_prims.reserve(mesh.primitives.size());
-                for (const auto& primitive : mesh.primitives) {
-                    mesh_prims.push_back(std::make_tuple(
-                        std::make_shared<Mesh>(
-                            convert_mesh_primitive(m_doc, primitive)),
-                        primitive.material >= 0
-                            ? m_materials[primitive.material]
-                            : nullptr));
-                }
-
-                m_meshes.emplace_back(std::move(mesh_prims));
+                m_meshes.emplace_back(load_mesh(mesh));
             }
         }
 

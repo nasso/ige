@@ -94,11 +94,11 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
+            .add_system(System(rotation_system))
+            .add_plugin(GltfPlugin {})
+            .add_plugin(TransformPlugin {})
             .add_plugin(WindowingPlugin {})
             .add_plugin(RenderingPlugin {})
-            .add_plugin(TransformPlugin {})
-            .add_plugin(GltfPlugin {})
-            .add_system(System(rotation_system))
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {
