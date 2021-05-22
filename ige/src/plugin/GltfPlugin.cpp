@@ -143,11 +143,13 @@ namespace detail {
         auto buffer_data = [&](const fx::gltf::Accessor& accessor) {
             const auto& view = doc.bufferViews[accessor.bufferView];
             const auto& buffer = doc.buffers[view.buffer];
+            const auto [signed_, byte_size] = element_type(accessor);
             auto bytes
                 = std::as_bytes(std::span<const std::uint8_t>(buffer.data));
 
             return bytes.subspan(
-                view.byteOffset + accessor.byteOffset, view.byteLength);
+                view.byteOffset + accessor.byteOffset,
+                byte_size * accessor.count);
         };
 
         auto get_attrib = [&](uint32_t accessor_idx) {
