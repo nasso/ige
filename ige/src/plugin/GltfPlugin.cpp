@@ -13,6 +13,7 @@
 #include <memory>
 #include <optional>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
@@ -173,6 +174,7 @@ namespace detail {
         auto index_buffer = buffer_data(index_buffer_accessor);
 
         if (index_data_size == 4 && !is_signed) {
+            // u32
             std::span<const std::uint32_t> indices {
                 reinterpret_cast<const std::uint32_t*>(index_buffer.data()),
                 index_buffer_accessor.count,
@@ -180,6 +182,7 @@ namespace detail {
 
             builder.set_index_buffer(indices);
         } else if (index_data_size == 2 && !is_signed) {
+            // u16
             std::span<const std::uint16_t> indices {
                 reinterpret_cast<const std::uint16_t*>(index_buffer.data()),
                 index_buffer_accessor.count,
@@ -189,8 +192,23 @@ namespace detail {
                 indices.begin(), indices.end());
 
             builder.set_index_buffer(index_vec);
+        } else if (index_data_size == 1 && !is_signed) {
+            // u8
+            std::span<const std::uint8_t> indices {
+                reinterpret_cast<const std::uint8_t*>(index_buffer.data()),
+                index_buffer_accessor.count,
+            };
+
+            std::vector<std::uint32_t> index_vec(
+                indices.begin(), indices.end());
+
+            builder.set_index_buffer(index_vec);
         } else {
-            throw std::runtime_error("Unsupported index data type");
+            throw std::runtime_error(
+                (std::stringstream {}
+                 << "Unsupported index data type: " << (is_signed ? 'i' : 'u')
+                 << (index_data_size * 8))
+                    .str());
         }
 
         return builder.build();
