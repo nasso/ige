@@ -11,25 +11,36 @@ namespace gl {
         GLuint m_id = 0;
 
     public:
-        enum Format : GLenum {
+        enum class Format : GLenum {
             BGRA = GL_BGRA,
             RGBA = GL_RGBA,
             RGB = GL_RGB,
             BGR = GL_BGR,
+            RG = GL_RG,
+            RED = GL_RED,
         };
 
-        enum Type : GLenum {
+        enum class Type : GLenum {
             UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+            FLOAT = GL_FLOAT,
         };
 
-        enum Filter : GLenum {
+        enum class MagFilter : GLenum {
             NEAREST = GL_NEAREST,
             LINEAR = GL_LINEAR,
         };
 
-        enum Wrap : GLenum {
+        enum class MinFilter : GLenum {
+            NEAREST = GL_NEAREST,
+            NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
+            NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
+            LINEAR = GL_LINEAR,
+            LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
+            LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
+        };
+
+        enum class Wrap : GLenum {
             REPEAT = GL_REPEAT,
-            CLAMP_TO_BORDER = GL_CLAMP_TO_BORDER,
             CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
             MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
         };
@@ -47,10 +58,9 @@ namespace gl {
         void bind() const;
         GLuint id() const;
 
-        void filter(Filter mag, Filter min);
-        void filter(Filter f);
+        void filter(MagFilter mag, MinFilter min);
         void wrap(Wrap s, Wrap t);
-        void wrap(Wrap w);
+        void gen_mipmaps();
     };
 
 }

@@ -37,6 +37,7 @@ namespace gl {
         GLuint id() const;
 
         GLuint uniform(const std::string& name);
+        void uniform(const std::string& name, bool);
         void uniform(const std::string& name, float);
         void uniform(const std::string& name, const glm::vec2&);
         void uniform(const std::string& name, const glm::vec3&);
