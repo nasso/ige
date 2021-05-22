@@ -186,9 +186,13 @@ static void draw_mesh(
     cache.main_program->use();
     cache.main_program->uniform("u_ProjViewModel", pvm);
     cache.main_program->uniform("u_NormalMatrix", normal_matrix);
-    cache.main_program->uniform(
-        "u_BaseColorFactor",
-        renderer.material->get_or("base_color_factor", vec4 { 1.0f }));
+
+    if (renderer.material) {
+        cache.main_program->uniform(
+            "u_BaseColorFactor",
+            renderer.material->get_or("base_color_factor", vec4 { 1.0f }));
+    }
+
     mesh_cache.vertex_array.bind();
     GLenum topology = GL_TRIANGLES;
 

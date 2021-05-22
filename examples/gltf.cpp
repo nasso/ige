@@ -42,12 +42,12 @@ class RootState : public State {
 
         // create model
         m_model = app.world().create_entity(
-            Transform {}.set_scale(0.2f),
+            Transform {}.set_scale(0.5f),
             GltfScene { "assets/OrientationTest.glb", GltfFormat::BINARY });
 
         // create camera
         app.world().create_entity(
-            Transform::from_pos(vec3(2.0f, 1.0f, 0.0f)).look_at(vec3(0.0f)),
+            Transform::from_pos(vec3(8.0f, 5.0f, 8.0f)).look_at(vec3(0.0f)),
             PerspectiveCamera(90.0f));
     }
 
