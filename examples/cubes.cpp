@@ -42,6 +42,14 @@ class RootState : public State {
 
         auto mesh = Mesh::make_cube(1.0f);
         auto material = Material::load_default();
+        material->set(
+            "base_color_factor",
+            vec4 {
+                1.0f,
+                0.75f,
+                0.35f,
+                1.0f,
+            });
 
         auto camera = app.world().create_entity(
             Transform::from_pos(vec3(-3.0f, 3.0f, 0.0f)).look_at(vec3(0.0f)),

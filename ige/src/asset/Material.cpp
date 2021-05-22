@@ -16,6 +16,7 @@ using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using ige::asset::Material;
+using ige::asset::Texture;
 
 Material::Parameter::Parameter(const Material::Parameter& other)
     : type(other.type)
@@ -122,5 +123,81 @@ std::optional<Material::Parameter> Material::get(const std::string& name) const
         return { iter->second };
     } else {
         return std::nullopt;
+    }
+}
+
+float Material::get_or(const std::string& name, float default_value) const
+{
+    if (auto param_ = get(name)) {
+        auto param = param_.value_or(default_value);
+
+        if (param.type != ParameterType::FLOAT) {
+            return default_value;
+        } else {
+            return param.x;
+        }
+    } else {
+        return default_value;
+    }
+}
+
+vec2 Material::get_or(const std::string& name, vec2 default_value) const
+{
+    if (auto param_ = get(name)) {
+        auto param = param_.value_or(default_value);
+
+        if (param.type != ParameterType::VEC2) {
+            return default_value;
+        } else {
+            return param.xy;
+        }
+    } else {
+        return default_value;
+    }
+}
+
+vec3 Material::get_or(const std::string& name, vec3 default_value) const
+{
+    if (auto param_ = get(name)) {
+        auto param = param_.value_or(default_value);
+
+        if (param.type != ParameterType::VEC3) {
+            return default_value;
+        } else {
+            return param.xyz;
+        }
+    } else {
+        return default_value;
+    }
+}
+
+vec4 Material::get_or(const std::string& name, vec4 default_value) const
+{
+    if (auto param_ = get(name)) {
+        auto param = param_.value_or(default_value);
+
+        if (param.type != ParameterType::VEC4) {
+            return default_value;
+        } else {
+            return param.xyzw;
+        }
+    } else {
+        return default_value;
+    }
+}
+
+std::shared_ptr<Texture> Material::get_or(
+    const std::string& name, std::shared_ptr<Texture> default_value) const
+{
+    if (auto param_ = get(name)) {
+        auto param = param_.value_or(default_value);
+
+        if (param.type != ParameterType::TEXTURE) {
+            return default_value;
+        } else {
+            return param.texture;
+        }
+    } else {
+        return default_value;
     }
 }

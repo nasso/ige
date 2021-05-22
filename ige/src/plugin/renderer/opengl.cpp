@@ -20,11 +20,13 @@
 #include <unordered_map>
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
 namespace gl = ige::gl;
 
 using glm::mat4;
+using glm::vec4;
 using ige::asset::Mesh;
 using ige::core::DataStore;
 using ige::ecs::World;
@@ -164,23 +166,33 @@ public:
     }
 };
 
-static void
-draw_mesh(RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
+static void draw_mesh(
+    RenderCache& cache, const MeshRenderer& renderer, const mat4& projection,
+    const mat4& view, const mat4& model)
 {
-    auto iter = cache.meshes.find(model.mesh);
+    mat4 vm = view * model;
+    mat4 pvm = projection * vm;
+
+    mat4 normal_matrix = glm::transpose(glm::inverse(vm));
+
+    auto iter = cache.meshes.find(renderer.mesh);
 
     if (iter == cache.meshes.end()) {
-        iter = cache.meshes.emplace(model.mesh, *model.mesh).first;
+        iter = cache.meshes.emplace(renderer.mesh, *renderer.mesh).first;
     }
 
     const MeshCache& mesh_cache = iter->second;
 
     cache.main_program->use();
     cache.main_program->uniform("u_ProjViewModel", pvm);
+    cache.main_program->uniform("u_NormalMatrix", normal_matrix);
+    cache.main_program->uniform(
+        "u_BaseColorFactor",
+        renderer.material->get_or("base_color_factor", vec4 { 1.0f }));
     mesh_cache.vertex_array.bind();
     GLenum topology = GL_TRIANGLES;
 
-    switch (model.mesh->topology()) {
+    switch (renderer.mesh->topology()) {
     case Mesh::Topology::TRIANGLES:
         topology = GL_TRIANGLES;
         break;
@@ -198,7 +210,7 @@ draw_mesh(RenderCache& cache, const MeshRenderer& model, const mat4& pvm)
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glDrawElements(
-        topology, static_cast<GLsizei>(model.mesh->index_buffer().size()),
+        topology, static_cast<GLsizei>(renderer.mesh->index_buffer().size()),
         GL_UNSIGNED_INT, 0);
 
     gl::Error::audit("draw elements");
@@ -233,9 +245,8 @@ void backend::render_meshes(World& world)
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
         mat4 model = xform.local_to_world();
-        mat4 pvm = projection * view * model;
 
-        draw_mesh(cache, renderer, pvm);
+        draw_mesh(cache, renderer, projection, view, model);
     }
 }
 

@@ -54,6 +54,13 @@ namespace asset {
 
         std::optional<Parameter> get(const std::string&) const;
 
+        float get_or(const std::string&, float) const;
+        glm::vec2 get_or(const std::string&, glm::vec2) const;
+        glm::vec3 get_or(const std::string&, glm::vec3) const;
+        glm::vec4 get_or(const std::string&, glm::vec4) const;
+        std::shared_ptr<Texture>
+        get_or(const std::string&, std::shared_ptr<Texture>) const;
+
     private:
         std::unordered_map<std::string, Parameter> m_parameters;
     };
