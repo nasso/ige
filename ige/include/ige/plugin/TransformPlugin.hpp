@@ -38,7 +38,7 @@ namespace plugin {
 
     class Transform {
     private:
-        glm::vec3 m_translation;
+        glm::vec3 m_translation = glm::vec3(0.0f);
         glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
         glm::vec3 m_scale = glm::vec3(1.0f);
 
