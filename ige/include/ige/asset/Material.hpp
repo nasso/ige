@@ -50,6 +50,14 @@ namespace asset {
             Parameter& operator=(const Parameter&);
         };
 
+    private:
+        std::unordered_map<std::string, Parameter> m_parameters;
+        bool m_double_sided = false;
+
+    public:
+        void set_double_sided(bool double_sided = true);
+        bool double_sided() const;
+
         void set(const std::string&, Parameter);
 
         std::optional<Parameter> get(const std::string&) const;
@@ -60,9 +68,6 @@ namespace asset {
         glm::vec4 get_or(const std::string&, glm::vec4) const;
         std::shared_ptr<Texture>
         get_or(const std::string&, std::shared_ptr<Texture>) const;
-
-    private:
-        std::unordered_map<std::string, Parameter> m_parameters;
     };
 
 }
