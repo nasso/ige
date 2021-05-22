@@ -110,6 +110,16 @@ std::shared_ptr<Material> Material::load_default()
     return std::make_shared<Material>();
 }
 
+void Material::set_double_sided(bool val)
+{
+    m_double_sided = val;
+}
+
+bool Material::double_sided() const
+{
+    return m_double_sided;
+}
+
 void Material::set(const std::string& name, Material::Parameter value)
 {
     m_parameters.emplace(name, value);
