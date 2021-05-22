@@ -47,7 +47,6 @@ endif()
 set(sources ${sources}
     "include/ige.hpp"
     "include/ige/asset.hpp"
-    "include/ige/asset/Gltf.hpp"
     "include/ige/asset/Material.hpp"
     "include/ige/asset/Mesh.hpp"
     "include/ige/asset/Texture.hpp"
@@ -69,11 +68,11 @@ set(sources ${sources}
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
     "include/ige/plugin.hpp"
+    "include/ige/plugin/GltfPlugin.hpp"
     "include/ige/plugin/RenderingPlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
     "include/ige/plugin/WindowingPlugin.hpp"
 
-    "src/asset/Gltf.cpp"
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
     "src/asset/Texture.cpp"
@@ -101,6 +100,7 @@ set(sources ${sources}
     "src/plugin/renderer/opengl/VertexArray.hpp"
     "src/plugin/renderer/backend.hpp"
     "src/plugin/renderer/opengl.cpp"
+    "src/plugin/GltfPlugin.cpp"
     "src/plugin/RenderingPlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowingPlugin.cpp"
