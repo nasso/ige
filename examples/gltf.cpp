@@ -42,8 +42,8 @@ class RootState : public State {
 
         // create model
         m_model = app.world().create_entity(
-            Transform {},
-            GltfScene { "assets/BoxTextured.glb", GltfFormat::BINARY });
+            Transform {}.set_scale(0.2f),
+            GltfScene { "assets/OrientationTest.glb", GltfFormat::BINARY });
 
         // create camera
         app.world().create_entity(
