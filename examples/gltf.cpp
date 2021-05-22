@@ -17,6 +17,7 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
+using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::MeshRenderer;
 using ige::plugin::PerspectiveCamera;
@@ -31,9 +32,19 @@ using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
 
+struct Rotation {
+    vec3 velocity;
+};
+
+static void rotation_system(World& world)
+{
+    for (auto [entity, rot, xform] : world.query<Rotation, Transform>()) {
+        xform.rotate(rot.velocity);
+    }
+}
+
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
-    std::optional<World::EntityRef> m_model;
 
     void on_start(App& app) override
     {
@@ -41,24 +52,34 @@ class RootState : public State {
         m_win_events.emplace(channel->get().subscribe());
 
         // create model
-        m_model = app.world().create_entity(
-            Transform {}.set_scale(0.5f),
-            GltfScene { "assets/OrientationTest.glb", GltfFormat::BINARY });
+        app.world().create_entity(
+            Transform::from_pos(vec3(-2.0f, 0.0f, 0.0f)),
+            Rotation {
+                vec3(0.0f, 0.2f, 0.0f),
+            },
+            GltfScene {
+                "assets/BoxTextured.glb",
+                GltfFormat::BINARY,
+            });
+
+        app.world().create_entity(
+            Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.2f),
+            Rotation {
+                vec3(0.0f, 0.2f, 0.0f),
+            },
+            GltfScene {
+                "assets/OrientationTest.glb",
+                GltfFormat::BINARY,
+            });
 
         // create camera
         app.world().create_entity(
-            Transform::from_pos(vec3(8.0f, 5.0f, 8.0f)).look_at(vec3(0.0f)),
+            Transform::from_pos(vec3(0.0f, 2.0f, 4.0f)).look_at(vec3(0.0f)),
             PerspectiveCamera(90.0f));
     }
 
     void on_update(App& app) override
     {
-        if (m_model) {
-            auto& xform = m_model->get_or_emplace_component<Transform>();
-
-            xform.rotate(vec3 { 0.0f, 0.2f, 0.0f });
-        }
-
         while (const auto& event = m_win_events->next_event()) {
             if (event->get().kind == WindowEventKind::WindowClose) {
                 app.quit();
@@ -77,6 +98,7 @@ int main()
             .add_plugin(RenderingPlugin {})
             .add_plugin(TransformPlugin {})
             .add_plugin(GltfPlugin {})
+            .add_system(System(rotation_system))
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {
