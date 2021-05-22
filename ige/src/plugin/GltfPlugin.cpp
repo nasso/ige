@@ -328,15 +328,6 @@ namespace detail {
                     xform.set_translation(translation);
                     xform.set_rotation(rotation);
                     xform.set_scale(scale);
-
-                    std::cout << "translation: " << translation.x << ", "
-                              << translation.y << ", " << translation.z
-                              << std::endl;
-                    std::cout << "rotation: " << rotation.x << ", "
-                              << rotation.y << ", " << rotation.z << ", "
-                              << rotation.w << std::endl;
-                    std::cout << "scale: " << scale.x << ", " << scale.y << ", "
-                              << scale.z << std::endl;
                 }
             } else {
                 if (node.translation != fx::gltf::defaults::NullVec3) {
