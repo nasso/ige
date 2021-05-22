@@ -10,7 +10,6 @@
 
 using glm::vec3;
 using glm::vec4;
-using ige::asset::Gltf;
 using ige::asset::Material;
 using ige::asset::Mesh;
 using ige::asset::Texture;
@@ -28,6 +27,9 @@ using ige::plugin::WindowEvent;
 using ige::plugin::WindowEventKind;
 using ige::plugin::WindowingPlugin;
 using ige::plugin::WindowSettings;
+using ige::plugin::gltf::GltfFormat;
+using ige::plugin::gltf::GltfPlugin;
+using ige::plugin::gltf::GltfScene;
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
@@ -38,17 +40,15 @@ class RootState : public State {
         auto channel = app.world().get<EventChannel<WindowEvent>>();
         m_win_events.emplace(channel->get().subscribe());
 
-        try {
-            auto model = Gltf::from_bin("assets/BoxTextured.glb");
-            m_model = model.create_entities(app.world());
-        } catch (const std::exception& e) {
-            std::cerr << "Couldn't load model: " << e.what() << std::endl;
-        }
+        // create model
+        m_model = app.world().create_entity(
+            Transform {},
+            GltfScene { "assets/BoxTextured.glb", GltfFormat::BINARY });
 
-        auto camera = app.world().create_entity();
-        camera.add_component(
-            Transform::from_pos(vec3(2.0f, 1.0f, 0.0f)).look_at(vec3(0.0f)));
-        camera.emplace_component<PerspectiveCamera>(90.0f);
+        // create camera
+        app.world().create_entity(
+            Transform::from_pos(vec3(2.0f, 1.0f, 0.0f)).look_at(vec3(0.0f)),
+            PerspectiveCamera(90.0f));
     }
 
     void on_update(App& app) override
@@ -73,9 +73,10 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
-            .add_plugin(TransformPlugin {})
-            .add_plugin(RenderingPlugin {})
             .add_plugin(WindowingPlugin {})
+            .add_plugin(RenderingPlugin {})
+            .add_plugin(TransformPlugin {})
+            .add_plugin(GltfPlugin {})
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {
