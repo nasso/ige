@@ -4,6 +4,7 @@
 #include "stb_image.h"
 #include <cerrno>
 #include <cstddef>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
