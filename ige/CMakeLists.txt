@@ -1,5 +1,8 @@
 include(FetchContent)
 
+# STB - Single-file Public Domain libraries for C/C++
+add_subdirectory(stb)
+
 # GLAD - OpenGL & Vulkan loader
 add_subdirectory(glad)
 
@@ -121,6 +124,7 @@ set(sources ${sources}
 # compile options
 get_filename_component(data_store_path data ABSOLUTE)
 set(compile_flags
+    _CRT_SECURE_NO_WARNINGS
     GLM_FORCE_SILENT_WARNINGS
     IGE_OPENGL
     IGE_ENGINE_FS_DATA_STORE_PATH=${data_store_path}
@@ -145,6 +149,7 @@ target_compile_options(ige
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige
+    stb
     glfw
     glad
     glm
