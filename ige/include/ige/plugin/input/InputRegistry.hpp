@@ -1,7 +1,7 @@
 #ifndef C7E38F23_9AFB_4804_8783_20087647C0CA
 #define C7E38F23_9AFB_4804_8783_20087647C0CA
 
-#include <unordered_map>
+#include <unordered_set>
 
 namespace ige {
 namespace plugin {
@@ -10,48 +10,48 @@ namespace plugin {
         enum class InputRegistryState { RELEASED, PRESSED, DOWN };
 
         template <typename T>
-        class InputRegistry
-            : private std::unordered_map<T, InputRegistryState> {
+        class InputRegistry {
+        private:
+            std::unordered_set<T> m_pressed;
+            std::unordered_set<T> m_down;
+            std::unordered_set<T> m_released;
+
         public:
-            void set_state(T key, InputRegistryState state)
+            void clear()
             {
-                this->insert_or_assign(key, state);
+                m_pressed.clear();
+                m_down.clear();
+                m_released.clear();
             }
 
-            InputRegistryState get_state(const T& key) const
+            void set_state(T key, InputRegistryState state)
             {
-                auto state = this->find(key);
-                if (state == this->end()) {
-                    return InputRegistryState::RELEASED;
+                switch (state) {
+                case InputRegistryState::PRESSED:
+                    m_pressed.insert(key);
+                    break;
+                case InputRegistryState::DOWN:
+                    m_down.insert(key);
+                    break;
+                case InputRegistryState::RELEASED:
+                    m_released.insert(key);
+                    break;
                 }
-                return state->second;
             }
 
             bool is_pressed(const T& key) const
             {
-                auto state = this->find(key);
-                if (state == this->end()) {
-                    return false;
-                }
-                return state->second == InputRegistryState::PRESSED;
+                return m_pressed.contains(key);
             }
 
             bool is_down(const T& key) const
             {
-                auto state = this->find(key);
-                if (state == this->end()) {
-                    return false;
-                }
-                return state->second == InputRegistryState::DOWN;
+                return m_down.contains(key);
             }
 
             bool is_released(const T& key) const
             {
-                auto state = this->find(key);
-                if (state == this->end()) {
-                    return true;
-                }
-                return state->second == InputRegistryState::RELEASED;
+                return m_released.contains(key);
             }
         };
     }
