@@ -34,7 +34,8 @@ namespace asset {
         Topology topology() const;
 
         Mesh() = default;
-        Mesh(std::vector<Vertex>, std::vector<std::uint16_t>,
+        Mesh(
+            std::vector<Vertex>, std::vector<std::uint16_t>,
             Topology = Topology::TRIANGLES);
 
     private:

@@ -45,7 +45,7 @@ namespace ecs {
                 , m_index(index)
             {
                 while (m_index < m_storage.m_data.size()
-                    && !m_storage.m_data[m_index].has_value()) {
+                       && !m_storage.m_data[m_index].has_value()) {
                     m_index++;
                 }
 
@@ -67,7 +67,7 @@ namespace ecs {
                 do {
                     m_index++;
                 } while (m_index < m_storage.m_data.size()
-                    && !m_storage.m_data[m_index].has_value());
+                         && !m_storage.m_data[m_index].has_value());
                 fetch();
                 return *this;
             }
@@ -108,12 +108,13 @@ namespace ecs {
         void set(std::size_t idx, Args&&... args)
         {
             m_data.resize(idx + 1);
-            m_data.emplace(m_data.begin() + idx,
+            m_data.emplace(
+                m_data.begin() + idx,
                 std::make_optional<T>(std::forward<Args>(args)...));
         }
 
-        std::optional<std::reference_wrapper<const T>> get(
-            const std::size_t& idx) const
+        std::optional<std::reference_wrapper<const T>>
+        get(const std::size_t& idx) const
         {
             std::optional<std::reference_wrapper<const T>> element;
 

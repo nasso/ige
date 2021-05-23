@@ -43,8 +43,8 @@ namespace core {
          * @param args Constructor arguments for the new state
          */
         template <std::derived_from<State> S, typename... Args>
-        requires std::constructible_from<S, Args...> S& switch_to(
-            Args&&... args)
+        requires std::constructible_from<S, Args...> S&
+        switch_to(Args&&... args)
         {
             auto state = std::make_unique<S>(std::forward<Args>(args)...);
             auto& state_ref = *state;

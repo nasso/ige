@@ -52,8 +52,8 @@ namespace ecs {
         }
 
         template <Resource R, typename... Args>
-        requires std::constructible_from<R, Args...> R& get_or_emplace(
-            Args&&... args)
+        requires std::constructible_from<R, Args...> R&
+        get_or_emplace(Args&&... args)
         {
             if (auto val = get<R>()) {
                 return val->get();
@@ -108,8 +108,8 @@ namespace ecs {
             return m_resources.at(id);
         }
 
-        std::optional<std::reference_wrapper<core::Any>> get_any(
-            impl::TypeId id)
+        std::optional<std::reference_wrapper<core::Any>>
+        get_any(impl::TypeId id)
         {
             auto it = m_resources.find(id);
 
@@ -120,8 +120,8 @@ namespace ecs {
             }
         }
 
-        std::optional<std::reference_wrapper<const core::Any>> get_any(
-            impl::TypeId id) const
+        std::optional<std::reference_wrapper<const core::Any>>
+        get_any(impl::TypeId id) const
         {
             auto it = m_resources.find(id);
 

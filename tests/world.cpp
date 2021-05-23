@@ -122,7 +122,8 @@ TEST(World, AddComponent)
     ASSERT_EQ(ent.emplace_component<int>(65), 65);
     ASSERT_EQ(ent.emplace_component<float>(48.3f), 48.3f);
     ASSERT_EQ(ent.emplace_component<double>(), 0);
-    ASSERT_EQ((ent.emplace_component<std::pair<int, int>>(38, 19)),
+    ASSERT_EQ(
+        (ent.emplace_component<std::pair<int, int>>(38, 19)),
         std::make_pair(38, 19));
 }
 
@@ -130,14 +131,16 @@ TEST(World, AddComponentsAtCreation)
 {
     World world;
 
-    auto ent = world.create_entity(std::string("hello"), int(65), float(48.3f),
-        double(), std::make_pair<int, int>(38, 19));
+    auto ent = world.create_entity(
+        std::string("hello"), int(65), float(48.3f), double(),
+        std::make_pair<int, int>(38, 19));
 
     ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
     ASSERT_EQ(ent.get_component<int>(), 65);
     ASSERT_EQ(ent.get_component<float>(), 48.3f);
     ASSERT_EQ(ent.get_component<double>(), 0);
-    ASSERT_EQ((ent.get_component<std::pair<int, int>>())->get(),
+    ASSERT_EQ(
+        (ent.get_component<std::pair<int, int>>())->get(),
         std::make_pair(38, 19));
 }
 
@@ -157,7 +160,8 @@ TEST(World, GetComponent)
     ASSERT_EQ(ent.get_component<int>()->get(), 65);
     ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
     ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
-    ASSERT_EQ((ent.get_component<std::pair<int, int>>())->get(),
+    ASSERT_EQ(
+        (ent.get_component<std::pair<int, int>>())->get(),
         std::make_pair(38, 19));
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
 }
@@ -180,7 +184,8 @@ TEST(World, GetComponentConst)
     ASSERT_EQ(ent.get_component<int>()->get(), 65);
     ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
     ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
-    ASSERT_EQ((ent.get_component<std::pair<int, int>>())->get(),
+    ASSERT_EQ(
+        (ent.get_component<std::pair<int, int>>())->get(),
         std::make_pair(38, 19));
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
 }
@@ -205,7 +210,8 @@ TEST(World, RemoveComponent)
     ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
     ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
     ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
-    ASSERT_EQ((ent.get_component<std::pair<int, int>>())->get(),
+    ASSERT_EQ(
+        (ent.get_component<std::pair<int, int>>())->get(),
         std::make_pair(38, 19));
 }
 

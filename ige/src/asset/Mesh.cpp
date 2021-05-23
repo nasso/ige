@@ -10,8 +10,9 @@ using glm::vec2;
 using glm::vec3;
 using ige::asset::Mesh;
 
-Mesh::Mesh(std::vector<Mesh::Vertex> vertices,
-    std::vector<std::uint16_t> indices, Topology topology)
+Mesh::Mesh(
+    std::vector<Mesh::Vertex> vertices, std::vector<std::uint16_t> indices,
+    Topology topology)
     : m_vertices(std::move(vertices))
     , m_indices(std::move(indices))
     , m_topology(topology)
@@ -65,9 +66,9 @@ Mesh Mesh::cube(float s)
     };
 
     std::vector<std::uint16_t> indices = {
-        0, 1, 2, 0, 2, 3, // front
-        4, 5, 6, 4, 6, 7, // back
-        8, 9, 10, 8, 10, 11, // top
+        0,  1,  2,  0,  2,  3, // front
+        4,  5,  6,  4,  6,  7, // back
+        8,  9,  10, 8,  10, 11, // top
         12, 13, 14, 12, 14, 15, // bottom
         16, 17, 18, 16, 18, 19, // right
         20, 21, 22, 20, 22, 23 // left

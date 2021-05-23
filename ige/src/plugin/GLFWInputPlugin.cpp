@@ -98,10 +98,11 @@ const std::unordered_map<int, KeyboardKey> GLFW_TO_KEYBOARD_KEYS = {
     { GLFW_KEY_Z, KeyboardKey::KEY_Z },
 };
 
-const std::unordered_map<int, MouseButton> GLFW_TO_MOUSE_BUTTON
-    = { { GLFW_MOUSE_BUTTON_LEFT, MouseButton::LEFT },
-          { GLFW_MOUSE_BUTTON_RIGHT, MouseButton::RIGHT },
-          { GLFW_MOUSE_BUTTON_MIDDLE, MouseButton::MIDDLE } };
+const std::unordered_map<int, MouseButton> GLFW_TO_MOUSE_BUTTON = {
+    { GLFW_MOUSE_BUTTON_LEFT, MouseButton::LEFT },
+    { GLFW_MOUSE_BUTTON_RIGHT, MouseButton::RIGHT },
+    { GLFW_MOUSE_BUTTON_MIDDLE, MouseButton::MIDDLE },
+};
 
 static void key_callback(GLFWwindow* win, int key, int, int action, int)
 {

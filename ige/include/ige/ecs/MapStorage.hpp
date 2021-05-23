@@ -35,7 +35,8 @@ namespace ecs {
         void set(K&& key, Args&&... args)
         {
             remove(key);
-            m_data.emplace(std::piecewise_construct, std::forward_as_tuple(key),
+            m_data.emplace(
+                std::piecewise_construct, std::forward_as_tuple(key),
                 std::forward_as_tuple(std::forward<Args>(args)...));
         }
 

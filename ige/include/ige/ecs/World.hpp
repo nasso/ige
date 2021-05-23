@@ -52,8 +52,8 @@ namespace ecs {
             }
 
             template <Component C, typename... Args>
-            requires std::constructible_from<C, Args...> C& emplace_component(
-                Args&&... args)
+            requires std::constructible_from<C, Args...> C&
+            emplace_component(Args&&... args)
             {
                 return m_wld->emplace_component<C>(
                     m_id, std::forward<Args>(args)...);
@@ -87,8 +87,8 @@ namespace ecs {
                 bool has_all
                     = (std::get<std::optional<std::reference_wrapper<Cs>>>(
                            components)
-                            .has_value()
-                        && ...);
+                           .has_value()
+                       && ...);
 
                 std::optional<std::tuple<Cs&...>> bundle;
 
@@ -111,8 +111,8 @@ namespace ecs {
                     = (std::get<
                            std::optional<std::reference_wrapper<const Cs>>>(
                            components)
-                            .has_value()
-                        && ...);
+                           .has_value()
+                       && ...);
 
                 std::optional<std::tuple<const Cs&...>> bundle;
 
@@ -173,8 +173,8 @@ namespace ecs {
         }
 
         template <Resource R, typename... Args>
-        requires std::constructible_from<R, Args...> R& get_or_emplace(
-            Args&&... args)
+        requires std::constructible_from<R, Args...> R&
+        get_or_emplace(Args&&... args)
         {
             return m_resources.get_or_emplace<R>(std::forward<Args>(args)...);
         }
@@ -216,8 +216,8 @@ namespace ecs {
         }
 
         template <Component C, typename... Args>
-        requires std::constructible_from<C, Args...> C& emplace_component(
-            EntityId ent, Args&&... args)
+        requires std::constructible_from<C, Args...> C&
+        emplace_component(EntityId ent, Args&&... args)
         {
             auto& strg = get_or_emplace<StorageFor<C>>();
 
@@ -243,8 +243,8 @@ namespace ecs {
         }
 
         template <Component C>
-        std::optional<std::reference_wrapper<const C>> get_component(
-            EntityId ent) const
+        std::optional<std::reference_wrapper<const C>>
+        get_component(EntityId ent) const
         {
             if (auto strg = get<StorageFor<C>>()) {
                 return strg->get().get(ent);
