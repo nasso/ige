@@ -1,7 +1,6 @@
 #version 330 core
 
 uniform vec4 u_BaseColorFactor;
-
 uniform bool u_HasBaseColorTexture;
 uniform sampler2D u_BaseColorTexture;
 

@@ -1,9 +1,10 @@
 #include "backend.hpp"
+#include "blobs/shaders/gl3/main-fs.glsl.h"
+#include "blobs/shaders/gl3/main-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
 #include "ige/asset/Texture.hpp"
-#include "ige/core/DataStore.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/RenderingPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
@@ -32,7 +33,6 @@ using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
 using ige::asset::Texture;
-using ige::core::DataStore;
 using ige::ecs::World;
 using ige::plugin::MeshRenderer;
 using ige::plugin::PerspectiveCamera;
@@ -256,15 +256,9 @@ public:
     RenderCache() noexcept
     {
         try {
-            const auto& store = DataStore::get_engine_data_store();
-
-            std::cerr << "Loading shaders..." << std::endl;
-            auto vs_src = store.get_str("shaders/gl3/main-vs.glsl");
-            auto fs_src = store.get_str("shaders/gl3/main-fs.glsl");
-
             std::cerr << "Compiling shaders..." << std::endl;
-            gl::Shader vs(gl::Shader::VERTEX, vs_src);
-            gl::Shader fs(gl::Shader::FRAGMENT, fs_src);
+            gl::Shader vs(gl::Shader::VERTEX, BLOBS_SHADERS_GL3_MAIN_VS_GLSL);
+            gl::Shader fs(gl::Shader::FRAGMENT, BLOBS_SHADERS_GL3_MAIN_FS_GLSL);
 
             std::cerr << "Linking program..." << std::endl;
             main_program.emplace(std::move(vs), std::move(fs));

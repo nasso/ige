@@ -1,5 +1,8 @@
 include(FetchContent)
 
+# The data subdirectory contains files embedded statically at compile time
+add_subdirectory(data)
+
 # STB - Single-file Public Domain libraries for C/C++
 add_subdirectory(stb)
 
@@ -56,9 +59,7 @@ set(sources ${sources}
     "include/ige/core.hpp"
     "include/ige/core/Any.hpp"
     "include/ige/core/App.hpp"
-    "include/ige/core/DataStore.hpp"
     "include/ige/core/EventChannel.hpp"
-    "include/ige/core/FileSystemDataStore.hpp"
     "include/ige/core/State.hpp"
     "include/ige/core/StateMachine.hpp"
     "include/ige/ecs.hpp"
@@ -88,8 +89,6 @@ set(sources ${sources}
     "src/asset/Texture.cpp"
     "src/core/Any.cpp"
     "src/core/App.cpp"
-    "src/core/DataStore.cpp"
-    "src/core/FileSystemDataStore.cpp"
     "src/core/State.cpp"
     "src/core/StateMachine.cpp"
     "src/ecs/Entity.cpp"
@@ -122,12 +121,10 @@ set(sources ${sources}
 )
 
 # compile options
-get_filename_component(data_store_path data ABSOLUTE)
 set(compile_flags
     _CRT_SECURE_NO_WARNINGS
     GLM_FORCE_SILENT_WARNINGS
     IGE_OPENGL
-    IGE_ENGINE_FS_DATA_STORE_PATH=${data_store_path}
 )
 
 # static library
@@ -149,6 +146,7 @@ target_compile_options(ige
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige
+    blobs
     stb
     glfw
     glad
