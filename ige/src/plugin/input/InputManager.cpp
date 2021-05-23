@@ -19,7 +19,17 @@ Keyboard& InputManager::keyboard()
     return m_keyboard;
 }
 
+const Keyboard& InputManager::keyboard() const
+{
+    return m_keyboard;
+}
+
 Mouse& InputManager::mouse()
+{
+    return m_mouse;
+}
+
+const Mouse& InputManager::mouse() const
 {
     return m_mouse;
 }
@@ -44,6 +54,8 @@ void InputManager::input_manager_updater(ecs::World& wld)
 
 void InputManager::handle_new_events()
 {
+    m_keyboard.clear();
+    m_mouse.clear();
     while (const auto& opt_event = m_events->next_event()) {
         auto& event = opt_event->get();
         switch (event.type) {

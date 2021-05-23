@@ -30,7 +30,9 @@ namespace plugin {
             InputManager();
 
             Keyboard& keyboard();
+            const Keyboard& keyboard() const;
             Mouse& mouse();
+            const Mouse& mouse() const;
 
             static void input_manager_updater(ecs::World& wld);
 
