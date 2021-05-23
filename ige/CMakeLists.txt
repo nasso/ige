@@ -49,6 +49,13 @@ set(sources ${sources}
     "include/ige/plugin/RenderingPlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
     "include/ige/plugin/WindowingPlugin.hpp"
+    "include/ige/plugin/GLFWInputPlugin.hpp"
+    "include/ige/plugin/InputPlugin.hpp"
+    "include/ige/plugin/input/InputManager.hpp"
+    "include/ige/plugin/input/InputRegistry.hpp"
+    "include/ige/plugin/input/Keyboard.hpp"
+    "include/ige/plugin/input/Mouse.hpp"
+
 
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
@@ -63,6 +70,11 @@ set(sources ${sources}
     "src/plugin/RenderingPlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowingPlugin.cpp"
+    "src/plugin/GLFWInputPlugin.cpp"
+    "src/plugin/InputPlugin.cpp"
+    "src/plugin/input/InputManager.cpp"
+    "src/plugin/input/Mouse.cpp"
+    "src/plugin/input/Keyboard.cpp"
 )
 
 # static library
