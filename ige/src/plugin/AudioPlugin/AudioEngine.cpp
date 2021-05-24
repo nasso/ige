@@ -1,5 +1,5 @@
 
-
+#include <string.h>
 #include "ige/plugin/AudioPlugin/AudioEngine.hpp"
 #include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
@@ -13,6 +13,7 @@ namespace audio {
     AudioEngine::AudioEngine()
         : AudioEngine(NULL)
     {
+        alGetError();
     }
 
     AudioEngine::AudioEngine(const std::string& deviceName)
@@ -24,17 +25,13 @@ namespace audio {
     AudioEngine::AudioEngine(const char *deviceName)
     {
         if ((this->m_device = alcOpenDevice(deviceName)) == NULL) {
-            throw AudioPluginException(
-                "Couldn't open device: " + get_native_exception());
+            AudioEngine::get_native_exception();
         }
         if ((this->m_context = alcCreateContext(this->m_device, NULL)) == NULL) {
-            throw AudioPluginException(
-                "Couldn't create context: " + get_native_exception());
+            AudioEngine::get_native_exception();
         }
-        if (!alcMakeContextCurrent(this->m_context)) {
-            throw AudioPluginException(
-                "Couldn't make context current: " + get_native_exception());
-        }
+        alcMakeContextCurrent(this->m_context);
+        AudioEngine::get_native_exception();
     }
 
     AudioEngine::~AudioEngine()
@@ -50,8 +47,7 @@ namespace audio {
         const ALchar *devices_raw = alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 
         if (!devices_raw)
-            throw AudioPluginException(
-                "Couldn't retrieve devices: " + get_native_exception());
+            AudioEngine::get_native_exception();
         while (strlen(devices_raw) > 0) {
             ret.push_back(devices_raw);
             devices_raw += strlen(devices_raw) + 1;
@@ -59,15 +55,18 @@ namespace audio {
         return ret;
     }
 
-    std::string AudioEngine::get_native_exception()
+    void AudioEngine::get_native_exception()
     {
         ALenum err = alGetError();
         std::string ret = "";
+        const char *holder = NULL;
 
         if (err != AL_NO_ERROR) {
-            ret = alGetString(err);
+            holder = alGetString(err);
+            if (holder)
+                ret = holder;
+            throw AudioPluginException("Native openAL exception: " + ret);
         }
-        return ret;
     }
 }
 }
