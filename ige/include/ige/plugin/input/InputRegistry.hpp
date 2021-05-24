@@ -8,7 +8,6 @@ namespace ige::plugin::input {
 enum class InputRegistryState {
     RELEASED,
     PRESSED,
-    DOWN,
 };
 
 template <typename T>
@@ -22,7 +21,6 @@ public:
     void clear()
     {
         m_pressed.clear();
-        m_down.clear();
         m_released.clear();
     }
 
@@ -31,11 +29,10 @@ public:
         switch (state) {
         case InputRegistryState::PRESSED:
             m_pressed.insert(key);
-            break;
-        case InputRegistryState::DOWN:
             m_down.insert(key);
             break;
         case InputRegistryState::RELEASED:
+            m_down.erase(key);
             m_released.insert(key);
             break;
         }

@@ -26,7 +26,6 @@ void Mouse::handle_mouse_event(const MouseEvent& event)
     case MouseEventType::BUTTON:
         handle_button_event(event.button);
         break;
-
     default:
         break;
     }

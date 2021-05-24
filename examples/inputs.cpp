@@ -19,7 +19,6 @@ using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 static std::unordered_map<InputRegistryState, std::string> STATE_TO_STRING = {
-    { InputRegistryState::DOWN, "DOWN" },
     { InputRegistryState::PRESSED, "PRESSED" },
     { InputRegistryState::RELEASED, "RELEASED" },
 };

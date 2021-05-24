@@ -35,7 +35,6 @@ using ige::plugin::window::WindowSettings;
 const std::unordered_map<int, InputRegistryState> GLFW_TO_REGISTRY_STATE = {
     { GLFW_PRESS, InputRegistryState::PRESSED },
     { GLFW_RELEASE, InputRegistryState::RELEASED },
-    { GLFW_REPEAT, InputRegistryState::DOWN },
 };
 
 const std::unordered_map<int, KeyboardKey> GLFW_TO_KEYBOARD_KEYS = {
