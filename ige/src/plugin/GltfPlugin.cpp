@@ -328,7 +328,7 @@ namespace detail {
         std::shared_ptr<Material>
         load_material(const fx::gltf::Material& material)
         {
-            auto mat = Material::load_default();
+            auto mat = Material::make_default();
 
             if (!material.pbrMetallicRoughness.empty()) {
                 mat->set(

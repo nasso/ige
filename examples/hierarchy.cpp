@@ -56,7 +56,7 @@ class RootState : public State {
 
         // the mesh and material for each cube
         auto cube_mesh = Mesh::make_cube(1.0f);
-        auto cube_mat = Material::load_default();
+        auto cube_mat = Material::make_default();
 
         root_cube = app.world().create_entity(
             Transform {}, MeshRenderer { cube_mesh, cube_mat });

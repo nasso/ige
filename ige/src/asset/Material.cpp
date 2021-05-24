@@ -105,7 +105,7 @@ Material::Parameter::operator=(const Material::Parameter& other)
     return *this;
 }
 
-std::shared_ptr<Material> Material::load_default()
+std::shared_ptr<Material> Material::make_default()
 {
     return std::make_shared<Material>();
 }

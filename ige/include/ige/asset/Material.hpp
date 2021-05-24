@@ -16,7 +16,7 @@ namespace ige::asset {
 
 class Material {
 public:
-    static std::shared_ptr<Material> load_default();
+    static std::shared_ptr<Material> make_default();
 
     enum class ParameterType {
         FLOAT,

@@ -41,7 +41,7 @@ class RootState : public State {
         start_time = std::chrono::steady_clock::now();
 
         auto mesh = Mesh::make_cube(1.0f);
-        auto material = Material::load_default();
+        auto material = Material::make_default();
         material->set(
             "base_color_factor",
             vec4 {
