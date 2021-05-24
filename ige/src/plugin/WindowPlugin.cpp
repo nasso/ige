@@ -1,4 +1,4 @@
-#include "ige/plugin/WindowingPlugin.hpp"
+#include "ige/plugin/WindowPlugin.hpp"
 #include "ige/core/App.hpp"
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
@@ -29,7 +29,7 @@ using ige::plugin::input::MouseEventType;
 using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowInfo;
-using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 const std::unordered_map<int, InputRegistryState> GLFW_TO_REGISTRY_STATE = {
@@ -280,7 +280,7 @@ static void poll_events_system(World&)
     glfwPollEvents();
 }
 
-void WindowingPlugin::plug(App::Builder& builder) const
+void WindowPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<EventChannel<WindowEvent>>();
     builder.add_startup_system(System(init_glfw_system));

@@ -16,7 +16,7 @@ using ige::plugin::input::MouseButton;
 using ige::plugin::input::MouseEventType;
 using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
-using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 static std::unordered_map<InputRegistryState, std::string> STATE_TO_STRING = {
@@ -83,7 +83,7 @@ int main()
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(InputPlugin {})
-        .add_plugin(WindowingPlugin {})
+        .add_plugin(WindowPlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;

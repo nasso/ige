@@ -28,7 +28,7 @@ struct MeshRenderer {
     std::shared_ptr<asset::Material> material;
 };
 
-class RenderingPlugin : public core::App::Plugin {
+class RenderPlugin : public core::App::Plugin {
 public:
     void plug(core::App::Builder&) const override;
 };

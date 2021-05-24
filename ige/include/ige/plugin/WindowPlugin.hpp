@@ -25,7 +25,7 @@ struct WindowEvent {
     WindowEventKind kind;
 };
 
-class WindowingPlugin : public core::App::Plugin {
+class WindowPlugin : public core::App::Plugin {
 public:
     void plug(core::App::Builder&) const override;
 };

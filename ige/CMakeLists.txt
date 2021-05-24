@@ -79,9 +79,9 @@ set(sources ${sources}
     "include/ige/plugin/input/Keyboard.hpp"
     "include/ige/plugin/input/Mouse.hpp"
     "include/ige/plugin/InputPlugin.hpp"
-    "include/ige/plugin/RenderingPlugin.hpp"
+    "include/ige/plugin/RenderPlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
-    "include/ige/plugin/WindowingPlugin.hpp"
+    "include/ige/plugin/WindowPlugin.hpp"
 
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
@@ -113,9 +113,9 @@ set(sources ${sources}
     "src/plugin/renderer/opengl/Texture.hpp"
     "src/plugin/renderer/opengl/VertexArray.cpp"
     "src/plugin/renderer/opengl/VertexArray.hpp"
-    "src/plugin/RenderingPlugin.cpp"
+    "src/plugin/RenderPlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
-    "src/plugin/WindowingPlugin.cpp"
+    "src/plugin/WindowPlugin.cpp"
 )
 
 # compile options

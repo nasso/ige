@@ -5,7 +5,7 @@
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include "ige/plugin/RenderingPlugin.hpp"
+#include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include <cstddef>
 #include <cstdint>

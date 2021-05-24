@@ -20,14 +20,14 @@ using ige::ecs::Schedule;
 using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
-using ige::plugin::render::RenderingPlugin;
+using ige::plugin::render::RenderPlugin;
 using ige::plugin::transform::Children;
 using ige::plugin::transform::Parent;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
 using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
-using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
@@ -115,8 +115,8 @@ int main()
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(TransformPlugin {})
-        .add_plugin(RenderingPlugin {})
-        .add_plugin(WindowingPlugin {})
+        .add_plugin(RenderPlugin {})
+        .add_plugin(WindowPlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;
