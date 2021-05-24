@@ -180,13 +180,12 @@ namespace utils {
             transform.force_update(parent_xform);
         }
 
-        if (auto children_ = world.get_component<Children>(entity)) {
-            for (auto child : children_->get().entities) {
-                auto transform_ = world.get_component<Transform>(child);
-
-                if (transform_) {
+        if (auto children = world.get_component<Children>(entity)) {
+            for (auto child : children->entities) {
+                if (auto child_transform
+                    = world.get_component<Transform>(child)) {
                     update_transform_tree(
-                        world, child, transform_->get(),
+                        world, child, *child_transform,
                         transform.local_to_world(), force);
                 }
             }
@@ -224,13 +223,12 @@ static void compute_children_sets(World& world)
 static void compute_world_transform(World& world)
 {
     for (auto [entity, transform] : world.query<Transform>()) {
-        auto parent_ = world.get_component<Parent>(entity);
-
-        if (parent_) {
-            continue;
+        // only update tree roots (entities without a parent)
+        // children will get recursively updated
+        if (!world.get_component<Parent>(entity)) {
+            utils::update_transform_tree(
+                world, entity, transform, mat4 { 1.0f });
         }
-
-        utils::update_transform_tree(world, entity, transform, mat4 { 1.0f });
     }
 }
 

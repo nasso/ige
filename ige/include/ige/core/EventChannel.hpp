@@ -64,7 +64,7 @@ private:
         }
     }
 
-    std::optional<std::reference_wrapper<const E>> read_event(Handle handle)
+    const E* read_event(Handle handle)
     {
         auto iter = m_sub_handles.find(handle);
 
@@ -77,13 +77,15 @@ private:
                 m_subs_at_zero -= cur == 0;
                 cur++;
 
+                // FIXME: event is invalidated after this call
+                // we're effectively returning an invalid reference
                 pop_unreachable_events();
 
-                return { std::cref(event) };
+                return &event;
             }
         }
 
-        return std::nullopt;
+        return nullptr;
     }
 
 public:
@@ -128,12 +130,12 @@ public:
             }
         }
 
-        std::optional<std::reference_wrapper<const E>> next_event()
+        const E* next_event()
         {
             if (!m_channel_guard.expired()) {
                 return m_channel.get().read_event(m_handle);
             } else {
-                return std::nullopt;
+                return nullptr;
             }
         }
 

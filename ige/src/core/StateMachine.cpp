@@ -80,20 +80,20 @@ bool StateMachine::is_running() const
     return !m_states.empty();
 }
 
-std::optional<std::reference_wrapper<State>> StateMachine::current()
+State* StateMachine::current()
 {
     if (m_states.empty()) {
-        return std::nullopt;
+        return nullptr;
     } else {
-        return { **(m_states.end() - 1) };
+        return (m_states.end() - 1)->get();
     }
 }
 
-std::optional<std::reference_wrapper<const State>> StateMachine::current() const
+const State* StateMachine::current() const
 {
     if (m_states.empty()) {
-        return std::nullopt;
+        return nullptr;
     } else {
-        return { **(m_states.end() - 1) };
+        return (m_states.end() - 1)->get();
     }
 }

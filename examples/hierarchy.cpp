@@ -44,9 +44,8 @@ class RootState : public State {
         start_time = std::chrono::steady_clock::now();
 
         // subscribe to the window event channel
-        auto channel = app.world().get<EventChannel<WindowEvent>>();
-        if (channel) {
-            win_events.emplace(channel->get().subscribe());
+        if (auto channel = app.world().get<EventChannel<WindowEvent>>()) {
+            win_events.emplace(channel->subscribe());
         }
 
         // create camera
@@ -84,7 +83,7 @@ class RootState : public State {
 
         // make the root cube move & rotate
         if (root_cube) {
-            root_cube->get_component<Transform>()->get().set_rotation(
+            root_cube->get_component<Transform>()->set_rotation(
                 vec3(0.0f, t, 0.0f));
 
             if (t > 5.0f) {
@@ -95,13 +94,12 @@ class RootState : public State {
 
         // make the little cubes rotate too!!
         for (auto cube : children) {
-            cube.get_component<Transform>()->get().set_rotation(
-                vec3(0.0f, t, t));
+            cube.get_component<Transform>()->set_rotation(vec3(0.0f, t, t));
         }
 
         // quit the app when the window closes
-        while (const auto& event = win_events->next_event()) {
-            if (event->get().kind == WindowEventKind::WindowClose) {
+        while (auto event = win_events->next_event()) {
+            if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
             }
         }

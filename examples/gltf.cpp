@@ -49,7 +49,7 @@ class RootState : public State {
     void on_start(App& app) override
     {
         auto channel = app.world().get<EventChannel<WindowEvent>>();
-        m_win_events.emplace(channel->get().subscribe());
+        m_win_events.emplace(channel->subscribe());
 
         // create model
         app.world().create_entity(
@@ -80,8 +80,8 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        while (const auto& event = m_win_events->next_event()) {
-            if (event->get().kind == WindowEventKind::WindowClose) {
+        while (auto event = m_win_events->next_event()) {
+            if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
             }
         }

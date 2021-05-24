@@ -374,7 +374,7 @@ void render_meshes(World& world)
     }
 
     // TODO: gracefully handle the case where no WindowInfo is present
-    auto& wininfo = world.get<WindowInfo>()->get();
+    auto wininfo = world.get<WindowInfo>();
     auto cameras = world.query<PerspectiveCamera, Transform>();
 
     if (cameras.empty()) {
@@ -385,8 +385,9 @@ void render_meshes(World& world)
     auto& camera_xform = std::get<2>(cameras[0]);
 
     mat4 projection = glm::perspective(
-        glm::radians(camera.fov), float(wininfo.width) / float(wininfo.height),
-        camera.near, camera.far);
+        glm::radians(camera.fov),
+        float(wininfo->width) / float(wininfo->height), camera.near,
+        camera.far);
     mat4 view = camera_xform.world_to_local();
 
     auto meshes = world.query<MeshRenderer, Transform>();

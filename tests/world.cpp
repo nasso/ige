@@ -103,13 +103,12 @@ TEST(World, GetResource)
     world.emplace<double>();
     world.emplace<std::pair<int, int>>(38, 19);
 
-    ASSERT_EQ(world.get<std::string>()->get(), "hello");
-    ASSERT_EQ(world.get<int>()->get(), 65);
-    ASSERT_FLOAT_EQ(world.get<float>()->get(), 48.3f);
-    ASSERT_DOUBLE_EQ(world.get<double>()->get(), 0.0);
-    ASSERT_EQ(
-        (world.get<std::pair<int, int>>())->get(), std::make_pair(38, 19));
-    ASSERT_FALSE(world.get<std::vector<int>>().has_value());
+    ASSERT_EQ(*world.get<std::string>(), "hello");
+    ASSERT_EQ(*world.get<int>(), 65);
+    ASSERT_FLOAT_EQ(*world.get<float>(), 48.3f);
+    ASSERT_DOUBLE_EQ(*world.get<double>(), 0.0);
+    ASSERT_EQ(*(world.get<std::pair<int, int>>()), std::make_pair(38, 19));
+    ASSERT_FALSE(world.get<std::vector<int>>() != nullptr);
 }
 
 TEST(World, AddComponent)
@@ -135,13 +134,12 @@ TEST(World, AddComponentsAtCreation)
         std::string("hello"), int(65), float(48.3f), double(),
         std::make_pair<int, int>(38, 19));
 
-    ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
-    ASSERT_EQ(ent.get_component<int>(), 65);
-    ASSERT_EQ(ent.get_component<float>(), 48.3f);
-    ASSERT_EQ(ent.get_component<double>(), 0);
+    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
+    ASSERT_EQ(*ent.get_component<int>(), 65);
+    ASSERT_EQ(*ent.get_component<float>(), 48.3f);
+    ASSERT_EQ(*ent.get_component<double>(), 0);
     ASSERT_EQ(
-        (ent.get_component<std::pair<int, int>>())->get(),
-        std::make_pair(38, 19));
+        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
 }
 
 TEST(World, GetComponent)
@@ -156,14 +154,13 @@ TEST(World, GetComponent)
     ent.emplace_component<double>();
     ent.emplace_component<std::pair<int, int>>(38, 19);
 
-    ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
-    ASSERT_EQ(ent.get_component<int>()->get(), 65);
-    ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
-    ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
+    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
+    ASSERT_EQ(*ent.get_component<int>(), 65);
+    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
+    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
     ASSERT_EQ(
-        (ent.get_component<std::pair<int, int>>())->get(),
-        std::make_pair(38, 19));
-    ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
+        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
+    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
 }
 
 TEST(World, GetComponentConst)
@@ -180,14 +177,13 @@ TEST(World, GetComponentConst)
 
     const World& ref = world;
 
-    ASSERT_EQ(ent.get_component<std::string>()->get(), "hello");
-    ASSERT_EQ(ent.get_component<int>()->get(), 65);
-    ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
-    ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
+    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
+    ASSERT_EQ(*ent.get_component<int>(), 65);
+    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
+    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
     ASSERT_EQ(
-        (ent.get_component<std::pair<int, int>>())->get(),
-        std::make_pair(38, 19));
-    ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
+        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
+    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
 }
 
 TEST(World, RemoveComponent)
@@ -205,14 +201,13 @@ TEST(World, RemoveComponent)
     ASSERT_EQ(*ent.remove_component<std::string>(), "hello");
     ASSERT_EQ(*ent.remove_component<int>(), 65);
 
-    ASSERT_FALSE(ent.get_component<std::string>().has_value());
-    ASSERT_FALSE(ent.get_component<int>().has_value());
-    ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
-    ASSERT_FLOAT_EQ(ent.get_component<float>()->get(), 48.3f);
-    ASSERT_DOUBLE_EQ(ent.get_component<double>()->get(), 0.0);
+    ASSERT_FALSE(ent.get_component<std::string>() != nullptr);
+    ASSERT_FALSE(ent.get_component<int>() != nullptr);
+    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
+    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
+    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
     ASSERT_EQ(
-        (ent.get_component<std::pair<int, int>>())->get(),
-        std::make_pair(38, 19));
+        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
 }
 
 TEST(World, RemoveEntity)
@@ -229,11 +224,11 @@ TEST(World, RemoveEntity)
 
     ent.remove();
 
-    ASSERT_FALSE(ent.get_component<std::string>().has_value());
-    ASSERT_FALSE(ent.get_component<int>().has_value());
-    ASSERT_FALSE(ent.get_component<float>().has_value());
-    ASSERT_FALSE(ent.get_component<double>().has_value());
-    ASSERT_FALSE(ent.get_component<std::vector<int>>().has_value());
+    ASSERT_FALSE(ent.get_component<std::string>() != nullptr);
+    ASSERT_FALSE(ent.get_component<int>() != nullptr);
+    ASSERT_FALSE(ent.get_component<float>() != nullptr);
+    ASSERT_FALSE(ent.get_component<double>() != nullptr);
+    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
 }
 
 TEST(World, CustomStorage)
@@ -250,10 +245,11 @@ TEST(World, CustomStorage)
     ent[1].emplace_component<Vectorized>();
     ent[2].emplace_component<Vectorized>();
 
-    auto& strg = world.get<VecStorage<Vectorized>>()->get();
-    ASSERT_TRUE(strg.get(ent[0].id().index()).has_value());
-    ASSERT_TRUE(strg.get(ent[1].id().index()).has_value());
-    ASSERT_TRUE(strg.get(ent[2].id().index()).has_value());
+    auto strg = world.get<VecStorage<Vectorized>>();
+    ASSERT_TRUE(strg != nullptr);
+    ASSERT_TRUE(strg->get(ent[0].id().index()) != nullptr);
+    ASSERT_TRUE(strg->get(ent[1].id().index()) != nullptr);
+    ASSERT_TRUE(strg->get(ent[2].id().index()) != nullptr);
 }
 
 TEST(World, EntityQueryBasicUsage)

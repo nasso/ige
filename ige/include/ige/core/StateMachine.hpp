@@ -81,8 +81,8 @@ public:
     void update(App&);
     bool is_running() const;
 
-    std::optional<std::reference_wrapper<State>> current();
-    std::optional<std::reference_wrapper<const State>> current() const;
+    State* current();
+    const State* current() const;
 };
 
 }
