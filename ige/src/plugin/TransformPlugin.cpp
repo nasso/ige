@@ -17,10 +17,10 @@ using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::Children;
-using ige::plugin::Parent;
-using ige::plugin::Transform;
-using ige::plugin::TransformPlugin;
+using ige::plugin::transform::Children;
+using ige::plugin::transform::Parent;
+using ige::plugin::transform::Transform;
+using ige::plugin::transform::TransformPlugin;
 
 Parent::Parent(ecs::EntityId parent_entity)
     : entity(parent_entity)

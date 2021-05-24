@@ -40,12 +40,12 @@ using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::MeshRenderer;
-using ige::plugin::Parent;
-using ige::plugin::Transform;
 using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
+using ige::plugin::render::MeshRenderer;
+using ige::plugin::transform::Parent;
+using ige::plugin::transform::Transform;
 
 GltfScene::GltfScene(std::string uri, GltfFormat format)
     : uri(uri)

@@ -5,9 +5,9 @@
 
 using ige::core::App;
 using ige::ecs::System;
-using ige::plugin::RenderingPlugin;
-using ige::renderer::backend::clear_buffers;
-using ige::renderer::backend::render_meshes;
+using ige::plugin::render::RenderingPlugin;
+using ige::plugin::render::backend::clear_buffers;
+using ige::plugin::render::backend::render_meshes;
 
 void RenderingPlugin::plug(App::Builder& builder) const
 {

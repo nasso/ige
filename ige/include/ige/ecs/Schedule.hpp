@@ -6,39 +6,36 @@
 #include <concepts>
 #include <vector>
 
-namespace ige {
-namespace ecs {
+namespace ige::ecs {
 
-    class Schedule {
+class Schedule {
+private:
+    std::vector<System> m_systems;
+
+    Schedule(std::vector<System>);
+
+public:
+    class Builder {
     private:
         std::vector<System> m_systems;
 
-        Schedule(std::vector<System>);
-
     public:
-        class Builder {
-        private:
-            std::vector<System> m_systems;
+        template <typename F>
+        requires std::constructible_from<System, F> Builder& add_system(F&& sys)
+        {
+            m_systems.emplace_back(std::forward<F>(sys));
 
-        public:
-            template <typename F>
-            requires std::constructible_from<System, F> Builder&
-            add_system(F&& sys)
-            {
-                m_systems.emplace_back(std::forward<F>(sys));
+            return *this;
+        }
 
-                return *this;
-            }
-
-            Schedule build() const;
-        };
-
-        Schedule() = default;
-
-        void operator()(World&);
+        Schedule build() const;
     };
 
-}
+    Schedule() = default;
+
+    void operator()(World&);
+};
+
 }
 
 #endif /* C36AD5E7_BDB7_4987_A83E_C6A2BB423A01 */

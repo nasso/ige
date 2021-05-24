@@ -4,31 +4,27 @@
 #include "ige/core/App.hpp"
 #include <string>
 
-namespace ige {
-namespace plugin {
-    namespace gltf {
+namespace ige::plugin::gltf {
 
-        enum class GltfFormat {
-            TEXT,
-            BINARY,
-        };
+enum class GltfFormat {
+    TEXT,
+    BINARY,
+};
 
-        struct GltfScene {
-            std::string uri;
-            GltfFormat format;
+struct GltfScene {
+    std::string uri;
+    GltfFormat format;
 
-            GltfScene(std::string uri, GltfFormat format);
+    GltfScene(std::string uri, GltfFormat format);
 
-            bool operator==(const GltfScene&) const = default;
-        };
+    bool operator==(const GltfScene&) const = default;
+};
 
-        class GltfPlugin : public core::App::Plugin {
-        public:
-            void plug(core::App::Builder&) const override;
-        };
+class GltfPlugin : public core::App::Plugin {
+public:
+    void plug(core::App::Builder&) const override;
+};
 
-    }
-}
 }
 
 #endif /* CDFA8719_13AD_4DC2_92B4_53B763ECF9D4 */

@@ -34,10 +34,10 @@ using ige::asset::Material;
 using ige::asset::Mesh;
 using ige::asset::Texture;
 using ige::ecs::World;
-using ige::plugin::MeshRenderer;
-using ige::plugin::PerspectiveCamera;
-using ige::plugin::Transform;
-using ige::plugin::WindowInfo;
+using ige::plugin::render::MeshRenderer;
+using ige::plugin::render::PerspectiveCamera;
+using ige::plugin::transform::Transform;
+using ige::plugin::window::WindowInfo;
 
 template <typename T>
 struct WeakRefHash {
@@ -363,9 +363,9 @@ static void draw_mesh(
     gl::Error::audit("draw elements");
 }
 
-namespace backend = ige::renderer::backend;
+namespace ige::plugin::render::backend {
 
-void backend::render_meshes(World& world)
+void render_meshes(World& world)
 {
     auto& cache = world.get_or_emplace<RenderCache>();
 
@@ -397,7 +397,9 @@ void backend::render_meshes(World& world)
     }
 }
 
-void backend::clear_buffers(World&)
+void clear_buffers(World&)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 }

@@ -17,15 +17,15 @@ using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
 using ige::ecs::World;
-using ige::plugin::MeshRenderer;
-using ige::plugin::PerspectiveCamera;
-using ige::plugin::RenderingPlugin;
-using ige::plugin::Transform;
-using ige::plugin::TransformPlugin;
-using ige::plugin::WindowEvent;
-using ige::plugin::WindowEventKind;
-using ige::plugin::WindowingPlugin;
-using ige::plugin::WindowSettings;
+using ige::plugin::render::MeshRenderer;
+using ige::plugin::render::PerspectiveCamera;
+using ige::plugin::render::RenderingPlugin;
+using ige::plugin::transform::Transform;
+using ige::plugin::transform::TransformPlugin;
+using ige::plugin::window::WindowEvent;
+using ige::plugin::window::WindowEventKind;
+using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
     using Instant = std::chrono::time_point<std::chrono::steady_clock>;

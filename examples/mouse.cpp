@@ -7,17 +7,17 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
-using ige::plugin::InputPlugin;
-using ige::plugin::WindowEvent;
-using ige::plugin::WindowEventKind;
-using ige::plugin::WindowingPlugin;
-using ige::plugin::WindowSettings;
 using ige::plugin::input::InputEvent;
 using ige::plugin::input::InputEventType;
 using ige::plugin::input::InputManager;
+using ige::plugin::input::InputPlugin;
 using ige::plugin::input::InputRegistryState;
 using ige::plugin::input::MouseButton;
 using ige::plugin::input::MouseEventType;
+using ige::plugin::window::WindowEvent;
+using ige::plugin::window::WindowEventKind;
+using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowSettings;
 
 static std::unordered_map<InputRegistryState, std::string> STATE_TO_STRING = {
     { InputRegistryState::DOWN, "DOWN" },

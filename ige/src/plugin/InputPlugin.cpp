@@ -7,9 +7,9 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::InputPlugin;
 using ige::plugin::input::InputEvent;
 using ige::plugin::input::InputManager;
+using ige::plugin::input::InputPlugin;
 
 struct InputSubscription {
     EventChannel<InputEvent>::Subscription sub;

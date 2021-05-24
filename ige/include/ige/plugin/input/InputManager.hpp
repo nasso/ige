@@ -11,39 +11,36 @@
 #include <unordered_map>
 #include <vector>
 
-namespace ige {
-namespace plugin {
-    namespace input {
+namespace ige::plugin::input {
 
-        enum class InputEventType {
-            KEYBOARD,
-            MOUSE,
-        };
+enum class InputEventType {
+    KEYBOARD,
+    MOUSE,
+};
 
-        struct InputEvent {
-            InputEventType type;
-            union {
-                KeyboardEvent keyboard;
-                MouseEvent mouse;
-            };
-        };
+struct InputEvent {
+    InputEventType type;
+    union {
+        KeyboardEvent keyboard;
+        MouseEvent mouse;
+    };
+};
 
-        class InputManager {
-        public:
-            Keyboard& keyboard();
-            const Keyboard& keyboard() const;
-            Mouse& mouse();
-            const Mouse& mouse() const;
+class InputManager {
+public:
+    Keyboard& keyboard();
+    const Keyboard& keyboard() const;
+    Mouse& mouse();
+    const Mouse& mouse() const;
 
-            void reset();
-            void push_event(const InputEvent& wld);
+    void reset();
+    void push_event(const InputEvent& wld);
 
-        private:
-            Keyboard m_keyboard;
-            Mouse m_mouse;
-        };
-    }
-}
+private:
+    Keyboard m_keyboard;
+    Mouse m_mouse;
+};
+
 }
 
 #endif /* B7EA021F_3728_4158_AD5D_6BB02383B0D5 */

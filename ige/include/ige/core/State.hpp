@@ -3,23 +3,21 @@
 
 #include <type_traits>
 
-namespace ige {
-namespace core {
+namespace ige::core {
 
-    class App;
+class App;
 
-    class State {
-    public:
-        virtual ~State() = default;
+class State {
+public:
+    virtual ~State() = default;
 
-        virtual void on_start(App&);
-        virtual void on_update(App&);
-        virtual void on_pause(App&);
-        virtual void on_resume(App&);
-        virtual void on_stop(App&);
-    };
+    virtual void on_start(App&);
+    virtual void on_update(App&);
+    virtual void on_pause(App&);
+    virtual void on_resume(App&);
+    virtual void on_stop(App&);
+};
 
-}
 }
 
 #endif /* CAE73E4C_C36A_49DD_BEE3_0F01F323198A */

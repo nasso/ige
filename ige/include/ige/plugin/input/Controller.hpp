@@ -4,78 +4,76 @@
 #include "InputRegistry.hpp"
 #include <unordered_map>
 
-namespace ige {
-namespace plugin {
-    namespace input {
-        using ControllerId = std::size_t;
+namespace ige::plugin::input {
 
-        enum class ControllerAxis {
-            LEFT_X,
-            LEFT_Y,
-            RIGHT_X,
-            RIGHT_Y,
-            LEFT_TRIGGER,
-            RIGHT_TRIGGER
-        };
+using ControllerId = std::size_t;
 
-        enum class ControllerButton {
-            A,
-            B,
-            X,
-            Y,
-            DPAD_DOWN,
-            DPAD_LEFT,
-            DPAD_RIGHT,
-            DPAD_UP,
-            LEFT_SHOULDER,
-            RIGHT_SHOULDER,
-            LEFT_STICK,
-            RIGHT_STICK,
-            BACK,
-            START,
-            GUIDE,
-        };
+enum class ControllerAxis {
+    LEFT_X,
+    LEFT_Y,
+    RIGHT_X,
+    RIGHT_Y,
+    LEFT_TRIGGER,
+    RIGHT_TRIGGER
+};
 
-        enum class ControllerEventType {
-            CONNECTION,
-            DISCONNECTION,
-            JOYSTICK,
-            BUTTON
-        };
+enum class ControllerButton {
+    A,
+    B,
+    X,
+    Y,
+    DPAD_DOWN,
+    DPAD_LEFT,
+    DPAD_RIGHT,
+    DPAD_UP,
+    LEFT_SHOULDER,
+    RIGHT_SHOULDER,
+    LEFT_STICK,
+    RIGHT_STICK,
+    BACK,
+    START,
+    GUIDE,
+};
 
-        struct ControllerEventJoystick {
-            ControllerAxis axis;
-            float value;
-        };
+enum class ControllerEventType {
+    CONNECTION,
+    DISCONNECTION,
+    JOYSTICK,
+    BUTTON,
+};
 
-        struct ControllerEventButton {
-            ControllerButton button;
-            InputRegistryState state;
-        };
+struct ControllerEventJoystick {
+    ControllerAxis axis;
+    float value;
+};
 
-        struct ControllerEvent {
-            ControllerEventType type;
-            ControllerId id;
-            union {
-                ControllerEventJoystick joystick;
-                ControllerEventButton button;
-            };
-        };
+struct ControllerEventButton {
+    ControllerButton button;
+    InputRegistryState state;
+};
 
-        class Controller : public InputRegistry<ControllerButton> {
+struct ControllerEvent {
+    ControllerEventType type;
+    ControllerId id;
+    union {
+        ControllerEventJoystick joystick;
+        ControllerEventButton button;
+    };
+};
 
-        public:
-            void set_axis_value(ControllerAxis axis, float value);
+class Controller : public InputRegistry<ControllerButton> {
 
-            float get_axis_value(ControllerAxis axis);
+public:
+    void set_axis_value(ControllerAxis axis, float value);
 
-            void handle_controller_event(const ControllerEvent& event);
+    float get_axis_value(ControllerAxis axis);
 
-        private:
-            std::unordered_map<ControllerAxis, float> m_axes;
-        };
-    }
-}
+    void handle_controller_event(const ControllerEvent& event);
+
+private:
+    std::unordered_map<ControllerAxis, float> m_axes;
+};
+
 }
 
 #endif /* CEB37796_B8DF_47FF_8BEC_33592AA50536 */

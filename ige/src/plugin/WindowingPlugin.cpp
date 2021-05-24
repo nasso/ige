@@ -18,11 +18,6 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::WindowEvent;
-using ige::plugin::WindowEventKind;
-using ige::plugin::WindowInfo;
-using ige::plugin::WindowingPlugin;
-using ige::plugin::WindowSettings;
 using ige::plugin::input::InputEvent;
 using ige::plugin::input::InputEventType;
 using ige::plugin::input::InputManager;
@@ -31,6 +26,11 @@ using ige::plugin::input::KeyboardKey;
 using ige::plugin::input::MouseButton;
 using ige::plugin::input::MouseEvent;
 using ige::plugin::input::MouseEventType;
+using ige::plugin::window::WindowEvent;
+using ige::plugin::window::WindowEventKind;
+using ige::plugin::window::WindowInfo;
+using ige::plugin::window::WindowingPlugin;
+using ige::plugin::window::WindowSettings;
 
 const std::unordered_map<int, InputRegistryState> GLFW_TO_REGISTRY_STATE = {
     { GLFW_PRESS, InputRegistryState::PRESSED },
