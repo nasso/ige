@@ -11,12 +11,17 @@ endif()
 
 if(${PROJECT_NAME} STREQUAL ${CMAKE_PROJECT_NAME})
 	option(IGE_BUILD_TESTS "If the tests should be built" ON)
+	option(IGE_BUILD_EXAMPLES "If the examples should be built" ON)
 else()
 	option(IGE_BUILD_TESTS "If the tests should be built" OFF)
+	option(IGE_BUILD_EXAMPLES "If the examples should be built" OFF)
 endif()
 
 add_subdirectory(ige)
-add_subdirectory(examples)
+
+if(IGE_BUILD_EXAMPLES)
+	add_subdirectory(examples)
+endif()
 
 # tests
 include(CTest)
