@@ -19,14 +19,6 @@
 
 namespace ige::ecs {
 
-template <Component C>
-struct ComponentStorage {
-    using Type = MapStorage<C>;
-};
-
-template <Component C>
-using StorageFor = typename ComponentStorage<C>::Type;
-
 class World {
 public:
     class EntityRef {
@@ -164,13 +156,13 @@ public:
     template <Component C>
     decltype(auto) get_component_storage()
     {
-        return get<StorageFor<C>>();
+        return get<StorageOf<C>>();
     }
 
     template <Component C>
     decltype(auto) get_component_storage() const
     {
-        return get<StorageFor<C>>();
+        return get<StorageOf<C>>();
     }
 
     template <Component C>
@@ -183,7 +175,7 @@ public:
     requires std::constructible_from<C, Args...> C&
     emplace_component(const EntityId& ent, Args&&... args)
     {
-        auto& strg = get_or_emplace<StorageFor<C>>();
+        auto& strg = get_or_emplace<StorageOf<C>>();
 
         strg.set(ent.index(), std::forward<Args>(args)...);
 
@@ -199,7 +191,7 @@ public:
     template <Component C>
     C* get_component(const EntityId& ent)
     {
-        if (auto strg = get<StorageFor<C>>()) {
+        if (auto strg = get<StorageOf<C>>()) {
             return strg->get(ent.index());
         } else {
             return nullptr;
@@ -209,7 +201,7 @@ public:
     template <Component C>
     const C* get_component(const EntityId& ent) const
     {
-        if (auto strg = get<StorageFor<C>>()) {
+        if (auto strg = get<StorageOf<C>>()) {
             return strg->get(ent.index());
         } else {
             return nullptr;
@@ -219,7 +211,7 @@ public:
     template <Component C>
     std::optional<C> remove_component(const EntityId& ent)
     {
-        if (auto strg = get<StorageFor<C>>()) {
+        if (auto strg = get<StorageOf<C>>()) {
             return strg->remove(ent.index());
         } else {
             return std::nullopt;
@@ -275,7 +267,7 @@ private:
     template <Component... Cs>
     class Query {
     private:
-        std::optional<std::tuple<StorageFor<Cs>&...>> m_storages;
+        std::optional<std::tuple<StorageOf<Cs>&...>> m_storages;
         World& m_world;
 
     public:
@@ -283,12 +275,11 @@ private:
             : m_world(world)
         {
             auto strgs = std::make_tuple(world.get_component_storage<Cs>()...);
-            bool empty
-                = !((std::get<StorageFor<Cs>*>(strgs) != nullptr) && ...);
+            bool empty = !((std::get<StorageOf<Cs>*>(strgs) != nullptr) && ...);
 
             if (!empty) {
                 m_storages.emplace(
-                    std::tie(*std::get<StorageFor<Cs>*>(strgs)...));
+                    std::tie(*std::get<StorageOf<Cs>*>(strgs)...));
             }
         }
 
@@ -301,7 +292,7 @@ private:
                 return entities;
             }
 
-            auto& storage = std::get<StorageFor<C>&>(*m_storages);
+            auto& storage = std::get<StorageOf<C>&>(*m_storages);
 
             for (const auto& [id, comp] : storage) {
                 auto components = m_world.get_component_bundle<Cs...>(id);

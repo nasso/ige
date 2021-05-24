@@ -33,38 +33,25 @@ struct C {
 };
 
 struct D {
-    int i;
-};
+    using Storage = VecStorage<D>;
 
-template <>
-struct ige::ecs::ComponentStorage<D> {
-    using Type = VecStorage<D>;
+    int i;
 };
 
 struct E {
-    int i;
-};
+    using Storage = VecStorage<E>;
 
-template <>
-struct ige::ecs::ComponentStorage<E> {
-    using Type = VecStorage<E>;
+    int i;
 };
 
 struct F {
+    using Storage = VecStorage<F>;
+
     int i;
 };
 
-template <>
-struct ige::ecs::ComponentStorage<F> {
-    using Type = VecStorage<F>;
-};
-
 struct Vectorized {
-};
-
-template <>
-struct ige::ecs::ComponentStorage<Vectorized> {
-    using Type = VecStorage<Vectorized>;
+    using Storage = VecStorage<Vectorized>;
 };
 
 TEST(World, Spawn)

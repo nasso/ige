@@ -5,6 +5,7 @@
 #include <concepts>
 #include <functional>
 #include <optional>
+#include <type_traits>
 #include <utility>
 
 namespace ige::ecs {
@@ -28,7 +29,7 @@ namespace impl {
 }
 
 template <typename R>
-concept Resource = std::movable<R>;
+concept Resource = std::movable<R> && std::same_as<std::decay_t<R>, R>;
 
 class Resources {
 public:

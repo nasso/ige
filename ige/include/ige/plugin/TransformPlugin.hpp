@@ -1,10 +1,12 @@
 #ifndef F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 #define F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 
+#include "ige/ecs/VecStorage.hpp"
 #include "ige/ecs/World.hpp"
 #include <optional>
 #include <unordered_set>
 #include <vector>
+
 
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/mat4x4.hpp>
@@ -46,6 +48,8 @@ private:
     glm::mat4 m_world_to_local { 1.0f };
 
 public:
+    using Storage = ecs::VecStorage<Transform>;
+
     static Transform from_pos(glm::vec3 position);
 
     constexpr explicit Transform() = default;
