@@ -75,6 +75,11 @@ FetchContent_Declare(OpenAL
 )
 FetchContent_MakeAvailable(OpenAL)
 
+# Libnyquist - Audio File Parsing
+FetchContent_Declare(libnyquist
+    URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip)
+FetchContent_MakeAvailable(libnyquist)
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
