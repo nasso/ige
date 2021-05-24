@@ -15,7 +15,10 @@ namespace ige {
 namespace plugin {
     namespace input {
 
-        enum class InputEventType { KEYBOARD, MOUSE };
+        enum class InputEventType {
+            KEYBOARD,
+            MOUSE,
+        };
 
         struct InputEvent {
             InputEventType type;
@@ -27,21 +30,15 @@ namespace plugin {
 
         class InputManager {
         public:
-            InputManager();
-
             Keyboard& keyboard();
             const Keyboard& keyboard() const;
             Mouse& mouse();
             const Mouse& mouse() const;
 
-            static void input_manager_updater(ecs::World& wld);
+            void reset();
+            void push_event(const InputEvent& wld);
 
         private:
-            void handle_new_events();
-
-            std::optional<core::EventChannel<InputEvent>::Subscription>
-                m_events;
-
             Keyboard m_keyboard;
             Mouse m_mouse;
         };

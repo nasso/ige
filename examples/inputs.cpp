@@ -7,7 +7,6 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
-using ige::plugin::GLFWInputPlugin;
 using ige::plugin::InputPlugin;
 using ige::plugin::WindowEvent;
 using ige::plugin::WindowEventKind;
@@ -74,7 +73,6 @@ int main()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(InputPlugin {})
         .add_plugin(WindowingPlugin {})
-        .add_plugin(GLFWInputPlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;
