@@ -64,6 +64,11 @@ if(NOT bullet3_POPULATED)
     add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
 endif()
 
+# Libnyquist - Audio File Parsing
+FetchContent_Declare(libnyquist
+    URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip)
+FetchContent_MakeAvailable(libnyquist)
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -107,6 +112,8 @@ set(sources ${sources}
     "include/ige/plugin/WindowPlugin.hpp"
     "include/ige/plugin/AudioPlugin/AudioEngine.hpp"
     "include/ige/plugin/AudioPlugin/AudioPlugin.hpp"
+    "include/ige/plugin/AudioPlugin/AudioClip.hpp"
+    "include/ige/plugin/AudioPlugin/AudioSource.hpp"
     "include/ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 
     "src/asset/Material.cpp"
@@ -195,5 +202,6 @@ target_link_libraries(ige
     BulletCollision
     LinearMath
     OpenAL
+    libnyquist
 )
 
