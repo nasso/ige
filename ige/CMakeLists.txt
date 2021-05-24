@@ -1,7 +1,7 @@
 include(FetchContent)
 
-# The data subdirectory contains files embedded statically at compile time
-add_subdirectory(data)
+# The blobs subdirectory contains files embedded statically at compile time
+add_subdirectory(blobs)
 
 # STB - Single-file Public Domain libraries for C/C++
 add_subdirectory(stb)
