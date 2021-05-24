@@ -32,34 +32,31 @@ class RootState : public State {
     void on_start(App& app) override
     {
         auto win_channel = app.world().get<EventChannel<WindowEvent>>();
-        m_win_events.emplace(win_channel->get().subscribe());
+        m_win_events.emplace(win_channel->subscribe());
+
         auto input_channel = app.world().get<EventChannel<InputEvent>>();
-        m_input_events.emplace(input_channel->get().subscribe());
+        m_input_events.emplace(input_channel->subscribe());
     }
 
     void on_update(App& app) override
     {
-        while (const auto& event = m_win_events->next_event()) {
-            if (event->get().kind == WindowEventKind::WindowClose) {
+        while (auto event = m_win_events->next_event()) {
+            if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
             }
         }
 
-        const auto opt_manager = app.world().get<InputManager>();
-
-        if (opt_manager) {
-            const auto& manager = opt_manager->get();
-
-            if (manager.mouse().is_pressed(MouseButton::LEFT)) {
+        if (auto manager = app.world().get<InputManager>()) {
+            if (manager->mouse().is_pressed(MouseButton::LEFT)) {
                 std::cout << "You pressed the left button of your mouse."
                           << std::endl;
             }
         }
 
-        while (const auto& opt_event = m_input_events->next_event()) {
-            const auto& event = opt_event->get();
-            if (event.type == InputEventType::MOUSE) {
-                auto& mouse_event = event.mouse;
+        while (auto event = m_input_events->next_event()) {
+            if (event->type == InputEventType::MOUSE) {
+                const auto& mouse_event = event->mouse;
+
                 if (mouse_event.type == MouseEventType::BUTTON) {
                     std::cout << "Mouse button: "
                               << static_cast<int>(mouse_event.button.button)

@@ -20,11 +20,11 @@ TYPED_TEST(StorageTest, StorageGetEmpty)
 
     Storage storage;
 
-    ASSERT_FALSE(storage.get(0).has_value());
-    ASSERT_FALSE(storage.get(1).has_value());
-    ASSERT_FALSE(storage.get(49).has_value());
-    ASSERT_FALSE(storage.get(395).has_value());
-    ASSERT_FALSE(storage.get(-42).has_value());
+    ASSERT_FALSE(storage.get(0) != nullptr);
+    ASSERT_FALSE(storage.get(1) != nullptr);
+    ASSERT_FALSE(storage.get(49) != nullptr);
+    ASSERT_FALSE(storage.get(395) != nullptr);
+    ASSERT_FALSE(storage.get(-42) != nullptr);
 }
 
 TYPED_TEST(StorageTest, StorageSet)
@@ -51,7 +51,7 @@ TYPED_TEST(StorageTest, StorageRemove)
     storage.set(3, 49);
     storage.remove(3);
     ASSERT_EQ(*storage.get(0), 39);
-    ASSERT_FALSE(storage.get(3).has_value());
+    ASSERT_FALSE(storage.get(3) != nullptr);
     storage.set(3, 49);
     ASSERT_EQ(*storage.get(3), 49);
 }

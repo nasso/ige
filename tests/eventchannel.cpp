@@ -26,8 +26,8 @@ TEST(EventChannel, PollEvent)
 
     EventChannel<int>::Subscription sub = channel.subscribe();
     channel.push(3);
-    ASSERT_EQ(sub.next_event(), 3);
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_EQ(*sub.next_event(), 3);
+    ASSERT_FALSE(sub.next_event() != nullptr);
 }
 
 TEST(EventChannel, PollPastEvent)
@@ -36,7 +36,7 @@ TEST(EventChannel, PollPastEvent)
 
     channel.push(3);
     EventChannel<int>::Subscription sub = channel.subscribe();
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_FALSE(sub.next_event() != nullptr);
 }
 
 TEST(EventChannel, PollFutureEvent)
@@ -46,8 +46,8 @@ TEST(EventChannel, PollFutureEvent)
     channel.push(3);
     EventChannel<int>::Subscription sub = channel.subscribe();
     channel.push(4);
-    ASSERT_EQ(sub.next_event(), 4);
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_EQ(*sub.next_event(), 4);
+    ASSERT_FALSE(sub.next_event() != nullptr);
 }
 
 TEST(EventChannel, PollAgain)
@@ -56,16 +56,16 @@ TEST(EventChannel, PollAgain)
 
     EventChannel<int>::Subscription sub = channel.subscribe();
     channel.push(1);
-    ASSERT_EQ(sub.next_event(), 1);
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_EQ(*sub.next_event(), 1);
+    ASSERT_FALSE(sub.next_event() != nullptr);
     channel.push(2);
-    ASSERT_EQ(sub.next_event(), 2);
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_EQ(*sub.next_event(), 2);
+    ASSERT_FALSE(sub.next_event() != nullptr);
     channel.push(3);
     channel.push(4);
-    ASSERT_EQ(sub.next_event(), 3);
-    ASSERT_EQ(sub.next_event(), 4);
-    ASSERT_FALSE(sub.next_event().has_value());
+    ASSERT_EQ(*sub.next_event(), 3);
+    ASSERT_EQ(*sub.next_event(), 4);
+    ASSERT_FALSE(sub.next_event() != nullptr);
 }
 
 TEST(EventChannel, Unsubscribe)
@@ -77,18 +77,18 @@ TEST(EventChannel, Unsubscribe)
 
     {
         auto temp = channel.subscribe();
-        ASSERT_FALSE(temp.next_event().has_value());
-        ASSERT_EQ(sub.next_event(), 1);
-        ASSERT_FALSE(temp.next_event().has_value());
+        ASSERT_FALSE(temp.next_event() != nullptr);
+        ASSERT_EQ(*sub.next_event(), 1);
+        ASSERT_FALSE(temp.next_event() != nullptr);
         channel.push(2);
         channel.push(3);
-        ASSERT_EQ(temp.next_event(), 2);
-        ASSERT_EQ(temp.next_event(), 3);
-        ASSERT_FALSE(temp.next_event().has_value());
+        ASSERT_EQ(*temp.next_event(), 2);
+        ASSERT_EQ(*temp.next_event(), 3);
+        ASSERT_FALSE(temp.next_event() != nullptr);
     }
 
-    ASSERT_EQ(sub.next_event(), 2);
-    ASSERT_EQ(sub.next_event(), 3);
+    ASSERT_EQ(*sub.next_event(), 2);
+    ASSERT_EQ(*sub.next_event(), 3);
 }
 
 TEST(EventChannel, SubscriberNeverPolls)
@@ -99,7 +99,7 @@ TEST(EventChannel, SubscriberNeverPolls)
 
     for (int i = 0; i < 300; i++) {
         channel.push(i);
-        ASSERT_EQ(poller.next_event(), i);
-        ASSERT_FALSE(poller.next_event().has_value());
+        ASSERT_EQ(*poller.next_event(), i);
+        ASSERT_FALSE(poller.next_event() != nullptr);
     }
 }

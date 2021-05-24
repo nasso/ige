@@ -58,13 +58,13 @@ public:
         }
 
         template <Component C>
-        std::optional<std::reference_wrapper<C>> get_component()
+        C* get_component()
         {
             return m_wld->get_component<C>(m_id);
         }
 
         template <Component C>
-        std::optional<std::reference_wrapper<const C>> get_component() const
+        const C* get_component() const
         {
             return m_wld->get_component<C>(m_id);
         }
@@ -144,13 +144,13 @@ public:
     }
 
     template <Resource R>
-    std::optional<std::reference_wrapper<R>> get()
+    R* get()
     {
         return m_resources.get<R>();
     }
 
     template <Resource R>
-    std::optional<std::reference_wrapper<const R>> get() const
+    const R* get() const
     {
         return m_resources.get<R>();
     }
@@ -193,27 +193,26 @@ public:
             });
         }
 
-        return strg.get(ent.index())->get();
+        return *strg.get(ent.index());
     }
 
     template <Component C>
-    std::optional<std::reference_wrapper<C>> get_component(const EntityId& ent)
+    C* get_component(const EntityId& ent)
     {
         if (auto strg = get<StorageFor<C>>()) {
-            return strg->get().get(ent.index());
+            return strg->get(ent.index());
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     template <Component C>
-    std::optional<std::reference_wrapper<const C>>
-    get_component(const EntityId& ent) const
+    const C* get_component(const EntityId& ent) const
     {
         if (auto strg = get<StorageFor<C>>()) {
-            return strg->get().get(ent.index());
+            return strg->get(ent.index());
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
@@ -221,7 +220,7 @@ public:
     std::optional<C> remove_component(const EntityId& ent)
     {
         if (auto strg = get<StorageFor<C>>()) {
-            return strg->get().remove(ent.index());
+            return strg->remove(ent.index());
         } else {
             return std::nullopt;
         }
@@ -233,17 +232,12 @@ public:
     {
         auto components = std::make_tuple(get_component<Cs>(entity)...);
 
-        bool has_all
-            = (std::get<std::optional<std::reference_wrapper<Cs>>>(components)
-                   .has_value()
-               && ...);
+        bool has_all = ((std::get<Cs*>(components) != nullptr) && ...);
 
         std::optional<std::tuple<Cs&...>> bundle;
 
         if (has_all) {
-            bundle.emplace(
-                std::get<std::optional<std::reference_wrapper<Cs>>>(components)
-                    ->get()...);
+            bundle.emplace(*std::get<Cs*>(components)...);
         }
 
         return bundle;
@@ -255,19 +249,12 @@ public:
     {
         auto components = std::make_tuple(get_component<Cs>(entity)...);
 
-        bool has_all
-            = (std::get<std::optional<std::reference_wrapper<const Cs>>>(
-                   components)
-                   .has_value()
-               && ...);
+        bool has_all = ((std::get<const Cs*>(components) != nullptr) && ...);
 
         std::optional<std::tuple<const Cs&...>> bundle;
 
         if (has_all) {
-            bundle.emplace(
-                std::get<std::optional<std::reference_wrapper<const Cs>>>(
-                    components)
-                    ->get()...);
+            bundle.emplace(*std::get<const Cs*>(components)...);
         }
 
         return bundle;
@@ -278,7 +265,7 @@ public:
     get_or_emplace_component(const EntityId& ent, Args&&... args)
     {
         if (auto comp = get_component<C>(ent)) {
-            return comp->get();
+            return *comp;
         } else {
             return emplace_component<C>(ent, std::forward<Args>(args)...);
         }
@@ -295,20 +282,13 @@ private:
         Query(World& world)
             : m_world(world)
         {
-            auto opt_strgs
-                = std::make_tuple(world.get_component_storage<Cs>()...);
-            bool empty = !(
-                std::get<std::optional<std::reference_wrapper<StorageFor<Cs>>>>(
-                    opt_strgs)
-                    .has_value()
-                && ...);
+            auto strgs = std::make_tuple(world.get_component_storage<Cs>()...);
+            bool empty
+                = !((std::get<StorageFor<Cs>*>(strgs) != nullptr) && ...);
 
             if (!empty) {
-                m_storages.emplace(std::tie(
-                    std::get<
-                        std::optional<std::reference_wrapper<StorageFor<Cs>>>>(
-                        opt_strgs)
-                        ->get()...));
+                m_storages.emplace(
+                    std::tie(*std::get<StorageFor<Cs>*>(strgs)...));
             }
         }
 

@@ -118,18 +118,17 @@ static void key_callback(GLFWwindow* win, int key, int, int action, int)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    auto events_opt = wld->get<EventChannel<InputEvent>>();
+    if (auto events = wld->get<EventChannel<InputEvent>>()) {
+        auto k = GLFW_TO_KEYBOARD_KEYS.find(key);
+        auto s = GLFW_TO_REGISTRY_STATE.find(action);
 
-    if (!events_opt) {
-        return;
-    }
-    auto& events = events_opt->get();
-
-    auto k = GLFW_TO_KEYBOARD_KEYS.find(key);
-    auto s = GLFW_TO_REGISTRY_STATE.find(action);
-
-    if (k != GLFW_TO_KEYBOARD_KEYS.end() && s != GLFW_TO_REGISTRY_STATE.end()) {
-        events.push({ InputEventType::KEYBOARD, { k->second, s->second } });
+        if (k != GLFW_TO_KEYBOARD_KEYS.end()
+            && s != GLFW_TO_REGISTRY_STATE.end()) {
+            events->push({
+                InputEventType::KEYBOARD,
+                { k->second, s->second },
+            });
+        }
     }
 }
 
@@ -137,21 +136,18 @@ static void mouse_button_callback(GLFWwindow* win, int button, int action, int)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    auto events_opt = wld->get<EventChannel<InputEvent>>();
+    if (auto events = wld->get<EventChannel<InputEvent>>()) {
+        auto b = GLFW_TO_MOUSE_BUTTON.find(button);
+        auto s = GLFW_TO_REGISTRY_STATE.find(action);
 
-    if (!events_opt) {
-        return;
-    }
-    auto& events = events_opt->get();
-
-    auto b = GLFW_TO_MOUSE_BUTTON.find(button);
-    auto s = GLFW_TO_REGISTRY_STATE.find(action);
-    if (b != GLFW_TO_MOUSE_BUTTON.end() && s != GLFW_TO_REGISTRY_STATE.end()) {
-        InputEvent event;
-        event.type = InputEventType::MOUSE;
-        event.mouse.type = MouseEventType::BUTTON;
-        event.mouse.button = { b->second, s->second };
-        events.push(event);
+        if (b != GLFW_TO_MOUSE_BUTTON.end()
+            && s != GLFW_TO_REGISTRY_STATE.end()) {
+            InputEvent event;
+            event.type = InputEventType::MOUSE;
+            event.mouse.type = MouseEventType::BUTTON;
+            event.mouse.button = { b->second, s->second };
+            events->push(event);
+        }
     }
 }
 
@@ -159,17 +155,16 @@ static void cursor_position_callback(GLFWwindow* win, double xpos, double ypos)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
 
-    auto events_opt = wld->get<EventChannel<InputEvent>>();
-
-    if (!events_opt) {
-        return;
+    if (auto events = wld->get<EventChannel<InputEvent>>()) {
+        InputEvent event;
+        event.type = InputEventType::MOUSE;
+        event.mouse.type = MouseEventType::MOUSE_MOVE;
+        event.mouse.pos = {
+            static_cast<float>(xpos),
+            static_cast<float>(ypos),
+        };
+        events->push(event);
     }
-    auto& events = events_opt->get();
-    InputEvent event;
-    event.type = InputEventType::MOUSE;
-    event.mouse.type = MouseEventType::MOUSE_MOVE;
-    event.mouse.pos = { static_cast<float>(xpos), static_cast<float>(ypos) };
-    events.push(event);
 }
 
 static void init_glfw_system(World&)
@@ -194,13 +189,11 @@ static void window_resize_callback(GLFWwindow* win, int width, int height)
 
 static void create_window_system(World& wld)
 {
-    auto settings_ref = wld.get<WindowSettings>();
+    auto settings = wld.get<WindowSettings>();
 
-    if (!settings_ref) {
+    if (!settings) {
         return;
     }
-
-    WindowSettings& settings = settings_ref->get();
 
 #ifdef IGE_OPENGL
     // Specify which version of OpenGL we want: 3.3 core
@@ -211,7 +204,7 @@ static void create_window_system(World& wld)
 
     // Create the GLFW window
     GLFWwindow* win = glfwCreateWindow(
-        settings.width, settings.height, settings.title.c_str(), NULL, NULL);
+        settings->width, settings->height, settings->title.c_str(), NULL, NULL);
     if (!win) {
         glfwTerminate();
         throw std::runtime_error("Unable to create GLFW window");
@@ -224,14 +217,14 @@ static void create_window_system(World& wld)
     // Make the window's OpenGL context current
     glfwMakeContextCurrent(win);
     gladLoadGL(glfwGetProcAddress);
-    glViewport(0, 0, settings.width, settings.height);
+    glViewport(0, 0, settings->width, settings->height);
 #endif
 
     // Enable V-Sync
     glfwSwapInterval(1);
 
     wld.insert(win);
-    wld.insert(WindowInfo { settings.width, settings.height });
+    wld.insert(WindowInfo { settings->width, settings->height });
 
     glfwSetWindowUserPointer(win, &wld);
     glfwSetKeyCallback(win, key_callback);
@@ -258,21 +251,17 @@ static void terminate_glfw_system(World&)
 
 static void update_window_system(World& wld)
 {
-    auto win_ref = wld.get<GLFWwindow*>();
-    if (!win_ref) {
-        return;
-    }
-
-    GLFWwindow* win = win_ref->get();
-    if (glfwWindowShouldClose(win)) {
-        if (auto channel = wld.get<EventChannel<WindowEvent>>()) {
-            channel->get().push(WindowEvent {
-                WindowEventKind::WindowClose,
-            });
+    if (auto win = wld.get<GLFWwindow*>()) {
+        if (glfwWindowShouldClose(*win)) {
+            if (auto channel = wld.get<EventChannel<WindowEvent>>()) {
+                channel->push(WindowEvent {
+                    WindowEventKind::WindowClose,
+                });
+            }
         }
-    }
 
-    glfwSwapBuffers(win);
+        glfwSwapBuffers(*win);
+    }
 }
 
 static void poll_events_system(World&)

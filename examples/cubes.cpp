@@ -67,7 +67,7 @@ class RootState : public State {
         }
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
-        m_win_events.emplace(channel->get().subscribe());
+        m_win_events.emplace(channel->subscribe());
     }
 
     void on_update(App& app) override
@@ -77,15 +77,15 @@ class RootState : public State {
         float t = dur.count();
 
         for (auto cube : cubes) {
-            Transform& xform = cube.get_component<Transform>()->get();
+            Transform* xform = cube.get_component<Transform>();
 
-            xform.set_rotation(vec3(t, 0.0f, t));
+            xform->set_rotation(vec3(t, 0.0f, t));
 
             t /= 2.0f;
         }
 
-        while (const auto& event = m_win_events->next_event()) {
-            if (event->get().kind == WindowEventKind::WindowClose) {
+        while (auto event = m_win_events->next_event()) {
+            if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
             }
         }

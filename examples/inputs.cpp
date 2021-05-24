@@ -31,35 +31,32 @@ class RootState : public State {
     void on_start(App& app) override
     {
         auto win_channel = app.world().get<EventChannel<WindowEvent>>();
-        m_win_events.emplace(win_channel->get().subscribe());
+        m_win_events.emplace(win_channel->subscribe());
+
         auto input_channel = app.world().get<EventChannel<InputEvent>>();
-        m_input_events.emplace(input_channel->get().subscribe());
+        m_input_events.emplace(input_channel->subscribe());
     }
 
     void on_update(App& app) override
     {
-        while (const auto& event = m_win_events->next_event()) {
-            if (event->get().kind == WindowEventKind::WindowClose) {
+        while (auto event = m_win_events->next_event()) {
+            if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
             }
         }
 
-        const auto opt_manager = app.world().get<InputManager>();
-
-        if (opt_manager) {
-            const auto& manager = opt_manager->get();
-
-            if (manager.keyboard().is_pressed(KeyboardKey::KEY_TAB)) {
+        if (auto manager = app.world().get<InputManager>()) {
+            if (manager->keyboard().is_pressed(KeyboardKey::KEY_TAB)) {
                 std::cout << "You pressed tab." << std::endl;
             }
         }
 
-        while (const auto& opt_event = m_input_events->next_event()) {
-            const auto& event = opt_event->get();
-            if (event.type == InputEventType::KEYBOARD) {
-                std::cout << "Key: " << static_cast<int>(event.keyboard.key)
+        while (auto event = m_input_events->next_event()) {
+            if (event->type == InputEventType::KEYBOARD) {
+                std::cout << "Key: " << static_cast<int>(event->keyboard.key)
                           << ", Value :"
-                          << STATE_TO_STRING[event.keyboard.state] << std::endl;
+                          << STATE_TO_STRING[event->keyboard.state]
+                          << std::endl;
             }
         }
     }

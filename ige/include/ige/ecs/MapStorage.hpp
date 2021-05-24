@@ -40,25 +40,25 @@ public:
             std::forward_as_tuple(std::forward<Args>(args)...));
     }
 
-    std::optional<std::reference_wrapper<const V>> get(std::size_t key) const
+    const V* get(std::size_t key) const
     {
         auto it = m_data.find(key);
 
         if (it != m_data.end()) {
-            return { it->second };
+            return &it->second;
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
-    std::optional<std::reference_wrapper<V>> get(std::size_t key)
+    V* get(std::size_t key)
     {
         auto it = m_data.find(key);
 
         if (it != m_data.end()) {
-            return { it->second };
+            return &it->second;
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 

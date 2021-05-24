@@ -54,33 +54,33 @@ public:
     get_or_emplace(Args&&... args)
     {
         if (auto val = get<R>()) {
-            return val->get();
+            return *val;
         } else {
             return emplace<R>(std::forward<Args>(args)...);
         }
     }
 
     template <Resource R>
-    std::optional<std::reference_wrapper<R>> get()
+    R* get()
     {
         impl::TypeId id = impl::type_id<R>();
 
         if (auto any = get_any(id)) {
-            return { any->get().template as<R>() };
+            return &any->template as<R>();
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
     template <Resource R>
-    std::optional<std::reference_wrapper<const R>> get() const
+    const R* get() const
     {
         impl::TypeId id = impl::type_id<R>();
 
         if (auto any = get_any(id)) {
-            return { any->get().template as<R>() };
+            return &any->template as<R>();
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
@@ -106,26 +106,25 @@ private:
         return m_resources.at(id);
     }
 
-    std::optional<std::reference_wrapper<core::Any>> get_any(impl::TypeId id)
+    core::Any* get_any(impl::TypeId id)
     {
         auto it = m_resources.find(id);
 
         if (it != m_resources.end()) {
-            return { it->second };
+            return &it->second;
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 
-    std::optional<std::reference_wrapper<const core::Any>>
-    get_any(impl::TypeId id) const
+    const core::Any* get_any(impl::TypeId id) const
     {
         auto it = m_resources.find(id);
 
         if (it != m_resources.end()) {
-            return { it->second };
+            return &it->second;
         } else {
-            return std::nullopt;
+            return nullptr;
         }
     }
 

@@ -112,30 +112,26 @@ public:
             std::make_optional<V>(std::forward<Args>(args)...));
     }
 
-    std::optional<std::reference_wrapper<const V>> get(std::size_t idx) const
+    const V* get(std::size_t idx) const
     {
-        std::optional<std::reference_wrapper<const V>> element;
-
         if (idx < m_data.size()) {
             if (auto& value = m_data[idx]) {
-                element.emplace(*value);
+                return &*value;
             }
         }
 
-        return element;
+        return nullptr;
     }
 
-    std::optional<std::reference_wrapper<V>> get(std::size_t idx)
+    V* get(std::size_t idx)
     {
-        std::optional<std::reference_wrapper<V>> element;
-
         if (idx < m_data.size()) {
             if (auto& value = m_data[idx]) {
-                element.emplace(*value);
+                return &*value;
             }
         }
 
-        return element;
+        return nullptr;
     }
 
     std::optional<V> remove(std::size_t idx)
