@@ -24,6 +24,9 @@ macro(package_add_example_data EXAMPLE_NAME DATA_DIR)
     )
 endmacro()
 
+configure_file("./resources/test.ogg" "./resources/test.ogg" COPYONLY)
+configure_file("./resources/test.wav" "./resources/test.wav" COPYONLY)
+
 package_add_example(cubes cubes.cpp)
 package_add_example(inputs inputs.cpp)
 package_add_example(mouse mouse.cpp)

@@ -3,6 +3,8 @@
 
 #include "ige.hpp"
 #include "ige/plugin/AudioPlugin/AudioEngine.hpp"
+#include "ige/plugin/AudioPlugin/AudioClip.hpp"
+#include "ige/plugin/AudioPlugin/AudioSource.hpp"
 
 namespace ige {
 namespace plugin {
