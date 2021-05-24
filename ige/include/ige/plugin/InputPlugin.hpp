@@ -2,6 +2,10 @@
 #define DF4046F7_8231_4537_88BD_6CE78AD4CEC4
 
 #include "ige/core/App.hpp"
+#include "input/InputManager.hpp"
+#include "input/InputRegistry.hpp"
+#include "input/Keyboard.hpp"
+#include "input/Mouse.hpp"
 
 namespace ige {
 namespace plugin {

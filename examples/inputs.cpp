@@ -1,5 +1,4 @@
 #include "ige.hpp"
-#include "ige/plugin/input/input.hpp"
 #include <iostream>
 #include <optional>
 #include <unordered_map>

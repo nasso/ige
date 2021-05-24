@@ -3,7 +3,7 @@
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include "ige/plugin/input/input.hpp"
+#include "ige/plugin/InputPlugin.hpp"
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
