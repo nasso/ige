@@ -77,10 +77,6 @@ private:
                 m_subs_at_zero -= cur == 0;
                 cur++;
 
-                // FIXME: event is invalidated after this call
-                // we're effectively returning an invalid reference
-                pop_unreachable_events();
-
                 return &event;
             }
         }
@@ -169,6 +165,7 @@ public:
             return;
         }
 
+        pop_unreachable_events();
         m_buffer.emplace_back(std::forward<Args>(args)...);
     }
 };
