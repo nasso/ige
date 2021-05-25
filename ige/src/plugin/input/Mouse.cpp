@@ -1,43 +1,56 @@
 #include "ige/plugin/input/Mouse.hpp"
 
+#include <glm/vec2.hpp>
+; // TODO: https://bit.ly/3hhMJ58
+
+using glm::vec2;
 using ige::plugin::input::Mouse;
 using ige::plugin::input::MouseButtonEvent;
 using ige::plugin::input::MouseEvent;
 using ige::plugin::input::MouseEventType;
 using ige::plugin::input::MouseMoveEvent;
 
-void Mouse::set_position(float xpos, float ypos)
+void Mouse::clear()
 {
-    m_xpos = xpos;
-    m_ypos = ypos;
+    InputRegistry::clear();
+    m_scroll = { 0.0f, 0.0f };
 }
 
-Mouse::MousePos Mouse::get_position() const
+const vec2& Mouse::get_position() const
 {
-    return { m_xpos, m_ypos };
+    return m_pos;
+}
+
+const vec2& Mouse::get_scroll() const
+{
+    return m_scroll;
 }
 
 void Mouse::handle_mouse_event(const MouseEvent& event)
 {
     switch (event.type) {
     case MouseEventType::MOUSE_MOVE:
-        handle_position_event(event.pos);
-        break;
+        return handle_event(event.pos);
     case MouseEventType::BUTTON:
-        handle_button_event(event.button);
-        break;
+        return handle_event(event.button);
+    case MouseEventType::SCROLL:
+        return handle_event(event.scroll);
     default:
         break;
     }
 }
 
-void Mouse::handle_button_event(const MouseButtonEvent& event)
+void Mouse::handle_event(const MouseButtonEvent& event)
 {
     set_state(event.button, event.state);
 }
 
-void Mouse::handle_position_event(const MouseMoveEvent& event)
+void Mouse::handle_event(const MouseMoveEvent& event)
 {
-    m_xpos = event.x;
-    m_ypos = event.y;
+    m_pos = { event.x, event.y };
+}
+
+void Mouse::handle_event(const MouseScrollEvent& event)
+{
+    m_scroll = { event.x, event.y };
 }

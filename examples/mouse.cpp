@@ -50,6 +50,13 @@ class RootState : public State {
                 std::cout << "You pressed the left button of your mouse."
                           << std::endl;
             }
+
+            auto scroll = manager->mouse().get_scroll();
+
+            if (glm::length(scroll) >= 0.1f) {
+                std::cout << "Scrolling (" << scroll.x << ", " << scroll.y
+                          << ")" << std::endl;
+            }
         }
 
         while (auto event = m_input_events->next_event()) {

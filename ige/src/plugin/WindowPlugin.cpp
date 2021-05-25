@@ -150,6 +150,22 @@ static void mouse_button_callback(GLFWwindow* win, int button, int action, int)
     }
 }
 
+static void scroll_callback(GLFWwindow* win, double dx, double dy)
+{
+    World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
+
+    if (auto events = wld->get<EventChannel<InputEvent>>()) {
+        InputEvent event;
+        event.type = InputEventType::MOUSE;
+        event.mouse.type = MouseEventType::SCROLL;
+        event.mouse.scroll = {
+            static_cast<float>(dx),
+            static_cast<float>(dy),
+        };
+        events->push(event);
+    }
+}
+
 static void cursor_position_callback(GLFWwindow* win, double xpos, double ypos)
 {
     World* wld = static_cast<World*>(glfwGetWindowUserPointer(win));
@@ -229,6 +245,7 @@ static void create_window_system(World& wld)
     glfwSetKeyCallback(win, key_callback);
     glfwSetCursorPosCallback(win, cursor_position_callback);
     glfwSetMouseButtonCallback(win, mouse_button_callback);
+    glfwSetScrollCallback(win, scroll_callback);
 }
 
 static void destroy_window_system(World& wld)

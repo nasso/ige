@@ -4,6 +4,9 @@
 #include "InputRegistry.hpp"
 #include <unordered_map>
 
+#include <glm/vec2.hpp>
+; // TODO: https://bit.ly/3hhMJ58
+
 namespace ige::plugin::input {
 
 enum class MouseButton {
@@ -28,32 +31,36 @@ struct MouseButtonEvent {
     InputRegistryState state;
 };
 
+struct MouseScrollEvent {
+    float x;
+    float y;
+};
+
 struct MouseEvent {
     MouseEventType type;
     union {
         MouseMoveEvent pos;
         MouseButtonEvent button;
+        MouseScrollEvent scroll;
     };
 };
 
 class Mouse : public InputRegistry<MouseButton> {
 public:
-    struct MousePos {
-        float x;
-        float y;
-    };
+    void clear() override;
 
-    void set_position(float x, float y);
-    MousePos get_position() const;
+    const glm::vec2& get_position() const;
+    const glm::vec2& get_scroll() const;
 
     void handle_mouse_event(const MouseEvent& event);
 
 private:
-    void handle_button_event(const MouseButtonEvent& event);
-    void handle_position_event(const MouseMoveEvent& event);
+    void handle_event(const MouseButtonEvent& event);
+    void handle_event(const MouseMoveEvent& event);
+    void handle_event(const MouseScrollEvent& event);
 
-    float m_xpos = 0;
-    float m_ypos = 0;
+    glm::vec2 m_pos { 0.0f };
+    glm::vec2 m_scroll { 0.0f };
 };
 
 }

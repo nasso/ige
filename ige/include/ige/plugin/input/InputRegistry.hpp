@@ -18,7 +18,9 @@ private:
     std::unordered_set<T> m_released;
 
 public:
-    void clear()
+    virtual ~InputRegistry() = default;
+
+    virtual void clear()
     {
         m_pressed.clear();
         m_released.clear();
