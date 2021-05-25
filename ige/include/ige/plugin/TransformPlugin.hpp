@@ -7,7 +7,6 @@
 #include <unordered_set>
 #include <vector>
 
-
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
