@@ -2,7 +2,6 @@ name: build + tests
 
 on:
   push:
-    branches: [master, develop]
   pull_request:
     branches: [master, develop]
   workflow_dispatch:
@@ -20,7 +19,7 @@ jobs:
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE=Release -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -j 2
       - name: Test
         working-directory: build
         run: ctest
@@ -28,26 +27,26 @@ jobs:
   build-epitest:
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
+    if: ${{ github.ref == 'refs/heads/master' || github.base_ref == 'refs/heads/master' }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE=Release -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -j 2
       - name: Test
         working-directory: build
         run: ctest
 
   build-windows:
     runs-on: windows-latest
-    needs: [build-epitest]
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.base_ref == 'refs/heads/master' }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure
         run: cmake -DCMAKE_BUILD_TYPE=Release -B build
       - name: Build
-        run: cmake --build build
+        run: cmake --build build -j 2
       - name: Test
         working-directory: build
         run: ctest
