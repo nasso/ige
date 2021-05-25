@@ -50,6 +50,7 @@ public:
     void clear() override;
 
     const glm::vec2& get_position() const;
+    const glm::vec2& get_movement() const;
     const glm::vec2& get_scroll() const;
 
     void handle_mouse_event(const MouseEvent& event);
@@ -60,6 +61,7 @@ private:
     void handle_event(const MouseScrollEvent& event);
 
     glm::vec2 m_pos { 0.0f };
+    glm::vec2 m_movement { 0.0f };
     glm::vec2 m_scroll { 0.0f };
 };
 

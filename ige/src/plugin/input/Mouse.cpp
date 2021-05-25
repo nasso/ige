@@ -14,11 +14,17 @@ void Mouse::clear()
 {
     InputRegistry::clear();
     m_scroll = { 0.0f, 0.0f };
+    m_movement = { 0.0f, 0.0f };
 }
 
 const vec2& Mouse::get_position() const
 {
     return m_pos;
+}
+
+const vec2& Mouse::get_movement() const
+{
+    return m_movement;
 }
 
 const vec2& Mouse::get_scroll() const
@@ -47,7 +53,10 @@ void Mouse::handle_event(const MouseButtonEvent& event)
 
 void Mouse::handle_event(const MouseMoveEvent& event)
 {
-    m_pos = { event.x, event.y };
+    vec2 new_pos { event.x, event.y };
+
+    m_movement = new_pos - m_pos;
+    m_pos = new_pos;
 }
 
 void Mouse::handle_event(const MouseScrollEvent& event)
