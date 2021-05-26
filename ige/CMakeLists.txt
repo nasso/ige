@@ -49,6 +49,19 @@ if(NOT fx-gltf_POPULATED)
     add_subdirectory(${fx-gltf_SOURCE_DIR} ${fx-gltf_BINARY_DIR})
 endif()
 
+# Bullet3 - Physic engine
+FetchContent_Declare(bullet3
+    GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+)
+FetchContent_GetProperties(bullet3)
+if(NOT bullet3_POPULATED)
+    FetchContent_Populate(bullet3)
+    set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+    set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+    set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
+    endif()
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -74,11 +87,15 @@ set(sources ${sources}
     "include/ige/ecs/World.hpp"
     "include/ige/plugin.hpp"
     "include/ige/plugin/GltfPlugin.hpp"
-    "include/ige/plugin/input/Controller.hpp"
+    "include/ige/plugin/PhysicPlugin.hpp"
+    "include/ige/plugin/physic/RigidBody.hpp"
+    "include/ige/plugin/physic/PhysicWorld.hpp"
+    "include/ige/plugin/InputPlugin.hpp"
     "include/ige/plugin/input/InputManager.hpp"
     "include/ige/plugin/input/InputRegistry.hpp"
     "include/ige/plugin/input/Keyboard.hpp"
     "include/ige/plugin/input/Mouse.hpp"
+    "include/ige/plugin/input/Controller.hpp"
     "include/ige/plugin/InputPlugin.hpp"
     "include/ige/plugin/RenderPlugin.hpp"
     "include/ige/plugin/ScriptPlugin.hpp"
@@ -97,7 +114,11 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/plugin/PhysicPlugin.cpp"
+    "src/plugin/physic/RigidBody.cpp"
+    "src/plugin/physic/PhysicWorld.cpp"
     "src/plugin/GltfPlugin.cpp"
+    "src/plugin/InputPlugin.cpp"
     "src/plugin/input/InputManager.cpp"
     "src/plugin/input/Keyboard.cpp"
     "src/plugin/input/Mouse.cpp"
@@ -135,6 +156,8 @@ add_library(ige STATIC ${sources})
 target_include_directories(ige
     PRIVATE "include"
     SYSTEM INTERFACE "include"
+    PRIVATE ${BULLET_PHYSICS_SOURCE_DIR}/src
+    SYSTEM INTERFACE ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 set_target_properties(ige
     PROPERTIES
@@ -156,4 +179,7 @@ target_link_libraries(ige
     glm
     nlohmann_json::nlohmann_json
     fx-gltf::fx-gltf
+    BulletDynamics
+    BulletCollision
+    LinearMath
 )
