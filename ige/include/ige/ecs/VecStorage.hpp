@@ -106,10 +106,11 @@ public:
         requires std::constructible_from<V, Args...>
     void set(std::size_t idx, Args&&... args)
     {
-        m_data.resize(idx + 1);
-        m_data.emplace(
-            m_data.begin() + idx,
-            std::make_optional<V>(std::forward<Args>(args)...));
+        if (idx >= m_data.size()) {
+            m_data.resize(idx + 1);
+        }
+
+        m_data[idx].emplace(std::forward<Args>(args)...);
     }
 
     const V* get(std::size_t idx) const
