@@ -68,14 +68,14 @@ namespace core {
 
     void App::run()
     {
-        m_startup(m_world);
+        m_startup.run_forward(m_world);
 
         do {
             m_state_machine.update(*this);
-            m_update(m_world);
+            m_update.run_forward(m_world);
         } while (m_state_machine.is_running());
 
-        m_cleanup(m_world);
+        m_cleanup.run_reverse(m_world);
     }
 
     void App::quit()

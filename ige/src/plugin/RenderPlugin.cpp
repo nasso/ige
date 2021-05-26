@@ -7,10 +7,12 @@ using ige::core::App;
 using ige::ecs::System;
 using ige::plugin::render::RenderPlugin;
 using ige::plugin::render::backend::clear_buffers;
+using ige::plugin::render::backend::clear_cache;
 using ige::plugin::render::backend::render_meshes;
 
 void RenderPlugin::plug(App::Builder& builder) const
 {
     builder.add_system(System(clear_buffers));
     builder.add_system(System(render_meshes));
+    builder.add_cleanup_system(System(clear_cache));
 }

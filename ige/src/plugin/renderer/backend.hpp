@@ -7,6 +7,7 @@ namespace ige::plugin::render::backend {
 
 void clear_buffers(ecs::World&);
 void render_meshes(ecs::World&);
+void clear_cache(ecs::World&);
 
 }
 

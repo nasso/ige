@@ -33,7 +33,8 @@ public:
 
     Schedule() = default;
 
-    void operator()(World&);
+    void run_forward(World&);
+    void run_reverse(World&);
 };
 
 }

@@ -1,6 +1,7 @@
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include <ranges>
 
 namespace ige {
 namespace ecs {
@@ -15,9 +16,16 @@ namespace ecs {
         return { m_systems };
     }
 
-    void Schedule::operator()(World& world)
+    void Schedule::run_forward(World& world)
     {
         for (auto& sys : m_systems) {
+            sys(world);
+        }
+    }
+
+    void Schedule::run_reverse(World& world)
+    {
+        for (auto& sys : std::views::reverse(m_systems)) {
             sys(world);
         }
     }

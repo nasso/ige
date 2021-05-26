@@ -113,8 +113,8 @@ int main()
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(TransformPlugin {})
-        .add_plugin(RenderPlugin {})
         .add_plugin(WindowPlugin {})
+        .add_plugin(RenderPlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;
