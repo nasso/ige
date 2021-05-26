@@ -49,6 +49,28 @@ protected:
         return world().get_component<C>(entity());
     }
 
+    template <ecs::Component C>
+    C* add_component(C comp)
+    {
+        return &world().add_component<C>(entity(), std::move(comp));
+    }
+
+    template <ecs::Component C, typename... Args>
+    requires std::constructible_from<C, Args...> C*
+    emplace_component(Args&&... args)
+    {
+        return &world().emplace_component<C>(
+            entity(), std::forward<Args>(args)...);
+    }
+
+    template <ecs::Component C, typename... Args>
+    requires std::constructible_from<C, Args...> C*
+    get_or_emplace_component(Args&&... args)
+    {
+        return &world().get_or_emplace_component<C>(
+            entity(), std::forward<Args>(args)...);
+    }
+
 public:
     virtual ~CppBehaviour() = default;
 
