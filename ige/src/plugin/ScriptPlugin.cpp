@@ -46,7 +46,7 @@ void CppBehaviour::tick()
 
 void Scripts::run_all(World& world, EntityId entity)
 {
-    for (auto& bhvr : m_behaviours) {
+    for (auto& bhvr : m_bhvrs) {
         if (bhvr->set_context(world, entity)) {
             bhvr->on_start();
         }

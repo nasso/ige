@@ -78,24 +78,18 @@ class Scripts {
 private:
     using Behaviours = std::vector<std::unique_ptr<CppBehaviour>>;
 
-    Behaviours m_behaviours;
-
-    void add()
-    {
-    }
+    Behaviours m_bhvrs;
 
 public:
-    template <Behaviour... B>
-    Scripts(B&&... bhvr)
+    template <Behaviour... Bs>
+    static Scripts from(Bs&&... bhvrs)
     {
-        add(std::forward<B>(bhvr)...);
-    }
-
-    template <Behaviour B, Behaviour... Bs>
-    void add(B bhvr, Bs&&... bhvrs)
-    {
-        m_behaviours.push_back(std::make_unique<B>(std::move(bhvr)));
-        add(std::forward<Bs>(bhvrs)...);
+        Scripts scripts;
+        scripts.m_bhvrs.reserve(sizeof...(Bs));
+        (scripts.m_bhvrs.push_back(
+             std::make_unique<Bs>(std::forward<Bs>(bhvrs))),
+         ...);
+        return scripts;
     }
 
     void run_all(ecs::World&, ecs::EntityId);

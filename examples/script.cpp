@@ -82,9 +82,7 @@ class RootState : public State {
                 Mesh::make_cube(1.0f),
                 Material::make_default(),
             },
-            Scripts {
-                PlayerController {},
-            });
+            Scripts::from(PlayerController {}));
     }
 
     void on_update(App& app) override
@@ -105,8 +103,8 @@ int main()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(InputPlugin {})
         .add_plugin(TransformPlugin {})
-        .add_plugin(RenderPlugin {})
         .add_plugin(WindowPlugin {})
+        .add_plugin(RenderPlugin {})
         .add_plugin(ScriptPlugin {})
         .run<RootState>();
 
