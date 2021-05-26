@@ -25,6 +25,8 @@ using ige::plugin::gltf::GltfScene;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::time::Time;
+using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
 using ige::plugin::window::WindowEvent;
@@ -38,8 +40,10 @@ struct Rotation {
 
 static void rotation_system(World& world)
 {
+    auto time = world.get<Time>();
+
     for (auto [entity, rot, xform] : world.query<Rotation, Transform>()) {
-        xform.rotate(rot.velocity);
+        xform.rotate(rot.velocity * time->delta_seconds());
     }
 }
 
@@ -55,7 +59,7 @@ class RootState : public State {
         app.world().create_entity(
             Transform::from_pos(vec3(-2.0f, 0.0f, 0.0f)),
             Rotation {
-                vec3(0.0f, 0.2f, 0.0f),
+                vec3(0.0f, 20.0f, 0.0f),
             },
             GltfScene {
                 "assets/BoxTextured.glb",
@@ -65,7 +69,7 @@ class RootState : public State {
         app.world().create_entity(
             Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.2f),
             Rotation {
-                vec3(0.0f, 0.2f, 0.0f),
+                vec3(0.0f, 20.0f, 0.0f),
             },
             GltfScene {
                 "assets/OrientationTest.glb",
@@ -94,11 +98,12 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
-            .add_system(System(rotation_system))
+            .add_plugin(TimePlugin {})
             .add_plugin(GltfPlugin {})
             .add_plugin(TransformPlugin {})
             .add_plugin(WindowPlugin {})
             .add_plugin(RenderPlugin {})
+            .add_system(System(rotation_system))
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {
