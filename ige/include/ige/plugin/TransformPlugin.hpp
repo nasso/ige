@@ -54,6 +54,7 @@ public:
     constexpr explicit Transform() = default;
 
     glm::vec3 translation() const;
+    glm::vec3 world_translation() const;
     glm::quat rotation() const;
     glm::vec3 scale() const;
 
