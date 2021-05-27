@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.17)
 
 project(ige_examples)
 
+add_subdirectory(common)
+
 macro(package_add_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${ARGN})
-    target_link_libraries(${EXAMPLE_NAME} ige)
+    target_link_libraries(${EXAMPLE_NAME} ige common)
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
             CXX_STANDARD 20
@@ -28,3 +30,4 @@ package_add_example(mouse mouse.cpp)
 package_add_example(hierarchy hierarchy.cpp)
 package_add_example(gltf gltf.cpp)
 package_add_example_data(gltf assets)
+package_add_example(script script.cpp)

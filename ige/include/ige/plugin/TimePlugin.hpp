@@ -8,19 +8,23 @@ namespace ige::plugin::time {
 
 class Time {
 private:
-    std::chrono::time_point<std::chrono::steady_clock> m_start_time;
-    std::chrono::time_point<std::chrono::steady_clock> m_last_update;
-    std::chrono::duration<float> m_delta;
+    std::chrono::steady_clock::time_point m_start_time;
+    std::chrono::steady_clock::time_point m_last_update;
+    std::chrono::steady_clock::duration m_delta;
+    std::chrono::steady_clock::duration m_tick
+        = std::chrono::round<std::chrono::steady_clock::duration>(
+            std::chrono::duration<float>(1.0f / 50.0f));
 
 public:
     Time();
 
     void update();
+    void set_tick_duration(std::chrono::steady_clock::duration);
 
-    std::chrono::duration<float> since_startup() const;
-    std::chrono::duration<float> delta() const;
-
-    float seconds_since_startup() const;
+    std::chrono::steady_clock::duration now() const;
+    std::chrono::steady_clock::duration delta() const;
+    std::chrono::steady_clock::duration tick() const;
+    float now_seconds() const;
     float delta_seconds() const;
 };
 

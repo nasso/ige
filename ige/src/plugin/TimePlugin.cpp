@@ -9,6 +9,8 @@ using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::time::Time;
 using ige::plugin::time::TimePlugin;
+using std::chrono::duration;
+using std::chrono::duration_cast;
 using std::chrono::steady_clock;
 
 Time::Time()
@@ -18,24 +20,34 @@ Time::Time()
 {
 }
 
-std::chrono::duration<float> Time::since_startup() const
+void Time::set_tick_duration(steady_clock::duration tick)
+{
+    m_tick = tick;
+}
+
+steady_clock::duration Time::now() const
 {
     return m_last_update - m_start_time;
 }
 
-std::chrono::duration<float> Time::delta() const
+steady_clock::duration Time::delta() const
 {
     return m_delta;
 }
 
-float Time::seconds_since_startup() const
+steady_clock::duration Time::tick() const
 {
-    return since_startup().count();
+    return m_tick;
+}
+
+float Time::now_seconds() const
+{
+    return duration_cast<duration<float>>(now()).count();
 }
 
 float Time::delta_seconds() const
 {
-    return delta().count();
+    return duration_cast<duration<float>>(delta()).count();
 }
 
 void Time::update()
