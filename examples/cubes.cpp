@@ -1,5 +1,4 @@
 #include "ige.hpp"
-#include <chrono>
 #include <iostream>
 #include <optional>
 
@@ -20,6 +19,8 @@ using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::time::Time;
+using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
 using ige::plugin::window::WindowEvent;
@@ -28,18 +29,12 @@ using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
-    using Instant = std::chrono::time_point<std::chrono::steady_clock>;
-
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
 
     std::vector<World::EntityRef> cubes;
 
-    Instant start_time;
-
     void on_start(App& app) override
     {
-        start_time = std::chrono::steady_clock::now();
-
         auto mesh = Mesh::make_cube(1.0f);
         auto material = Material::make_default();
         material->set(
@@ -72,9 +67,7 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        Instant now = std::chrono::steady_clock::now();
-        std::chrono::duration<float> dur = now - start_time;
-        float t = dur.count();
+        float t = app.world().get<Time>()->seconds_since_startup();
 
         for (auto cube : cubes) {
             Transform* xform = cube.get_component<Transform>();
@@ -101,6 +94,7 @@ int main()
         .add_plugin(TransformPlugin {})
         .add_plugin(WindowPlugin {})
         .add_plugin(RenderPlugin {})
+        .add_plugin(TimePlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;
