@@ -4,6 +4,7 @@
 #include "ige/plugin/TransformPlugin.hpp"
 #include <cstdlib>
 
+#include <glm/gtc/constants.hpp>
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
@@ -59,10 +60,13 @@ void TrackballCamera::update_transform()
     xform->look_at(m_target, vec3 { 0.0f, m_up, 0.0f });
 }
 
-TrackballCamera::TrackballCamera(float distance)
+TrackballCamera::TrackballCamera(float distance, float theta, float phi)
     : m_distance(distance * 2.0f)
     , m_distance_target(distance)
+    , m_theta(theta)
+    , m_phi(phi)
 {
+    rotate_camera(0.0f, 0.0f);
 }
 
 void TrackballCamera::on_start()
@@ -83,6 +87,8 @@ void TrackballCamera::tick()
         update_transform();
     }
 }
+
+#include <iostream>
 
 void TrackballCamera::update()
 {

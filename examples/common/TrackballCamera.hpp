@@ -3,6 +3,7 @@
 
 #include "ige/plugin/ScriptPlugin.hpp"
 
+#include <glm/gtc/constants.hpp>
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
@@ -11,7 +12,7 @@ private:
     glm::vec3 m_target { 0.0f };
     float m_distance = 10.0f;
     float m_theta = 0.0f;
-    float m_phi = 45.0f;
+    float m_phi = 0.0f;
     float m_up = 1.0f;
 
     float m_distance_target = 10.0f;
@@ -21,7 +22,9 @@ private:
     void update_transform();
 
 public:
-    TrackballCamera(float distance = 10.0f);
+    TrackballCamera(
+        float distance = 10.0f, float theta = glm::quarter_pi<float>(),
+        float phi = glm::quarter_pi<float>() * 1.5f);
 
     void on_start() override;
     void tick() override;
