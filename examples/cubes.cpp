@@ -67,7 +67,7 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        float t = app.world().get<Time>()->seconds_since_startup();
+        float t = app.world().get<Time>()->now_seconds();
 
         for (auto cube : cubes) {
             Transform* xform = cube.get_component<Transform>();

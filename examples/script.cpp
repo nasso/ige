@@ -29,6 +29,7 @@ using ige::plugin::render::RenderPlugin;
 using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
+using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
 using ige::plugin::window::WindowEvent;
@@ -38,32 +39,32 @@ using ige::plugin::window::WindowSettings;
 
 class PlayerController : public CppBehaviour {
 public:
-    void update() override
+    void tick() override
     {
         auto input = get_resource<InputManager>();
 
         vec3 direction { 0.0f };
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
-            direction.z += 1.0f;
-        }
-
-        if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
             direction.z -= 1.0f;
         }
 
+        if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
+            direction.z += 1.0f;
+        }
+
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_RIGHT)) {
-            direction.x -= 1.0f;
+            direction.x += 1.0f;
         }
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_LEFT)) {
-            direction.x += 1.0f;
+            direction.x -= 1.0f;
         }
 
         if (direction != vec3 { 0.0f }) {
             auto xform = get_component<Transform>();
 
-            xform->translate(glm::normalize(direction) * 0.01f);
+            xform->translate(glm::normalize(direction) * 0.05f);
         }
     }
 };
@@ -119,6 +120,7 @@ int main()
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(InputPlugin {})
+        .add_plugin(TimePlugin {})
         .add_plugin(TransformPlugin {})
         .add_plugin(WindowPlugin {})
         .add_plugin(RenderPlugin {})

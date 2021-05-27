@@ -3,6 +3,8 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/TimePlugin.hpp"
+#include <cstdint>
 
 using ige::core::App;
 using ige::ecs::EntityId;
@@ -11,6 +13,7 @@ using ige::ecs::World;
 using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
+using ige::plugin::time::Time;
 
 bool CppBehaviour::set_context(World& world, EntityId id)
 {
@@ -50,7 +53,25 @@ void Scripts::run_all(World& world, EntityId entity)
         if (bhvr->set_context(world, entity)) {
             bhvr->on_start();
         }
+    }
 
+    if (auto time = world.get<Time>()) {
+        auto now = time->now();
+        auto elapsed = now - m_last_tick;
+        auto tick_count = static_cast<std::uint32_t>(elapsed / time->tick());
+
+        if (tick_count) {
+            m_last_tick = now;
+        }
+
+        while (tick_count--) {
+            for (auto& bhvr : m_bhvrs) {
+                bhvr->tick();
+            }
+        }
+    }
+
+    for (auto& bhvr : m_bhvrs) {
         bhvr->update();
     }
 }
