@@ -6,7 +6,6 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/Resources.hpp"
 #include "ige/ecs/World.hpp"
-#include <chrono>
 #include <concepts>
 #include <memory>
 #include <vector>
@@ -102,9 +101,6 @@ private:
     using Behaviours = std::vector<std::unique_ptr<CppBehaviour>>;
 
     Behaviours m_bhvrs;
-
-    std::chrono::steady_clock::duration m_last_tick
-        = std::chrono::steady_clock::duration::zero();
 
 public:
     template <Behaviour... Bs>

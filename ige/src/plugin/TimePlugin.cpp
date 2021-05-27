@@ -16,7 +16,7 @@ using std::chrono::steady_clock;
 Time::Time()
     : m_start_time(steady_clock::now())
     , m_last_update(m_start_time)
-    , m_delta(0)
+    , m_last_tick(m_start_time)
 {
 }
 
@@ -50,8 +50,15 @@ float Time::delta_seconds() const
     return duration_cast<duration<float>>(delta()).count();
 }
 
+std::uint32_t Time::ticks() const
+{
+    return static_cast<std::uint32_t>((m_last_update - m_last_tick) / m_tick);
+}
+
 void Time::update()
 {
+    m_last_tick += m_tick * ticks();
+
     auto now = steady_clock::now();
     m_delta = now - m_last_update;
     m_last_update = now;

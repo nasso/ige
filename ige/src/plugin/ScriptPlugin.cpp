@@ -56,15 +56,7 @@ void Scripts::run_all(World& world, EntityId entity)
     }
 
     if (auto time = world.get<Time>()) {
-        auto now = time->now();
-        auto elapsed = now - m_last_tick;
-        auto tick_count = static_cast<std::uint32_t>(elapsed / time->tick());
-
-        if (tick_count) {
-            m_last_tick = now;
-        }
-
-        while (tick_count--) {
+        for (std::uint32_t i = 0; i < time->ticks(); i++) {
             for (auto& bhvr : m_bhvrs) {
                 bhvr->tick();
             }
