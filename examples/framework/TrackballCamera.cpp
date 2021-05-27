@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <glm/gtc/constants.hpp>
 #include <glm/vec3.hpp>
+#include <iostream>
 
 using glm::vec3;
 using ige::plugin::input::InputManager;
@@ -86,11 +87,16 @@ void TrackballCamera::tick()
     }
 }
 
-#include <iostream>
-
 void TrackballCamera::update()
 {
     auto input = get_resource<InputManager>();
+
+    if (!input) {
+        std::cerr << "InputManager not found! TrackballCamera needs the "
+                     "InputPlugin."
+                  << std::endl;
+        return;
+    }
 
     bool needs_update = false;
 

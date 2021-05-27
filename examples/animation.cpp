@@ -15,10 +15,11 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
-using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::animation::AnimationPlugin;
+using ige::plugin::animation::Animator;
 using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
@@ -28,6 +29,7 @@ using ige::plugin::input::KeyboardKey;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
 using ige::plugin::time::Time;
@@ -39,23 +41,32 @@ using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
-struct Rotation {
-    vec3 velocity;
-};
+class ExampleScript : public CppBehaviour {
+public:
+    void update() override
+    {
+        auto input = get_resource<InputManager>();
+        auto scene = get_component<GltfScene>();
+        auto animator = get_or_emplace_component<Animator>();
 
-static void rotation_system(World& world)
-{
-    auto time = world.get<Time>();
+        if (!animator->current_animation && scene->has_loaded()) {
+            auto animation = scene->get_animation(0);
 
-    for (auto [entity, rot, xform] : world.query<Rotation, Transform>()) {
-        xform.rotate(rot.velocity * time->delta_seconds());
+            animator->current_animation = animation;
+        }
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_LEFT)) {
+            animator->current_time = Animator::Duration::zero();
+        }
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_SPACE)) {
+            animator->paused = !animator->paused;
+        }
     }
-}
+};
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
-    std::optional<EntityId> entity_to_edit;
-    std::optional<EntityId> entity_to_remove;
 
     void on_start(App& app) override
     {
@@ -63,51 +74,18 @@ class RootState : public State {
         m_win_events.emplace(channel->subscribe());
 
         // create model
-        entity_to_edit = app.world().create_entity(
-            Transform::from_pos(vec3(-2.0f, 0.0f, 0.0f)),
-            Rotation {
-                vec3(20.0f, 0.0f, 0.0f),
-            },
-            GltfScene {
-                "assets/BoxTextured.glb",
-                GltfFormat::BINARY,
-            });
-
-        entity_to_remove = app.world().create_entity(
-            Transform::from_pos(vec3(0.0f, 0.0f, 0.0f)),
-            Rotation {
-                vec3(0.0f, 20.0f, 0.0f),
-            },
-            GltfScene {
-                "assets/BoxInterleaved.glb",
-                GltfFormat::BINARY,
-            });
-
         app.world().create_entity(
-            Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.1f),
-            Rotation {
-                vec3(0.0f, 0.0f, 20.0f),
-            },
-            GltfScene {
-                "assets/OrientationTest.glb",
-                GltfFormat::BINARY,
-            });
+            Transform {}.set_scale(0.05f),
+            GltfScene { "assets/Fox.glb", GltfFormat::BINARY },
+            Scripts::from(ExampleScript {}));
 
         // create camera
         app.world().create_entity(
-            PerspectiveCamera(90.0f),
-            Scripts::from(TrackballCamera { 5.0f, 0.0f }));
+            PerspectiveCamera(90.0f), Scripts::from(TrackballCamera { 10.0f }));
     }
 
     void on_update(App& app) override
     {
-        auto input = app.world().get<InputManager>();
-
-        if (input->keyboard().is_pressed(KeyboardKey::KEY_DELETE)) {
-            app.world().remove_component<GltfScene>(*entity_to_edit);
-            app.world().remove_entity(*entity_to_remove);
-        }
-
         while (auto event = m_win_events->next_event()) {
             if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
@@ -122,7 +100,6 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
-            .add_plugin(InputPlugin {})
             .add_plugin(TimePlugin {})
             .add_plugin(GltfPlugin {})
             .add_plugin(TransformPlugin {})
@@ -130,7 +107,7 @@ int main()
             .add_plugin(RenderPlugin {})
             .add_plugin(InputPlugin {})
             .add_plugin(ScriptPlugin {})
-            .add_system(System::from(rotation_system))
+            .add_plugin(AnimationPlugin {})
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {
