@@ -80,6 +80,7 @@ set(sources ${sources}
     "include/ige/plugin/input/Mouse.hpp"
     "include/ige/plugin/InputPlugin.hpp"
     "include/ige/plugin/RenderPlugin.hpp"
+    "include/ige/plugin/TimePlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
     "include/ige/plugin/WindowPlugin.hpp"
 
@@ -114,6 +115,7 @@ set(sources ${sources}
     "src/plugin/renderer/opengl/VertexArray.cpp"
     "src/plugin/renderer/opengl/VertexArray.hpp"
     "src/plugin/RenderPlugin.cpp"
+    "src/plugin/TimePlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowPlugin.cpp"
 )

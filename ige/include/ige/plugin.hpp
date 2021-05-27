@@ -4,6 +4,7 @@
 #include "plugin/GltfPlugin.hpp"
 #include "plugin/InputPlugin.hpp"
 #include "plugin/RenderPlugin.hpp"
+#include "plugin/TimePlugin.hpp"
 #include "plugin/TransformPlugin.hpp"
 #include "plugin/WindowPlugin.hpp"
 
