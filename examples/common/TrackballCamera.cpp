@@ -2,6 +2,7 @@
 #include "ige/plugin/InputPlugin.hpp"
 #include "ige/plugin/ScriptPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
+#include <cstdlib>
 
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
@@ -59,7 +60,8 @@ void TrackballCamera::update_transform()
 }
 
 TrackballCamera::TrackballCamera(float distance)
-    : m_distance(distance)
+    : m_distance(distance * 2.0f)
+    , m_distance_target(distance)
 {
 }
 
@@ -68,6 +70,18 @@ void TrackballCamera::on_start()
     auto xform = emplace_component<Transform>();
 
     update_transform();
+}
+
+void TrackballCamera::tick()
+{
+    if (std::abs(m_distance - m_distance_target) <= 0.01f) {
+        m_distance = m_distance_target;
+    }
+
+    if (m_distance != m_distance_target) {
+        m_distance = m_distance * 0.9f + m_distance_target * 0.1f;
+        update_transform();
+    }
 }
 
 void TrackballCamera::update()
@@ -98,7 +112,7 @@ void TrackballCamera::update()
 
     const float scroll_y = input->mouse().get_scroll().y;
     if (scroll_y != 0.0f) {
-        m_distance *= 1.0f - scroll_y * 0.1f;
+        m_distance_target *= 1.0f - scroll_y * 0.1f;
         needs_update = true;
     }
 
