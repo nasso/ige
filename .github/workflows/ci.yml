@@ -3,8 +3,6 @@ name: build + tests
 on:
   push:
   pull_request:
-    branches: [master, develop]
-  workflow_dispatch:
 
 jobs:
   build-ubuntu:
@@ -27,7 +25,12 @@ jobs:
   build-epitest:
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
-    if: ${{ github.ref == 'refs/heads/master' || github.base_ref == 'refs/heads/master' }}
+    if: >
+      ${{ false
+      || github.ref == 'refs/heads/stable'
+      || github.ref == 'refs/heads/master'
+      || github.base_ref == 'refs/heads/master'
+      }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure
@@ -40,7 +43,12 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    if: ${{ github.ref == 'refs/heads/master' || github.base_ref == 'refs/heads/master' }}
+    if: >
+      ${{ false
+      || github.ref == 'refs/heads/stable'
+      || github.ref == 'refs/heads/master'
+      || github.base_ref == 'refs/heads/master'
+      }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure

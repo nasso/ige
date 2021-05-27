@@ -2,10 +2,7 @@ name: Check coding style with clang-format
 
 on:
   push:
-    branches: [master, develop]
   pull_request:
-    branches: [master, develop]
-  workflow_dispatch:
 
 jobs:
   format:
