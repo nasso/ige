@@ -1,36 +1,30 @@
 #ifndef DEF0501C_911A_4C81_B5D5_8E8270F03E94
 #define DEF0501C_911A_4C81_B5D5_8E8270F03E94
 
-namespace ige {
-namespace plugin {
-    namespace physic {
+#include <glm/vec3.hpp>
+; // TODO: https://bit.ly/3hhMJ58
 
-        enum class ColliderType { SPHERE, SQUARE, CYLINDER };
+namespace ige::plugin::physic {
 
-        struct SphereCollider {
-            float radius;
-        };
+enum class ColliderType { SPHERE, BOX, CAPSULE };
 
-        struct SquareCollider {
-            int height;
-            int width;
-        };
+struct SphereCollider {
+    float radius;
+};
 
-        struct CylinderCollider {
-            int height;
-            float radius;
-        };
+struct CapsuleCollider {
+    int height;
+    float radius;
+};
 
-        struct Collider {
-            ColliderType type;
-            union {
-                SphereCollider sphere;
-                SquareCollider square;
-                CylinderCollider cylinder;
-            };
-        };
-    }
-}
+struct Collider {
+    ColliderType type;
+    union {
+        SphereCollider sphere;
+        glm::vec3 box;
+        CapsuleCollider capsule;
+    };
+};
 }
 
 #endif /* DEF0501C_911A_4C81_B5D5_8E8270F03E94 */

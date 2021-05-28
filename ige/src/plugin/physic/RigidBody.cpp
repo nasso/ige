@@ -1,18 +1,25 @@
 #include "ige/plugin/physic/RigidBody.hpp"
 
+using ige::plugin::physic::Collider;
 using ige::plugin::physic::RigidBody;
 using ige::plugin::physic::RigidBodyStatus;
 
-RigidBody::RigidBody(int mass, bool is_kinematic)
-    : m_mass(mass)
+RigidBody::RigidBody(Collider collider, int mass, bool is_kinematic)
+    : m_collider(collider)
+    , m_mass(mass)
     , m_is_kinematic(is_kinematic)
 {
-    m_status = RigidBodyStatus::NEW;
-};
+    m_status = RigidBodyStatus::CLEAN;
+}
 
 RigidBodyStatus RigidBody::status() const
 {
     return m_status;
+}
+
+Collider RigidBody::collider() const
+{
+    return m_collider;
 }
 
 bool RigidBody::is_kinematic() const
@@ -29,10 +36,11 @@ RigidBody& RigidBody::is_kinematic(bool is_kinematic)
 
 float RigidBody::get_mass() const
 {
-    if (m_is_kinematic)
+    if (m_is_kinematic) {
         return 0;
+    }
     return m_mass;
-};
+}
 
 RigidBody& RigidBody::set_mass(float mass)
 {
@@ -41,25 +49,22 @@ RigidBody& RigidBody::set_mass(float mass)
     return *this;
 }
 
-RigidBody& RigidBody::apply_force(float force)
+RigidBody& RigidBody::apply_force(glm::vec3 force)
 {
     m_status = RigidBodyStatus::DIRTY;
-    m_force = force;
+    m_forces.push_back(force);
     return *this;
 }
 
-float RigidBody::apply_force()
+const std::vector<glm::vec3>& RigidBody::get_forces() const
 {
-    float old = m_force;
-
-    m_force = 0;
-    return old;
+    return m_forces;
 }
 
-void RigidBody::initialize()
+void RigidBody::clear_forces()
 {
-    m_status = RigidBodyStatus::CLEAN;
-};
+    m_forces.clear();
+}
 
 void RigidBody::update()
 {
