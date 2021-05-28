@@ -1,19 +1,42 @@
 #include "ige/plugin/physic/PhysicWorld.hpp"
+#include "ige/ecs/Entity.hpp"
 
-#include "btBulletCollisionCommon.h"
-#include "btBulletDynamicsCommon.h"
-
+using ige::ecs::EntityId;
+using ige::plugin::physic::Collision;
 using ige::plugin::physic::PhysicWorld;
 
-PhysicWorld::PhysicWorld()
-    : m_dispatcher(&m_collision_config)
-    , m_broadphase(new btDbvtBroadphase)
-    , m_world(&m_dispatcher, m_broadphase.get(), &m_solver, &m_collision_config)
+#include <iostream>
+
+void PhysicWorld::add_collision(ecs::EntityId entity1, ecs::EntityId entity2)
 {
-    m_world.setGravity(btVector3(0, -10, 0));
+    m_collisions.emplace_back(entity1, entity2);
 }
 
-btDiscreteDynamicsWorld* PhysicWorld::world()
+const std::vector<Collision>& PhysicWorld::get_collisions() const
 {
-    return &m_world;
+    return m_collisions;
+}
+
+bool PhysicWorld::collide(ecs::EntityId entity1, ecs::EntityId entity2)
+{
+    return std::find_if(
+               m_collisions.begin(), m_collisions.end(),
+               [entity1, entity2](auto& collision) {
+                   if (collision.first == entity1
+                       && collision.second == entity2) {
+                       return true;
+                   } else if (
+                       collision.first == entity2
+                       && collision.second == entity1) {
+                       return true;
+                   } else {
+                       return false;
+                   }
+               })
+        != m_collisions.end();
+}
+
+void PhysicWorld::clear_collisions()
+{
+    m_collisions.clear();
 }
