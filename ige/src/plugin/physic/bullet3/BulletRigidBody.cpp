@@ -44,11 +44,11 @@ BulletRigidBody::BulletRigidBody(
         transform.scale().y,
         transform.scale().z,
     });
-    if (rigidbody.get_mass() != 0.f) {
-        m_colShape->calculateLocalInertia(rigidbody.get_mass(), inertia);
+    if (rigidbody.mass() != 0.f) {
+        m_colShape->calculateLocalInertia(rigidbody.mass(), inertia);
     }
     btRigidBody::btRigidBodyConstructionInfo rbInfo(
-        rigidbody.get_mass(), m_motion_state.get(), m_colShape.get(), inertia);
+        rigidbody.mass(), m_motion_state.get(), m_colShape.get(), inertia);
     m_rigidbody = std::make_unique<btRigidBody>(rbInfo);
     if (rigidbody.is_kinematic()) {
         m_rigidbody->setCollisionFlags(
@@ -95,21 +95,50 @@ void BulletRigidBody::update(World& wld, EntityId entity)
         m_motion_state->setWorldTransform(bt_transform);
     }
     if (rigidbody->status() == RigidBodyStatus::DIRTY) {
-        rigidbody->update();
+        m_rigidbody->setAngularFactor(rigidbody->freeze_rotation() ? 0 : 1);
+        m_rigidbody->setLinearFactor(
+            rigidbody->freeze_position() ? btVector3 { 0, 0, 0 }
+                                         : btVector3 { 1, 1, 1 });
         const auto& forces = rigidbody->get_forces();
         for (vec3 force : forces) {
             m_rigidbody->applyCentralImpulse(
                 btVector3(force.x, force.y, force.z));
         }
         rigidbody->clear_forces();
+
+        auto bt_center_of_mass = m_rigidbody->getCenterOfMassTransform();
+        auto center_of_mass = rigidbody->center_of_mass();
+        bt_center_of_mass.setOrigin({
+            center_of_mass.x,
+            center_of_mass.y,
+            center_of_mass.z,
+        });
+        m_rigidbody->setCenterOfMassTransform(bt_center_of_mass);
+
+        glm::vec3 velocity = rigidbody->velocity();
+        m_rigidbody->setLinearVelocity({ velocity.x, velocity.y, velocity.z });
+
+        btVector3 inertia;
+
+        if (rigidbody->use_gravity()) {
+            btVector3 inertia;
+            m_colShape->calculateLocalInertia(rigidbody->mass(), inertia);
+            m_rigidbody->setMassProps(rigidbody->mass(), inertia);
+        } else {
+            btVector3 inertia;
+            m_colShape->calculateLocalInertia(0, inertia);
+            m_rigidbody->setMassProps(0, inertia);
+        }
+        rigidbody->update();
     }
 }
 
 void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
 {
     auto transform = wld.get_component<Transform>(entity);
+    auto rigidbody = wld.get_component<RigidBody>(entity);
 
-    if (!transform) {
+    if (!transform || !rigidbody) {
         return;
     }
     btTransform bt_transform;

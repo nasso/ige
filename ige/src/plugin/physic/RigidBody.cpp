@@ -1,5 +1,9 @@
 #include "ige/plugin/physic/RigidBody.hpp"
 
+#include "glm/vec3.hpp"
+; // TODO: https://bit.ly/3hhMJ58
+
+using glm::vec3;
 using ige::plugin::physic::Collider;
 using ige::plugin::physic::RigidBody;
 using ige::plugin::physic::RigidBodyStatus;
@@ -34,7 +38,7 @@ RigidBody& RigidBody::is_kinematic(bool is_kinematic)
     return *this;
 }
 
-float RigidBody::get_mass() const
+float RigidBody::mass() const
 {
     if (m_is_kinematic) {
         return 0;
@@ -42,11 +46,21 @@ float RigidBody::get_mass() const
     return m_mass;
 }
 
-RigidBody& RigidBody::set_mass(float mass)
+void RigidBody::mass(float mass)
 {
     m_status = RigidBodyStatus::DIRTY;
     m_mass = mass;
-    return *this;
+}
+
+void RigidBody::use_gravity(bool use_gravity)
+{
+    m_status = RigidBodyStatus::DIRTY;
+    m_use_gravity = use_gravity;
+}
+
+bool RigidBody::use_gravity() const
+{
+    return m_use_gravity;
 }
 
 RigidBody& RigidBody::apply_force(glm::vec3 force)
@@ -69,4 +83,43 @@ void RigidBody::clear_forces()
 void RigidBody::update()
 {
     m_status = RigidBodyStatus::CLEAN;
+}
+
+bool RigidBody::freeze_rotation() const
+{
+    return m_freeze_rotation;
+}
+
+void RigidBody::freeze_rotation(bool freeze_rotation)
+{
+    m_status = RigidBodyStatus::DIRTY;
+    m_freeze_rotation = freeze_rotation;
+}
+
+bool RigidBody::freeze_position() const
+{
+    return m_freeze_position;
+}
+
+void RigidBody::freeze_position(bool freeze_position)
+{
+    m_status = RigidBodyStatus::DIRTY;
+    m_freeze_position = freeze_position;
+}
+
+vec3 RigidBody::center_of_mass() const
+{
+    return m_center_of_mass;
+}
+
+void RigidBody::center_of_mass(glm::vec3 center_of_mass)
+{
+    m_status = RigidBodyStatus::DIRTY;
+    m_center_of_mass = center_of_mass;
+}
+
+void RigidBody::reset_center_of_mass()
+{
+    m_status = RigidBodyStatus::DIRTY;
+    m_center_of_mass = vec3 { 0.f };
 }
