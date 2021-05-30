@@ -37,6 +37,26 @@ protected:
         return world().get<R>();
     }
 
+    template <ecs::Resource R>
+    R* add_resource(R res)
+    {
+        return &world().insert<R>(std::move(res));
+    }
+
+    template <ecs::Resource R, typename... Args>
+    requires std::constructible_from<R, Args...> R*
+    emplace_resource(Args&&... args)
+    {
+        return &world().emplace<R>(std::forward<Args>(args)...);
+    }
+
+    template <ecs::Resource R, typename... Args>
+    requires std::constructible_from<R, Args...> R*
+    get_or_emplace_resource(Args&&... args)
+    {
+        return &world().get_or_emplace<R>(std::forward<Args>(args)...);
+    }
+
     template <ecs::Component C>
     C* get_component()
     {
