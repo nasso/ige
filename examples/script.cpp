@@ -37,34 +37,58 @@ using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
-class PlayerController : public CppBehaviour {
+class CharacterController : public CppBehaviour {
 public:
+    vec2 direction { 0.0f };
+    bool running = false;
+
     void tick() override
     {
-        auto input = get_resource<InputManager>();
+        if (direction != vec2 { 0.0f }) {
+            auto xform = get_component<Transform>();
 
-        vec3 direction { 0.0f };
+            vec2 velocity = glm::normalize(direction) * 0.05f;
+
+            if (running) {
+                velocity *= 2.0f;
+            }
+
+            xform->translate(vec3 { velocity.x, 0.0f, velocity.y });
+        }
+    }
+};
+
+class PlayerController : public CppBehaviour {
+public:
+    void update() override
+    {
+        auto input = get_resource<InputManager>();
+        auto controller = get_script<CharacterController>();
+
+        if (!controller) {
+            std::cout << "no character controller found!" << std::endl;
+            return;
+        }
+
+        controller->running
+            = input->keyboard().is_down(KeyboardKey::KEY_SHIFT_LEFT);
+
+        controller->direction = { 0.0f, 0.0f };
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
-            direction.z -= 1.0f;
+            controller->direction.y -= 1.0f;
         }
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
-            direction.z += 1.0f;
+            controller->direction.y += 1.0f;
         }
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_RIGHT)) {
-            direction.x += 1.0f;
+            controller->direction.x += 1.0f;
         }
 
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_LEFT)) {
-            direction.x -= 1.0f;
-        }
-
-        if (direction != vec3 { 0.0f }) {
-            auto xform = get_component<Transform>();
-
-            xform->translate(glm::normalize(direction) * 0.05f);
+            controller->direction.x -= 1.0f;
         }
     }
 };
@@ -96,7 +120,7 @@ class RootState : public State {
                 cube_mesh,
                 Material::make_default(),
             },
-            Scripts::from(PlayerController {}));
+            Scripts::from(PlayerController {}, CharacterController {}));
 
         app.world().create_entity(
             PerspectiveCamera { 70.0f },

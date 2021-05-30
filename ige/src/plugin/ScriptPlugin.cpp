@@ -49,7 +49,7 @@ void CppBehaviour::tick()
 
 void Scripts::run_all(World& world, EntityId entity)
 {
-    for (auto& bhvr : m_bhvrs) {
+    for (auto& [type, bhvr] : m_bhvrs) {
         if (bhvr->set_context(world, entity)) {
             bhvr->on_start();
         }
@@ -57,13 +57,13 @@ void Scripts::run_all(World& world, EntityId entity)
 
     if (auto time = world.get<Time>()) {
         for (std::uint32_t i = 0; i < time->ticks(); i++) {
-            for (auto& bhvr : m_bhvrs) {
+            for (auto& [type, bhvr] : m_bhvrs) {
                 bhvr->tick();
             }
         }
     }
 
-    for (auto& bhvr : m_bhvrs) {
+    for (auto& [type, bhvr] : m_bhvrs) {
         bhvr->update();
     }
 }

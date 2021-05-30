@@ -2,15 +2,22 @@
 #define D9D2D319_3B35_4ED4_A91E_D45FA25710D0
 
 #include "ige/core/App.hpp"
+#include "ige/core/TypeId.hpp"
 #include "ige/ecs/Component.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/Resources.hpp"
 #include "ige/ecs/World.hpp"
 #include <concepts>
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 namespace ige::plugin::script {
+
+class CppBehaviour;
+
+template <typename T>
+concept Behaviour
+    = std::move_constructible<T> && std::derived_from<T, CppBehaviour>;
 
 class CppBehaviour {
 private:
@@ -91,6 +98,12 @@ protected:
             entity(), std::forward<Args>(args)...);
     }
 
+    template <Behaviour B>
+    B* get_script();
+
+    template <Behaviour B>
+    const B* get_script() const;
+
 public:
     virtual ~CppBehaviour() = default;
 
@@ -112,30 +125,69 @@ public:
     virtual void tick();
 };
 
-template <typename T>
-concept Behaviour
-    = std::move_constructible<T> && std::derived_from<T, CppBehaviour>;
-
 class Scripts {
 private:
-    using Behaviours = std::vector<std::unique_ptr<CppBehaviour>>;
+    using BehaviourContainer
+        = std::unordered_map<core::TypeId, std::unique_ptr<CppBehaviour>>;
 
-    Behaviours m_bhvrs;
+    BehaviourContainer m_bhvrs;
 
 public:
     template <Behaviour... Bs>
     static Scripts from(Bs&&... bhvrs)
     {
         Scripts scripts;
-        scripts.m_bhvrs.reserve(sizeof...(Bs));
-        (scripts.m_bhvrs.push_back(
-             std::make_unique<Bs>(std::forward<Bs>(bhvrs))),
-         ...);
+        (scripts.add(std::forward<Bs>(bhvrs)), ...);
         return scripts;
+    }
+
+    template <Behaviour B>
+    void add(B bhvr)
+    {
+        m_bhvrs.insert({
+            core::type_id<B>(),
+            std::make_unique<B>(std::move(bhvr)),
+        });
+    }
+
+    template <Behaviour B>
+    B* get()
+    {
+        auto iter = m_bhvrs.find(core::type_id<B>());
+
+        if (iter != m_bhvrs.end()) {
+            return reinterpret_cast<B*>(iter->second.get());
+        } else {
+            return nullptr;
+        }
+    }
+
+    template <Behaviour B>
+    const B* get() const
+    {
+        auto iter = m_bhvrs.find(core::type_id<B>());
+
+        if (iter != m_bhvrs.end()) {
+            return reinterpret_cast<const B*>(iter->second.get());
+        } else {
+            return nullptr;
+        }
     }
 
     void run_all(ecs::World&, ecs::EntityId);
 };
+
+template <Behaviour B>
+B* CppBehaviour::get_script()
+{
+    return get_component<Scripts>()->get<B>();
+}
+
+template <Behaviour B>
+const B* CppBehaviour::get_script() const
+{
+    return get_component<Scripts>()->get<B>();
+}
 
 class ScriptPlugin : public core::App::Plugin {
 public:
