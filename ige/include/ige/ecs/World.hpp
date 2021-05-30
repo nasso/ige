@@ -2,6 +2,7 @@
 #define B1C7D01B_EFEC_457F_B2AD_A4234DA7F87A
 
 #include "ige/core/Any.hpp"
+#include "ige/core/TypeId.hpp"
 #include "ige/ecs/Component.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/MapStorage.hpp"
@@ -179,8 +180,8 @@ public:
 
         strg.set(ent.index(), std::forward<Args>(args)...);
 
-        if (m_components.find(impl::type_id<C>()) == m_components.end()) {
-            m_components.emplace(impl::type_id<C>(), [&](EntityId ent) {
+        if (m_components.find(core::type_id<C>()) == m_components.end()) {
+            m_components.emplace(core::type_id<C>(), [&](EntityId ent) {
                 return remove_component<C>(ent).has_value();
             });
         }
@@ -319,7 +320,7 @@ private:
     using CompRemover = std::function<bool(EntityId)>;
 
     EntityPool m_entities;
-    std::unordered_map<impl::TypeId, CompRemover> m_components;
+    std::unordered_map<core::TypeId, CompRemover> m_components;
     Resources m_resources;
 };
 

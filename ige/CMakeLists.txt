@@ -62,6 +62,7 @@ set(sources ${sources}
     "include/ige/core/EventChannel.hpp"
     "include/ige/core/State.hpp"
     "include/ige/core/StateMachine.hpp"
+    "include/ige/core/TypeId.hpp"
     "include/ige/ecs.hpp"
     "include/ige/ecs/Component.hpp"
     "include/ige/ecs/Entity.hpp"

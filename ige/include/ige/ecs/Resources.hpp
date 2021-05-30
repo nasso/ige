@@ -2,6 +2,7 @@
 #define A0B328C5_412E_4F22_A2FB_18A5C0CBD2F6
 
 #include "ige/core/Any.hpp"
+#include "ige/core/TypeId.hpp"
 #include <concepts>
 #include <functional>
 #include <optional>
@@ -9,24 +10,6 @@
 #include <utility>
 
 namespace ige::ecs {
-
-namespace impl {
-    using TypeId = std::size_t;
-
-    template <typename T>
-    struct type_id_ptr {
-        static const T* const id;
-    };
-
-    template <typename T>
-    const T* const type_id_ptr<T>::id = nullptr;
-
-    template <typename T>
-    constexpr TypeId type_id() noexcept
-    {
-        return reinterpret_cast<TypeId>(&type_id_ptr<T>::id);
-    }
-}
 
 template <typename R>
 concept Resource = std::movable<R> && std::same_as<std::decay_t<R>, R>;
@@ -36,7 +19,7 @@ public:
     template <Resource R>
     R& insert(R res)
     {
-        impl::TypeId id = impl::type_id<R>();
+        core::TypeId id = core::type_id<R>();
 
         return set_any(id, core::Any::from<R>(std::move(res))).template as<R>();
     }
@@ -44,7 +27,7 @@ public:
     template <Resource R, typename... Args>
     requires std::constructible_from<R, Args...> R& emplace(Args&&... args)
     {
-        impl::TypeId id = impl::type_id<R>();
+        core::TypeId id = core::type_id<R>();
 
         return set_any(id, core::Any::from<R>(std::forward<Args>(args)...))
             .template as<R>();
@@ -64,7 +47,7 @@ public:
     template <Resource R>
     R* get()
     {
-        impl::TypeId id = impl::type_id<R>();
+        core::TypeId id = core::type_id<R>();
 
         if (auto any = get_any(id)) {
             return &any->template as<R>();
@@ -76,7 +59,7 @@ public:
     template <Resource R>
     const R* get() const
     {
-        impl::TypeId id = impl::type_id<R>();
+        core::TypeId id = core::type_id<R>();
 
         if (auto any = get_any(id)) {
             return &any->template as<R>();
@@ -88,7 +71,7 @@ public:
     template <Resource R>
     std::optional<R> remove()
     {
-        impl::TypeId id = impl::type_id<R>();
+        core::TypeId id = core::type_id<R>();
 
         if (auto any = remove_any(id)) {
             return { std::move(any->template as<R>()) };
@@ -98,16 +81,16 @@ public:
     }
 
 private:
-    std::unordered_map<impl::TypeId, core::Any> m_resources;
+    std::unordered_map<core::TypeId, core::Any> m_resources;
 
-    core::Any& set_any(impl::TypeId id, core::Any any)
+    core::Any& set_any(core::TypeId id, core::Any any)
     {
         m_resources.erase(id);
         m_resources.insert(std::make_pair(id, std::move(any)));
         return m_resources.at(id);
     }
 
-    core::Any* get_any(impl::TypeId id)
+    core::Any* get_any(core::TypeId id)
     {
         auto it = m_resources.find(id);
 
@@ -118,7 +101,7 @@ private:
         }
     }
 
-    const core::Any* get_any(impl::TypeId id) const
+    const core::Any* get_any(core::TypeId id) const
     {
         auto it = m_resources.find(id);
 
@@ -129,7 +112,7 @@ private:
         }
     }
 
-    std::optional<core::Any> remove_any(impl::TypeId id)
+    std::optional<core::Any> remove_any(core::TypeId id)
     {
         auto it = m_resources.find(id);
 
