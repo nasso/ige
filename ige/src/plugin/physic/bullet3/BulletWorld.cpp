@@ -4,12 +4,12 @@
 #include "ige/plugin.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <optional>
 
 using ige::bt::BulletWorld;
 using ige::ecs::EntityId;
 using ige::ecs::World;
+using ige::plugin::physic::Constraint;
 using ige::plugin::physic::PhysicWorld;
 using ige::plugin::physic::RigidBody;
 using ige::plugin::transform::Transform;
@@ -23,6 +23,17 @@ BulletWorld::BulletWorld(btVector3 gravity)
     m_world.setInternalTickCallback(tick_update, this);
 }
 
+void BulletWorld::clean_world()
+{
+    for (int i = m_world.getNumConstraints() - 1; i >= 0; i--) {
+        m_world.removeConstraint(m_world.getConstraint(i));
+    }
+    for (int i = m_world.getNumCollisionObjects() - 1; i >= 0; i--) {
+        btCollisionObject* obj = m_world.getCollisionObjectArray()[i];
+        m_world.removeCollisionObject(obj);
+    }
+}
+
 void BulletWorld::new_entity(World& wld, EntityId entity)
 {
     auto transform = wld.get_component<Transform>(entity);
@@ -30,6 +41,45 @@ void BulletWorld::new_entity(World& wld, EntityId entity)
 
     wld.emplace_component<BulletRigidBody>(
         entity, *rigidbody, *transform, &m_world);
+}
+
+void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
+{
+    auto rigidbody = wld.get_component<BulletRigidBody>(*constraint.entity);
+
+    if (!rigidbody)
+        return;
+    btTransform frameB;
+    frameB.setIdentity();
+    btGeneric6DofConstraint* constraint_ptr
+        = static_cast<btGeneric6DofConstraint*>(
+            m_constraints
+                .insert(std::make_unique<btGeneric6DofConstraint>(
+                    *rigidbody->body(), frameB, false))
+                .first->get());
+    m_world.addConstraint(constraint_ptr);
+    constraint_ptr->setDbgDrawSize(btScalar(5.f));
+
+    constraint_ptr->setAngularLowerLimit({
+        constraint.angularLowerLimit.x,
+        constraint.angularLowerLimit.y,
+        constraint.angularLowerLimit.z,
+    });
+    constraint_ptr->setAngularUpperLimit({
+        constraint.angularUpperLimit.x,
+        constraint.angularUpperLimit.y,
+        constraint.angularUpperLimit.z,
+    });
+    constraint_ptr->setLinearLowerLimit({
+        constraint.linearLowerLimit.x,
+        constraint.linearLowerLimit.y,
+        constraint.linearLowerLimit.z,
+    });
+    constraint_ptr->setLinearUpperLimit({
+        constraint.linearUpperLimit.x,
+        constraint.linearUpperLimit.y,
+        constraint.linearUpperLimit.z,
+    });
 }
 
 void BulletWorld::simulate(float time_step)

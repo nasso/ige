@@ -26,6 +26,7 @@ using ige::plugin::input::InputPlugin;
 using ige::plugin::input::KeyboardKey;
 using ige::plugin::physic::Collider;
 using ige::plugin::physic::ColliderType;
+using ige::plugin::physic::Constraint;
 using ige::plugin::physic::PhysicPlugin;
 using ige::plugin::physic::PhysicWorld;
 using ige::plugin::physic::RigidBody;
@@ -44,8 +45,10 @@ using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
-    std::optional<EntityId> m_ground_id;
-    std::optional<EntityId> m_ball_id;
+    std::optional<EntityId> m_ground_id1;
+    std::optional<EntityId> m_ground_id2;
+    std::optional<EntityId> m_ball_id1;
+    std::optional<EntityId> m_ball_id2;
 
     void on_start(App& app) override
     {
@@ -76,50 +79,52 @@ class RootState : public State {
                 90.f,
             }));
 
-        app.world().create_entity(
-            RigidBody { ground_collider, 0 },
-            Transform {}
-                .set_translation(vec3 {
-                    0.0f,
-                    0.0f,
-                    0.0f,
-                })
-                .set_scale(vec3 {
-                    10.0f,
-                    0.2f,
-                    10.0f,
-                })
-                .set_rotation(vec3 {
-                    90.f,
-                    0.f,
-                    0.f,
-                }),
-            MeshRenderer {
-                ground_mesh,
-                ground_material,
-            });
-        m_ground_id = app.world()
-                          .create_entity(
-                              RigidBody {
-                                  ground_collider,
-                                  0,
-                              },
-                              Transform {}
-                                  .set_translation(vec3 {
-                                      0,
-                                      -5,
-                                      -10,
-                                  })
-                                  .set_scale(vec3 {
-                                      10.0f,
-                                      0.2f,
-                                      15.0f,
-                                  }),
-                              MeshRenderer {
-                                  ground_mesh,
-                                  ground_material,
-                              })
-                          .id();
+        m_ground_id1 = app.world()
+                           .create_entity(
+                               RigidBody { ground_collider, 0 },
+                               Transform {}
+                                   .set_translation(vec3 {
+                                       0.0f,
+                                       0.0f,
+                                       0.0f,
+                                   })
+                                   .set_scale(vec3 {
+                                       10.0f,
+                                       0.2f,
+                                       10.0f,
+                                   })
+                                   .set_rotation(vec3 {
+                                       90.f,
+                                       0.f,
+                                       0.f,
+                                   }),
+                               MeshRenderer {
+                                   ground_mesh,
+                                   ground_material,
+                               })
+                           .id();
+        m_ground_id2 = app.world()
+                           .create_entity(
+                               RigidBody {
+                                   ground_collider,
+                                   0,
+                               },
+                               Transform {}
+                                   .set_translation(vec3 {
+                                       0,
+                                       -5,
+                                       -10,
+                                   })
+                                   .set_scale(vec3 {
+                                       10.0f,
+                                       0.2f,
+                                       15.0f,
+                                   }),
+                               MeshRenderer {
+                                   ground_mesh,
+                                   ground_material,
+                               })
+                           .id();
 
         Collider cube_collider;
         cube_collider.type = ColliderType::BOX;
@@ -146,15 +151,25 @@ class RootState : public State {
             },
             Transform::from_pos(vec3(0, 10, 0)).set_scale(0.5));
 
-        m_ball_id = app.world()
-                        .create_entity(
-                            RigidBody { ball_collider },
-                            GltfScene {
-                                "assets/test_ball.glb",
-                                GltfFormat::BINARY,
-                            },
-                            Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5))
-                        .id();
+        m_ball_id1 = app.world()
+                         .create_entity(
+                             RigidBody { ball_collider },
+                             GltfScene {
+                                 "assets/test_ball.glb",
+                                 GltfFormat::BINARY,
+                             },
+                             Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5))
+                         .id();
+        m_ball_id2
+            = app.world()
+                  .create_entity(
+                      RigidBody { ball_collider },
+                      GltfScene {
+                          "assets/test_ball.glb",
+                          GltfFormat::BINARY,
+                      },
+                      Transform::from_pos(vec3(0, 10, -7)).set_scale(0.5))
+                  .id();
 
         app.world().create_entity(
             RigidBody { capsule_collider },
@@ -166,6 +181,13 @@ class RootState : public State {
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
         m_win_events.emplace(channel->subscribe());
+        auto physic_world = app.world().get<PhysicWorld>();
+
+        Constraint constraint;
+        constraint.entity = m_ball_id2;
+        constraint.linearLowerLimit.y = -10;
+        constraint.linearUpperLimit.y = 10;
+        physic_world->add_constraint(constraint);
     }
 
     void on_update(App& app) override
@@ -179,11 +201,23 @@ class RootState : public State {
         auto physic_world = app.world().get<PhysicWorld>();
 
         if (physic_world) {
-            if (physic_world->collide(*m_ground_id, *m_ball_id)) {
+            if (physic_world->collide(*m_ground_id1, *m_ball_id1)
+                || physic_world->collide(*m_ground_id2, *m_ball_id1)) {
                 std::cout << "Ball is on the ground" << std::endl;
             } else {
                 std::cout << "Ball is not on the ground" << std::endl;
             }
+        }
+
+        auto manager = app.world().get<InputManager>();
+        auto rigidbody = app.world().get_component<RigidBody>(*m_ball_id2);
+
+        if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
+            rigidbody->velocity({ 0.f, 20.f, 0.f });
+        } else if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
+            rigidbody->velocity({ 0.f, -20.f, 0.f });
+        } else {
+            rigidbody->velocity({ 0.f, 0.f, 0.f });
         }
     }
 };

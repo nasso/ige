@@ -6,6 +6,7 @@
 
 #include "btBulletDynamicsCommon.h"
 #include <memory>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -14,6 +15,7 @@ class BulletWorld {
 public:
     BulletWorld(btVector3 gravity = { 0, -10, 0 });
 
+    void clean_world();
     void new_entity(ecs::World& wld, ecs::EntityId entity);
 
     void simulate(float time_step);
@@ -22,6 +24,9 @@ public:
 
     static void tick_update(btDynamicsWorld* world, btScalar timeStep);
 
+    void new_constraint(
+        ecs::World& wld, const plugin::physic::Constraint& constraint);
+
 private:
     btDefaultCollisionConfiguration m_collision_config;
     btCollisionDispatcher m_dispatcher;
@@ -29,6 +34,7 @@ private:
     btSequentialImpulseConstraintSolver m_solver;
     btDiscreteDynamicsWorld m_world;
     std::vector<std::pair<const btRigidBody*, const btRigidBody*>> m_collisions;
+    std::set<std::unique_ptr<btTypedConstraint>> m_constraints;
 };
 }
 

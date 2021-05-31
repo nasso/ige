@@ -3,9 +3,8 @@
 
 using ige::ecs::EntityId;
 using ige::plugin::physic::Collision;
+using ige::plugin::physic::Constraint;
 using ige::plugin::physic::PhysicWorld;
-
-#include <iostream>
 
 void PhysicWorld::add_collision(ecs::EntityId entity1, ecs::EntityId entity2)
 {
@@ -39,4 +38,19 @@ bool PhysicWorld::collide(ecs::EntityId entity1, ecs::EntityId entity2)
 void PhysicWorld::clear_collisions()
 {
     m_collisions.clear();
+}
+
+void PhysicWorld::add_constraint(const Constraint& constraint)
+{
+    m_new_constraints.push_back(constraint);
+}
+
+const std::vector<Constraint>& PhysicWorld::get_new_constraints() const
+{
+    return m_new_constraints;
+}
+
+void PhysicWorld::clear_new_constraints()
+{
+    m_new_constraints.clear();
 }
