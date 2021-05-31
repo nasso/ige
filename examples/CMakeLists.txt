@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 
 project(ige_examples)
 
-add_subdirectory(common)
+add_subdirectory(example_framework)
 
 macro(package_add_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${ARGN})
@@ -30,6 +30,7 @@ configure_file("./resources/test.wav" "./resources/test.wav" COPYONLY)
 package_add_example(cubes cubes.cpp)
 package_add_example(inputs inputs.cpp)
 package_add_example(mouse mouse.cpp)
+package_add_example(audio audio.cpp)
 package_add_example(hierarchy hierarchy.cpp)
 package_add_example(gltf gltf.cpp)
 package_add_example_data(gltf assets)
