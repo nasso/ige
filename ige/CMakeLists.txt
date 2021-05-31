@@ -161,7 +161,6 @@ target_include_directories(ige
     PRIVATE "include"
     SYSTEM INTERFACE "include"
     PRIVATE ${BULLET_PHYSICS_SOURCE_DIR}/src
-    SYSTEM INTERFACE ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 set_target_properties(ige
     PROPERTIES
