@@ -62,8 +62,11 @@ void BulletRigidBody::set_rigibody_shape(const Collider& collider)
 {
     switch (collider.type) {
     case ColliderType::BOX:
-        m_colShape = std::make_unique<btBoxShape>(
-            btVector3 { collider.box.x, collider.box.y, collider.box.z });
+        m_colShape = std::make_unique<btBoxShape>(btVector3 {
+            collider.box.x / 2.f,
+            collider.box.y / 2.f,
+            collider.box.z / 2.f,
+        });
         break;
     case ColliderType::SPHERE:
         m_colShape = std::make_unique<btSphereShape>(collider.sphere.radius);
@@ -92,8 +95,8 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
         m_rigidbody->activate();
         m_rigidbody->setAngularFactor(rigidbody.freeze_rotation() ? 0 : 1);
         m_rigidbody->setLinearFactor(
-            rigidbody.freeze_position() ? btVector3 { 0, 0, 0 }
-                                        : btVector3 { 1, 1, 1 });
+            rigidbody.freeze_position() ? btVector3 { 0, 0, 0, }
+                                        : btVector3 { 1, 1, 1, });
         const auto& forces = rigidbody.get_forces();
         for (vec3 force : forces) {
             m_rigidbody->applyCentralImpulse(
