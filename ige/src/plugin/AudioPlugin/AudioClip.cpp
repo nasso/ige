@@ -5,73 +5,107 @@
 ** AudioClip
 */
 
-#include <vector>
-#include <string>
-#include <libnyquist/Decoders.h>
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <libnyquist/Decoders.h>
+#include <string>
+#include <vector>
 
 #include "ige/plugin/AudioPlugin/AudioClip.hpp"
-#include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 #include "ige/plugin/AudioPlugin/AudioEngine.hpp"
-
+#include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 
 namespace ige {
 namespace plugin {
-namespace audio {
+    namespace audio {
 
-std::vector<char> to_al_vector(std::vector<float> vec)
-{
-    std::vector<char> ret = {};
+        static std::vector<char> to_al_vector8(std::vector<float> vec)
+        {
+            std::vector<char> ret = {};
 
-    for (float v : vec) {
-        int x = v;
+            for (float v : vec) {
+                ret.push_back(abs(floor(v * 255)));
+            }
+            return ret;
+        }
 
-        ret.push_back((int)x & 0xF000);
-        ret.push_back((int)x & 0x0F00);
-        ret.push_back((int)x & 0x00F0);
-        ret.push_back((int)x & 0x000F);
+        static std::vector<signed short> to_al_vector16(std::vector<float> vec)
+        {
+            std::vector<signed short> ret = {};
+
+            for (float v : vec) {
+                ret.push_back(floor(v * 32767));
+            }
+            return ret;
+        }
+
+        AudioClip::AudioClip(const std::string& path)
+        {
+            alGetError();
+            this->m_audio_data = std::make_unique<nqr::AudioData>();
+            m_nloader.Load(this->m_audio_data.get(), path);
+            std::cerr << "[Audio Plugin] Loaded sound file:\n"
+                      << "Duration      : " << this->m_audio_data->lengthSeconds
+                      << " seconds.\n"
+                      << "Sample Rate   : " << this->m_audio_data->sampleRate
+                      << "Hz\n"
+                      << "Channel Count : " << this->m_audio_data->channelCount
+                      << "\n"
+                      << "Frame Size    : " << this->m_audio_data->frameSize
+                      << std::endl;
+            alGenBuffers(1, &(this->m_buffer));
+            AudioEngine::get_native_exception();
+            auto sample_mode
+                = this->find_sample_mode(*this->m_audio_data.get());
+            if (sample_mode == AL_FORMAT_MONO8
+                || sample_mode == AL_FORMAT_STEREO8) {
+                auto alvec = to_al_vector8(this->m_audio_data->samples);
+                alBufferData(this->m_buffer,
+                    this->find_sample_mode(*this->m_audio_data.get()),
+                    alvec.data(), alvec.size(), this->m_audio_data->sampleRate);
+            } else {
+                auto alvec = to_al_vector16(this->m_audio_data->samples);
+                alBufferData(this->m_buffer,
+                    this->find_sample_mode(*this->m_audio_data.get()),
+                    alvec.data(), alvec.size() * sizeof(signed short),
+                    this->m_audio_data->sampleRate);
+            }
+            AudioEngine::get_native_exception();
+        }
+
+        AudioClip::~AudioClip()
+        {
+            alDeleteBuffers(1, &this->m_buffer);
+        }
+
+        ALenum AudioClip::find_sample_mode(const nqr::AudioData& data)
+        {
+            ALenum sample_mode = AL_FORMAT_MONO8;
+
+            if (data.channelCount == 1) {
+                sample_mode = (data.frameSize <= 8 ? AL_FORMAT_MONO8
+                                                   : AL_FORMAT_MONO16);
+            } else if (data.channelCount == 2) {
+                sample_mode = (data.frameSize <= 8 ? AL_FORMAT_STEREO8
+                                                   : AL_FORMAT_STEREO16);
+            } else {
+                throw AudioPluginException(
+                    "Invalid channel count (3+ Channels audio clip are not yet "
+                    "supported.)");
+            }
+            return (sample_mode);
+        }
+
+        std::vector<float>& AudioClip::get_samples()
+        {
+            return this->m_audio_data->samples;
+        }
+
+        ALuint AudioClip::get_al_buffer()
+        {
+            return this->m_buffer;
+        }
+
     }
-    return ret;
-}
-
-AudioClip::AudioClip(const std::string &path)
-{
-    alGetError();
-    this->m_audio_data = std::make_unique<nqr::AudioData>();
-    m_nloader.Load(this->m_audio_data.get(), path);
-    std::cerr << "[Audio Plugin] Loaded sound file:\n"
-        << "Duration      : " << this->m_audio_data->lengthSeconds << " seconds.\n"
-        << "Sample Rate   : " << this->m_audio_data->sampleRate << "Hz\n"
-        << "Channel Count : " << this->m_audio_data->channelCount << "\n"
-        << "Frame Size    : " << this->m_audio_data->frameSize << std::endl;
-    alGenBuffers(1, &(this->m_buffer));
-    AudioEngine::get_native_exception();
-
-    auto alvec = to_al_vector(this->m_audio_data->samples);
-    alBufferData(this->m_buffer, AL_FORMAT_MONO8,
-        alvec.data(),
-        alvec.size() * sizeof(int),
-        this->m_audio_data->sampleRate);
-    AudioEngine::get_native_exception();
-}
-
-AudioClip::~AudioClip()
-{
-    alDeleteBuffers(1, &this->m_buffer);
-}
-
-std::vector<float> &AudioClip::get_samples()
-{
-    return this->m_audio_data->samples;
-}
-
-ALuint AudioClip::get_al_buffer()
-{
-    return this->m_buffer;
-}
-
-
-}
 }
 }
