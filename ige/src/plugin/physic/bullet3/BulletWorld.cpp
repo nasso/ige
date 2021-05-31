@@ -45,7 +45,7 @@ void BulletWorld::new_entity(World& wld, EntityId entity)
 
 void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
 {
-    auto rigidbody = wld.get_component<BulletRigidBody>(*constraint.entity);
+    auto rigidbody = wld.get_component<BulletRigidBody>(constraint.entity);
 
     if (!rigidbody)
         return;
