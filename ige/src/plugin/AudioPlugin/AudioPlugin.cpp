@@ -10,13 +10,13 @@
 
 namespace ige {
 namespace plugin {
-namespace audio {
+    namespace audio {
 
-void AudioPlugin::plug(core::App::Builder& builder) const
-{
-    builder.emplace<AudioEngine>();
-}
+        void AudioPlugin::plug(core::App::Builder& builder) const
+        {
+            builder.emplace<AudioEngine>();
+        }
 
-}
+    }
 }
 }
