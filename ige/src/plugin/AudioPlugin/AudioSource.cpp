@@ -38,15 +38,22 @@ namespace plugin {
             return (is_playing == AL_PLAYING);
         }
 
-        void AudioSource::load_clip(AudioClip* clip)
+        void AudioSource::load_clip(std::shared_ptr<AudioClip> clip)
         {
             m_clip = clip;
             alSourcei(this->m_source, AL_LOOPING, 0);
             AudioEngine::get_native_exception();
             alSourcef(this->m_source, AL_GAIN, 1.0f);
             AudioEngine::get_native_exception();
+            alSourcef(this->m_source, AL_ROLLOFF_FACTOR, 1.0f);
+            AudioEngine::get_native_exception();
             alSourcei(this->m_source, AL_BUFFER, clip->get_al_buffer());
             AudioEngine::get_native_exception();
+            alSourcei(this->m_source, AL_MAX_DISTANCE, 500);
+            AudioEngine::get_native_exception();
+            alSourcei(this->m_source, AL_REFERENCE_DISTANCE, 250);
+            AudioEngine::get_native_exception();
+        }
             alSourcePlay(this->m_source);
             AudioEngine::get_native_exception();
         }

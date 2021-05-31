@@ -26,7 +26,7 @@ namespace plugin {
             AudioSource();
             ~AudioSource();
 
-            void load_clip(AudioClip*);
+            void load_clip(std::shared_ptr<AudioClip> clip);
 
             void play();
             void pause();
@@ -44,7 +44,7 @@ namespace plugin {
         protected:
         private:
             ALuint m_source;
-            AudioClip* m_clip;
+            std::shared_ptr<AudioClip> m_clip;
 
             glm::vec3 get_property3f(ALenum alProp) const;
             void set_property3f(ALenum alProp, glm::vec3 vec);
