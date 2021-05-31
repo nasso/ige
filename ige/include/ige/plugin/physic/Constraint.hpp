@@ -11,7 +11,7 @@
 namespace ige::plugin::physic {
 
 struct Constraint {
-    std::optional<ecs::EntityId> entity;
+    ecs::EntityId entity;
     glm::vec3 linearLowerLimit = glm::vec3 { 0.f };
     glm::vec3 linearUpperLimit = glm::vec3 { 0.f };
     glm::vec3 angularLowerLimit = glm::vec3 { 0.f };

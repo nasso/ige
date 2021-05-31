@@ -183,8 +183,7 @@ class RootState : public State {
         m_win_events.emplace(channel->subscribe());
         auto physic_world = app.world().get<PhysicWorld>();
 
-        Constraint constraint;
-        constraint.entity = m_ball_id2;
+        Constraint constraint = { *m_ball_id2 };
         constraint.linearLowerLimit.y = -10;
         constraint.linearUpperLimit.y = 10;
         physic_world->add_constraint(constraint);
