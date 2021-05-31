@@ -10,21 +10,21 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
 using ige::ecs::Schedule;
-using ige::plugin::Transform;
-using ige::plugin::TransformPlugin;
 using ige::plugin::audio::AudioClip;
 using ige::plugin::audio::AudioEngine;
 using ige::plugin::audio::AudioPlugin;
 using ige::plugin::audio::AudioSource;
+using ige::plugin::transform::Transform;
+using ige::plugin::transform::TransformPlugin;
 
 class RootState : public State {
 
     void on_start(App& app) override
     {
-        auto engine = app.world().get<AudioEngine>().value().get();
+        auto engine = app.world().get<AudioEngine>();
 
         std::cout << "Available audio devices: " << std::endl;
-        for (std::string& device : engine.get_available_devices()) {
+        for (std::string& device : engine->get_available_devices()) {
             std::cout << "    - " << device << std::endl;
         }
 
