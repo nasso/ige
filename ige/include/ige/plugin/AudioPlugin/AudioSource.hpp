@@ -46,8 +46,11 @@ namespace plugin {
             ALuint m_source;
             AudioClip* m_clip;
 
-            glm::vec3 get_property3f(ALenum alProp);
+            glm::vec3 get_property3f(ALenum alProp) const;
             void set_property3f(ALenum alProp, glm::vec3 vec);
+
+            float get_propertyf(ALenum alProp) const;
+            void set_propertyf(ALenum alProp, float vec);
         };
 
     }

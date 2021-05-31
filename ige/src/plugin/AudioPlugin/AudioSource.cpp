@@ -71,12 +71,22 @@ namespace plugin {
             set_property3f(AL_VELOCITY, vec);
         }
 
-        glm::vec3 AudioSource::get_velocity()
+        glm::vec3 AudioSource::velocity() const
         {
             return get_property3f(AL_VELOCITY);
         }
 
-        glm::vec3 AudioSource::get_property3f(ALenum alProp)
+        void AudioSource::set_reference_distance(float distance)
+        {
+            set_propertyf(AL_REFERENCE_DISTANCE, distance);
+        }
+
+        float AudioSource::reference_distance() const
+        {
+            return get_propertyf(AL_REFERENCE_DISTANCE);
+        }
+
+        glm::vec3 AudioSource::get_property3f(ALenum alProp) const
         {
             glm::vec3 ret;
 
@@ -89,6 +99,18 @@ namespace plugin {
             alSource3f(m_source, alProp, vec.x, vec.y, vec.z);
         }
 
+        float AudioSource::get_propertyf(ALenum alProp) const
+        {
+            float ret;
+
+            alGetSourcef(m_source, alProp, &ret);
+            return ret;
+        }
+
+        void AudioSource::set_propertyf(ALenum alProp, float value)
+        {
+            alSourcef(m_source, alProp, value);
+        }
     }
 }
 }
