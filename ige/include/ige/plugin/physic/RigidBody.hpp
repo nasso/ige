@@ -55,8 +55,9 @@ public:
     void reset_center_of_mass();
 
 private:
-    bool m_is_kinematic;
+    Collider m_collider;
     float m_mass;
+    bool m_is_kinematic;
     std::vector<glm::vec3> m_forces;
     glm::vec3 m_center_of_mass = glm::vec3 { 0.f };
     glm::vec3 m_velocity = glm::vec3 { 0.f };
@@ -65,7 +66,6 @@ private:
     bool m_freeze_position = false;
 
     RigidBodyStatus m_status;
-    Collider m_collider;
 };
 }
 

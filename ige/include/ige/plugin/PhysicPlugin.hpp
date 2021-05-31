@@ -3,6 +3,7 @@
 
 #include "ige/core/App.hpp"
 #include "physic/Collider.hpp"
+#include "physic/Constraint.hpp"
 #include "physic/PhysicWorld.hpp"
 #include "physic/RigidBody.hpp"
 
