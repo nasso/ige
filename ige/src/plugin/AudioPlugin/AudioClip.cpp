@@ -24,6 +24,8 @@ namespace plugin {
             std::vector<char> ret = {};
 
             for (float v : vec) {
+                // 8bits samples are passed to openAL as an unsigned byte with
+                // 128 as silence
                 ret.push_back(abs(floor(v * 255)));
             }
             return ret;
@@ -34,6 +36,8 @@ namespace plugin {
             std::vector<signed short> ret = {};
 
             for (float v : vec) {
+                // 16bits samples are passed to openAL as a signed short with 0
+                // as silence
                 ret.push_back(floor(v * 32767));
             }
             return ret;
