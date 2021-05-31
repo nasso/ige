@@ -18,9 +18,11 @@ class PhysicWorld {
 public:
     PhysicWorld() = default;
 
-    void add_collision(ecs::EntityId entity1, ecs::EntityId entity2);
+    void
+    add_collision(const ecs::EntityId& entity1, const ecs::EntityId& entity2);
     const std::vector<Collision>& get_collisions() const;
-    bool collide(ecs::EntityId entity1, ecs::EntityId entity2);
+    bool
+    collide(const ecs::EntityId& entity1, const ecs::EntityId& entity2) const;
     void clear_collisions();
 
     void add_constraint(const Constraint& constraint);
