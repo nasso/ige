@@ -8,6 +8,8 @@
 #ifndef AUDIOCLIP_HPP_
 #define AUDIOCLIP_HPP_
 
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <libnyquist/Decoders.h>
 
 namespace ige {
