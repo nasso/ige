@@ -6,7 +6,8 @@ using ige::plugin::physic::Collision;
 using ige::plugin::physic::Constraint;
 using ige::plugin::physic::PhysicWorld;
 
-void PhysicWorld::add_collision(ecs::EntityId entity1, ecs::EntityId entity2)
+void PhysicWorld::add_collision(
+    const ecs::EntityId& entity1, const ecs::EntityId& entity2)
 {
     m_collisions.emplace_back(entity1, entity2);
 }
@@ -16,7 +17,8 @@ const std::vector<Collision>& PhysicWorld::get_collisions() const
     return m_collisions;
 }
 
-bool PhysicWorld::collide(ecs::EntityId entity1, ecs::EntityId entity2)
+bool PhysicWorld::collide(
+    const ecs::EntityId& entity1, const ecs::EntityId& entity2) const
 {
     return std::find_if(
                m_collisions.begin(), m_collisions.end(),
