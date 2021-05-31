@@ -22,15 +22,16 @@ class RootState : public State {
 
     void on_start(App& app) override
     {
+        std::shared_ptr<AudioClip> clip(
+            new AudioClip("examples/assets/test_mono.ogg"));
+
         // Warning: Only mono sound files support 3D Spatialization
         auto demo_ent = app.world().create_entity();
         demo_ent.emplace_component<AudioSource>();
-        demo_ent.emplace_component<AudioClip>(
-            std::string("examples/assets/test_mono.ogg"));
         demo_ent.add_component<Transform>(
             Transform::from_pos(glm::vec3(500.0f, 0.0f, 0.0f)));
-        demo_ent.get_component<AudioSource>()->load_clip(
-            demo_ent.get_component<AudioClip>());
+        demo_ent.get_component<AudioSource>()->load_clip(clip);
+        demo_ent.get_component<AudioSource>()->play();
 
         // Warning: A world can only contain one AudioListener !
         auto listener = app.world().create_entity();
@@ -62,11 +63,15 @@ class RootState : public State {
 
 int main()
 {
+    std::string holder;
+
     std::cout
         << "[Audio Example] This example loads a test OGG file and performs 3D "
            "Spatialization using a source and a listener. You should be able "
-           "to hear the sound go from left to right (You need headphones)"
+           "to hear the sound go from right to left (You need headphones). The "
+           "switch should happen at X=500.\n\nPress [Enter] when you're ready"
         << std::endl;
+    std::getline(std::cin, holder);
     App::Builder()
         .add_plugin(TransformPlugin {})
         .add_plugin(AudioPlugin {})
