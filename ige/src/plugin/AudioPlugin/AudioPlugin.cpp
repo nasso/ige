@@ -30,12 +30,22 @@ namespace plugin {
                     source.set_position(glm::vec3(0.0f, 0.0f, 0.0f));
                 }
             }
+
+            for (auto [entity, listener] : world.query<AudioListener>()) {
+                auto xform = world.get_component<Transform>(entity);
+
+                if (xform) {
+                    listener.set_position(xform->translation());
+                } else {
+                    listener.set_position(glm::vec3(0.0f, 0.0f, 0.0f));
+                }
+            }
         }
 
         void AudioPlugin::plug(core::App::Builder& builder) const
         {
             builder.emplace<AudioEngine>();
-            builder.add_startup_system(System(update_positions_system));
+            builder.add_system(System(update_positions_system));
         }
 
     }
