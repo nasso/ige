@@ -8,33 +8,26 @@
 
 namespace ige {
 namespace plugin {
-namespace audio {
+    namespace audio {
 
-    struct Vector3f {
-        float x;
-        float y;
-        float z;
-    };
+        class AudioEngine {
+        public:
+            AudioEngine();
+            AudioEngine(const std::string&);
+            AudioEngine(const char*);
 
-    class AudioEngine {
-    public:
-        AudioEngine();
-        AudioEngine(const std::string&);
-        AudioEngine(const char *);
+            ~AudioEngine();
 
-        ~AudioEngine();
+            std::vector<std::string> get_available_devices();
+            static void get_native_exception();
 
-        std::vector<std::string> get_available_devices();
-        static void get_native_exception();
+        protected:
+        private:
+            ALCdevice* m_device = nullptr;
+            ALCcontext* m_context = nullptr;
+        };
 
-    protected:
-    private:
-        ALCdevice* m_device = nullptr;
-        ALCcontext* m_context = nullptr;
-
-    };
-
-}
+    }
 }
 }
 

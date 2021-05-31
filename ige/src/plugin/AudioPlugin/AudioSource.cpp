@@ -9,6 +9,9 @@
 #include <AL/alc.h>
 #include <optional>
 
+#include <glm/vec3.hpp>
+; // TODO: https://bit.ly/3hhMJ58
+
 #include "ige/plugin/AudioPlugin/AudioEngine.hpp"
 #include "ige/plugin/AudioPlugin/AudioSource.hpp"
 #include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
@@ -48,35 +51,35 @@ namespace plugin {
             AudioEngine::get_native_exception();
         }
 
-        void AudioSource::set_position(Vector3f vec)
+        void AudioSource::set_position(glm::vec3 vec)
         {
             set_property3f(AL_POSITION, vec);
         }
 
-        Vector3f AudioSource::get_position()
+        glm::vec3 AudioSource::get_position()
         {
             return get_property3f(AL_POSITION);
         }
 
-        void AudioSource::set_velocity(Vector3f vec)
+        void AudioSource::set_velocity(glm::vec3 vec)
         {
             set_property3f(AL_VELOCITY, vec);
         }
 
-        Vector3f AudioSource::get_velocity()
+        glm::vec3 AudioSource::get_velocity()
         {
             return get_property3f(AL_VELOCITY);
         }
 
-        Vector3f AudioSource::get_property3f(ALenum alProp)
+        glm::vec3 AudioSource::get_property3f(ALenum alProp)
         {
-            Vector3f ret;
+            glm::vec3 ret;
 
             alGetSource3f(m_source, alProp, &ret.x, &ret.y, &ret.z);
             return ret;
         }
 
-        void AudioSource::set_property3f(ALenum alProp, Vector3f vec)
+        void AudioSource::set_property3f(ALenum alProp, glm::vec3 vec)
         {
             alSource3f(m_source, alProp, vec.x, vec.y, vec.z);
         }
