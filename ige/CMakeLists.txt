@@ -174,7 +174,6 @@ set(sources ${sources}
     "src/plugin/TimePlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowPlugin.cpp"
-    "src/plugin/WindowingPlugin.cpp"
     "src/plugin/AudioPlugin/AudioEngine.cpp"
     "src/plugin/AudioPlugin/AudioClip.cpp"
     "src/plugin/AudioPlugin/AudioPlugin.cpp"

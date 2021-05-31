@@ -32,6 +32,7 @@ namespace plugin {
                 AudioEngine::get_native_exception();
             }
             alcMakeContextCurrent(this->m_context);
+            alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
             AudioEngine::get_native_exception();
         }
 

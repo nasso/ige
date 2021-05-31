@@ -41,36 +41,41 @@ namespace plugin {
 
         AudioClip::AudioClip(const std::string& path)
         {
+            nqr::NyquistIO loader;
+
             alGetError();
-            this->m_audio_data = std::make_unique<nqr::AudioData>();
-            m_nloader.Load(this->m_audio_data.get(), path);
+            loader.Load(&this->m_audio_data, path);
             std::cerr << "[Audio Plugin] Loaded sound file:\n"
-                      << "Duration      : " << this->m_audio_data->lengthSeconds
+                      << "Duration      : " << this->m_audio_data.lengthSeconds
                       << " seconds.\n"
-                      << "Sample Rate   : " << this->m_audio_data->sampleRate
+                      << "Sample Rate   : " << this->m_audio_data.sampleRate
                       << "Hz\n"
-                      << "Channel Count : " << this->m_audio_data->channelCount
+                      << "Channel Count : " << this->m_audio_data.channelCount
                       << "\n"
-                      << "Frame Size    : " << this->m_audio_data->frameSize
+                      << "Frame Size    : " << this->m_audio_data.frameSize
                       << std::endl;
             alGenBuffers(1, &(this->m_buffer));
             AudioEngine::get_native_exception();
-            auto sample_mode
-                = this->find_sample_mode(*this->m_audio_data.get());
+            auto sample_mode = this->find_sample_mode(this->m_audio_data);
             if (sample_mode == AL_FORMAT_MONO8
                 || sample_mode == AL_FORMAT_STEREO8) {
-                auto alvec = to_al_vector8(this->m_audio_data->samples);
-                alBufferData(this->m_buffer,
-                    this->find_sample_mode(*this->m_audio_data.get()),
-                    alvec.data(), alvec.size(), this->m_audio_data->sampleRate);
+                auto alvec = to_al_vector8(this->m_audio_data.samples);
+                alBufferData(
+                    this->m_buffer, this->find_sample_mode(this->m_audio_data),
+                    alvec.data(), alvec.size(), this->m_audio_data.sampleRate);
             } else {
-                auto alvec = to_al_vector16(this->m_audio_data->samples);
-                alBufferData(this->m_buffer,
-                    this->find_sample_mode(*this->m_audio_data.get()),
+                auto alvec = to_al_vector16(this->m_audio_data.samples);
+                alBufferData(
+                    this->m_buffer, this->find_sample_mode(this->m_audio_data),
                     alvec.data(), alvec.size() * sizeof(signed short),
-                    this->m_audio_data->sampleRate);
+                    this->m_audio_data.sampleRate);
             }
             AudioEngine::get_native_exception();
+        }
+
+        AudioClip::AudioClip(const AudioClip& other)
+        {
+            *this = other;
         }
 
         AudioClip::~AudioClip()
@@ -78,16 +83,25 @@ namespace plugin {
             alDeleteBuffers(1, &this->m_buffer);
         }
 
+        AudioClip& AudioClip::operator=(const AudioClip& other)
+        {
+            this->m_audio_data = other.m_audio_data;
+            this->m_buffer = other.m_buffer;
+            return *this;
+        }
+
         ALenum AudioClip::find_sample_mode(const nqr::AudioData& data)
         {
             ALenum sample_mode = AL_FORMAT_MONO8;
 
             if (data.channelCount == 1) {
-                sample_mode = (data.frameSize <= 8 ? AL_FORMAT_MONO8
-                                                   : AL_FORMAT_MONO16);
+                sample_mode
+                    = (data.frameSize <= 8 ? AL_FORMAT_MONO8
+                                           : AL_FORMAT_MONO16);
             } else if (data.channelCount == 2) {
-                sample_mode = (data.frameSize <= 8 ? AL_FORMAT_STEREO8
-                                                   : AL_FORMAT_STEREO16);
+                sample_mode
+                    = (data.frameSize <= 8 ? AL_FORMAT_STEREO8
+                                           : AL_FORMAT_STEREO16);
             } else {
                 throw AudioPluginException(
                     "Invalid channel count (3+ Channels audio clip are not yet "
@@ -98,7 +112,7 @@ namespace plugin {
 
         std::vector<float>& AudioClip::get_samples()
         {
-            return this->m_audio_data->samples;
+            return this->m_audio_data.samples;
         }
 
         ALuint AudioClip::get_al_buffer()

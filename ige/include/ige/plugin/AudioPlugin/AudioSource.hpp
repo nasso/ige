@@ -30,16 +30,18 @@ namespace plugin {
 
             void play();
             void pause();
-            void resume();
             void restart();
 
             bool is_playing();
 
             void set_position(glm::vec3 vec);
-            glm::vec3 get_position();
+            glm::vec3 position() const;
 
             void set_velocity(glm::vec3 vec);
-            glm::vec3 get_velocity();
+            glm::vec3 velocity() const;
+
+            void set_reference_distance(float distance);
+            float reference_distance() const;
 
         protected:
         private:

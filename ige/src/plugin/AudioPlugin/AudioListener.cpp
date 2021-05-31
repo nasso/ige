@@ -21,7 +21,8 @@ namespace plugin {
 
         AudioListener::AudioListener(glm::vec3 pos)
         {
-            set_position(vec);
+            set_position(pos);
+            alListenerf(AL_GAIN, 0.5f);
         }
 
         AudioListener::~AudioListener()

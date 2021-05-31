@@ -54,6 +54,9 @@ namespace plugin {
             alSourcei(this->m_source, AL_REFERENCE_DISTANCE, 250);
             AudioEngine::get_native_exception();
         }
+
+        void AudioSource::play()
+        {
             alSourcePlay(this->m_source);
             AudioEngine::get_native_exception();
         }
@@ -69,12 +72,13 @@ namespace plugin {
             alSourceRewind(this->m_source);
             AudioEngine::get_native_exception();
         }
+
         void AudioSource::set_position(glm::vec3 vec)
         {
             set_property3f(AL_POSITION, vec);
         }
 
-        glm::vec3 AudioSource::get_position()
+        glm::vec3 AudioSource::position() const
         {
             return get_property3f(AL_POSITION);
         }
