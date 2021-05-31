@@ -51,6 +51,11 @@ namespace plugin {
             AudioEngine::get_native_exception();
         }
 
+        void AudioSource::pause()
+        {
+            alSourcePause(this->m_source);
+            AudioEngine::get_native_exception();
+        }
         void AudioSource::set_position(glm::vec3 vec)
         {
             set_property3f(AL_POSITION, vec);
