@@ -6,7 +6,7 @@ add_subdirectory(common)
 
 macro(package_add_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${ARGN})
-    target_link_libraries(${EXAMPLE_NAME} ige common)
+    target_link_libraries(${EXAMPLE_NAME} ige example_framework)
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
             CXX_STANDARD 20
