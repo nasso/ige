@@ -65,9 +65,9 @@ class RootState : public State {
         Collider ground_collider;
         ground_collider.type = ColliderType::BOX;
         ground_collider.box = {
-            .5f,
-            .5f,
-            .5f,
+            1.f,
+            1.f,
+            1.f,
         };
 
         app.world().create_entity(
@@ -129,9 +129,9 @@ class RootState : public State {
         Collider cube_collider;
         cube_collider.type = ColliderType::BOX;
         cube_collider.box = {
-            1.f,
-            1.f,
-            1.f,
+            2.f,
+            2.f,
+            2.f,
         };
 
         Collider ball_collider;

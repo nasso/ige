@@ -17,11 +17,13 @@ struct CapsuleCollider {
     float radius;
 };
 
+using BoxCollider = glm::vec3;
+
 struct Collider {
     ColliderType type;
     union {
         SphereCollider sphere;
-        glm::vec3 box;
+        BoxCollider box;
         CapsuleCollider capsule;
     };
 };

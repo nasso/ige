@@ -50,11 +50,11 @@ static void physic_entities_update(World& wld)
     for (auto [entity, body] : wld.query<RigidBody>()) {
         auto rigidbody = wld.get_component<BulletRigidBody>(entity);
 
-        if (!rigidbody) {
+        if (rigidbody) {
+            rigidbody->update(wld, entity);
+        } else {
             bullet_world->new_entity(wld, entity);
-            return;
         }
-        rigidbody->update(wld, entity);
     }
 }
 
