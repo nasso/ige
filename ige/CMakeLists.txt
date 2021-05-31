@@ -125,6 +125,7 @@ set(sources ${sources}
     "include/ige/plugin/AudioPlugin/AudioPlugin.hpp"
     "include/ige/plugin/AudioPlugin/AudioClip.hpp"
     "include/ige/plugin/AudioPlugin/AudioSource.hpp"
+    "include/ige/plugin/AudioPlugin/AudioListener.hpp"
     "include/ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 
     "src/asset/Material.cpp"
@@ -173,6 +174,12 @@ set(sources ${sources}
     "src/plugin/TimePlugin.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowPlugin.cpp"
+    "src/plugin/WindowingPlugin.cpp"
+    "src/plugin/AudioPlugin/AudioEngine.cpp"
+    "src/plugin/AudioPlugin/AudioClip.cpp"
+    "src/plugin/AudioPlugin/AudioPlugin.cpp"
+    "src/plugin/AudioPlugin/AudioSource.cpp"
+    "src/plugin/AudioPlugin/AudioListener.cpp"
 )
 
 # compile options
