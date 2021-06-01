@@ -1,16 +1,16 @@
 #ifndef F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 #define F4DF8A5F_1CCD_443F_8D71_8A439340E94F
 
+#include "ige/core/App.hpp"
+#include "ige/ecs/Entity.hpp"
 #include "ige/ecs/VecStorage.hpp"
 #include "ige/ecs/World.hpp"
-#include <optional>
-#include <unordered_set>
-#include <vector>
-
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <optional>
+#include <unordered_set>
+#include <vector>
 
 namespace ige::plugin::transform {
 

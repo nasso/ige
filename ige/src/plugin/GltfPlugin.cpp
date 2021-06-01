@@ -11,6 +11,12 @@
 #include <cstdint>
 #include <filesystem>
 #include <fx/gltf.h>
+#include <glm/ext/quaternion_float.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -20,14 +26,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include <glm/ext/quaternion_float.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 using glm::mat4;
 using glm::quat;

@@ -1,13 +1,11 @@
-#include <glm/gtc/quaternion.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
-
+#include "ige/plugin/TransformPlugin.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include "ige/plugin/TransformPlugin.hpp"
 #include <cstdint>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <utility>
 
 using glm::mat4;

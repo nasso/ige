@@ -1,7 +1,5 @@
 #include "ige/plugin/input/Mouse.hpp"
-
 #include <glm/vec2.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 using glm::vec2;
 using ige::plugin::input::Mouse;
