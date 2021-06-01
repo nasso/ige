@@ -1,11 +1,6 @@
 #include "Program.hpp"
 #include "Shader.hpp"
 #include "glad/gl.h"
-#include <iostream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/mat2x2.hpp>
 #include <glm/mat3x3.hpp>
@@ -13,7 +8,10 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 using glm::mat2;
 using glm::mat3;

@@ -1,16 +1,14 @@
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Texture.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 using glm::vec2;
 using glm::vec3;

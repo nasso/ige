@@ -4,13 +4,10 @@
 #include "Buffer.hpp"
 #include "glad/gl.h"
 #include <cstddef>
-#include <span>
-
-; // TODO: https://bit.ly/3hhMJ58
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <span>
 
 namespace ige::gl {
 

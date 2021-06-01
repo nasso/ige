@@ -2,10 +2,9 @@
 #define BC3DB51A_3CE0_4AE3_9AA4_E4D74D86D16E
 
 #include "InputRegistry.hpp"
+#include <glm/vec2.hpp>
 #include <unordered_map>
 
-#include <glm/vec2.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 namespace ige::plugin::input {
 

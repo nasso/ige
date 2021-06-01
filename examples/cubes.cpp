@@ -1,10 +1,8 @@
 #include "ige.hpp"
-#include <iostream>
-#include <optional>
-
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <iostream>
+#include <optional>
 
 using glm::vec3;
 using glm::vec4;
