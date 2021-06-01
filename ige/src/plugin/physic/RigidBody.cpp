@@ -6,7 +6,7 @@ using ige::plugin::physic::Collider;
 using ige::plugin::physic::RigidBody;
 using ige::plugin::physic::RigidBodyStatus;
 
-RigidBody::RigidBody(Collider collider, int mass, bool is_kinematic)
+RigidBody::RigidBody(Collider collider, float mass, bool is_kinematic)
     : m_collider(collider)
     , m_mass(mass)
     , m_is_kinematic(is_kinematic)
