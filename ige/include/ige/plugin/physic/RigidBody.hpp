@@ -11,7 +11,7 @@ enum class RigidBodyStatus { CLEAN, DIRTY };
 
 class RigidBody {
 public:
-    RigidBody(Collider collider, int mass = 1, bool is_kinematic = false);
+    RigidBody(Collider collider, float mass = 1, bool is_kinematic = false);
 
     bool is_dirty() const;
     void clean();
