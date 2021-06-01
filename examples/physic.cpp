@@ -54,128 +54,70 @@ class RootState : public State {
         auto ground_mesh = Mesh::make_cube(1.0f);
         auto ground_material = Material::make_default();
         ground_material->set(
-            "base_color_factor",
-            vec4 {
-                0.75f,
-                1.0f,
-                0.35f,
-                1.0f,
-            });
+            "base_color_factor", vec4 { 0.75f, 1.0f, 0.35f, 1.0f });
         Collider ground_collider;
         ground_collider.type = ColliderType::BOX;
-        ground_collider.box = {
-            1.f,
-            1.f,
-            1.f,
-        };
+        ground_collider.box = { 1.0f, 1.0f, 1.0f };
 
         app.world().create_entity(
-            PerspectiveCamera {
-                70.0f,
-            },
-            Scripts::from(TrackballCamera {
-                15.0f,
-                90.f,
-            }));
+            PerspectiveCamera { 70.0f },
+            Scripts::from(TrackballCamera { 15.0f, 90.0f }));
 
         m_ground_id1 = app.world()
                            .create_entity(
                                RigidBody { ground_collider, 0 },
                                Transform {}
-                                   .set_translation(vec3 {
-                                       0.0f,
-                                       0.0f,
-                                       0.0f,
-                                   })
-                                   .set_scale(vec3 {
-                                       10.0f,
-                                       0.2f,
-                                       10.0f,
-                                   })
-                                   .set_rotation(vec3 {
-                                       90.f,
-                                       0.f,
-                                       0.f,
-                                   }),
-                               MeshRenderer {
-                                   ground_mesh,
-                                   ground_material,
-                               })
+                                   .set_translation(vec3 { 0.0f, 0.0f, 0.0f })
+                                   .set_scale(vec3 { 10.0f, 0.2f, 10.0f })
+                                   .set_rotation(vec3 { 90.f, 0.0f, 0.0f }),
+                               MeshRenderer { ground_mesh, ground_material })
                            .id();
-        m_ground_id2 = app.world()
-                           .create_entity(
-                               RigidBody {
-                                   ground_collider,
-                                   0,
-                               },
-                               Transform {}
-                                   .set_translation(vec3 {
-                                       0,
-                                       -5,
-                                       -10,
-                                   })
-                                   .set_scale(vec3 {
-                                       10.0f,
-                                       0.2f,
-                                       15.0f,
-                                   }),
-                               MeshRenderer {
-                                   ground_mesh,
-                                   ground_material,
-                               })
-                           .id();
+        m_ground_id2
+            = app.world()
+                  .create_entity(
+                      RigidBody { ground_collider, 0 },
+                      Transform {}
+                          .set_translation(vec3 { 0.0f, -5.0f, -10.0f })
+                          .set_scale(vec3 { 10.0f, 0.2f, 15.0f }),
+                      MeshRenderer { ground_mesh, ground_material })
+                  .id();
 
         Collider cube_collider;
         cube_collider.type = ColliderType::BOX;
-        cube_collider.box = {
-            2.f,
-            2.f,
-            2.f,
-        };
+        cube_collider.box = { 2.0f, 2.0f, 2.0f };
 
         Collider ball_collider;
         ball_collider.type = ColliderType::SPHERE;
-        ball_collider.sphere.radius = 1.f;
+        ball_collider.sphere.radius = 1.0f;
 
         Collider capsule_collider;
         capsule_collider.type = ColliderType::CAPSULE;
-        capsule_collider.capsule.radius = 1.f;
-        capsule_collider.capsule.height = 2.f;
+        capsule_collider.capsule.radius = 1.0f;
+        capsule_collider.capsule.height = 2.0f;
 
         app.world().create_entity(
             RigidBody { cube_collider },
-            GltfScene {
-                "assets/test_box.glb",
-                GltfFormat::BINARY,
-            },
+            GltfScene { "assets/test_box.glb", GltfFormat::BINARY },
             Transform::from_pos(vec3(0, 10, 0)).set_scale(0.5));
 
-        m_ball_id1 = app.world()
-                         .create_entity(
-                             RigidBody { ball_collider },
-                             GltfScene {
-                                 "assets/test_ball.glb",
-                                 GltfFormat::BINARY,
-                             },
-                             Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5))
-                         .id();
+        m_ball_id1
+            = app.world()
+                  .create_entity(
+                      RigidBody { ball_collider },
+                      GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
+                      Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5f))
+                  .id();
         m_ball_id2
             = app.world()
                   .create_entity(
                       RigidBody { ball_collider },
-                      GltfScene {
-                          "assets/test_ball.glb",
-                          GltfFormat::BINARY,
-                      },
-                      Transform::from_pos(vec3(0, 10, -7)).set_scale(0.5))
+                      GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
+                      Transform::from_pos(vec3(0, 10, -7)).set_scale(0.5f))
                   .id();
 
         app.world().create_entity(
             RigidBody { capsule_collider },
-            GltfScene {
-                "assets/test_capsule.glb",
-                GltfFormat::BINARY,
-            },
+            GltfScene { "assets/test_capsule.glb", GltfFormat::BINARY },
             Transform::from_pos(vec3(2, 10, 0)).set_scale(0.5f));
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
@@ -211,11 +153,11 @@ class RootState : public State {
         auto rigidbody = app.world().get_component<RigidBody>(*m_ball_id2);
 
         if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
-            rigidbody->velocity({ 0.f, 20.f, 0.f });
+            rigidbody->velocity({ 0.0f, 20.0f, 0.0f });
         } else if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
-            rigidbody->velocity({ 0.f, -20.f, 0.f });
+            rigidbody->velocity({ 0.0f, -20.0f, 0.0f });
         } else {
-            rigidbody->velocity({ 0.f, 0.f, 0.f });
+            rigidbody->velocity({ 0.0f, 0.0f, 0.0f });
         }
     }
 };
