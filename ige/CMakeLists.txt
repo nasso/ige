@@ -52,15 +52,17 @@ endif()
 # Bullet3 - Physic engine
 FetchContent_Declare(bullet3
     GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+    GIT_TAG 3.17
 )
 FetchContent_GetProperties(bullet3)
 if(NOT bullet3_POPULATED)
     FetchContent_Populate(bullet3)
+    set(OpenGL_GL_PREFERENCE OFF CACHE BOOL "" GLVND)
     set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
     set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
     set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
-    endif()
+endif()
 
 # source files
 set(sources ${sources}
