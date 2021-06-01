@@ -16,15 +16,13 @@
 #include "opengl/VertexArray.hpp"
 #include <cstddef>
 #include <functional>
+#include <glm/mat4x4.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <tuple>
 #include <unordered_map>
-
-#include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 namespace gl = ige::gl;
 

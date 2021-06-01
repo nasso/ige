@@ -2,15 +2,13 @@
 #define B12DD5E2_528E_44A1_B116_AFED4336D66A
 
 #include "ige/asset/Texture.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
-
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 namespace ige::asset {
 

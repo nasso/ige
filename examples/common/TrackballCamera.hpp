@@ -2,10 +2,8 @@
 #define DACA3901_ED30_4728_9F59_365DDC0BC5D7
 
 #include "ige/plugin/ScriptPlugin.hpp"
-
 #include <glm/gtc/constants.hpp>
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 class TrackballCamera : public ige::plugin::script::CppBehaviour {
 private:

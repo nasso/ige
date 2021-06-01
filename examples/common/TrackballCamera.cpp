@@ -3,10 +3,8 @@
 #include "ige/plugin/ScriptPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include <cstdlib>
-
 #include <glm/gtc/constants.hpp>
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 using glm::vec3;
 using ige::plugin::input::InputManager;
