@@ -1,12 +1,11 @@
 #include "TrackballCamera.hpp"
 #include "ige.hpp"
 #include "ige/plugin/physic/RigidBody.hpp"
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
 #include <optional>
 #include <unordered_map>
-
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 
 using glm::vec3;
 using glm::vec4;

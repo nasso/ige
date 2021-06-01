@@ -1,7 +1,5 @@
 #include "ige/plugin/physic/RigidBody.hpp"
-
 #include "glm/vec3.hpp"
-; // TODO: https://bit.ly/3hhMJ58
 
 using glm::vec3;
 using ige::plugin::physic::Collider;

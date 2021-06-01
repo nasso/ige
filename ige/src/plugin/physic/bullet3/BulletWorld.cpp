@@ -2,7 +2,6 @@
 #include "BulletRigidBody.hpp"
 #include "ige/ecs.hpp"
 #include "ige/plugin.hpp"
-
 #include <algorithm>
 #include <optional>
 
