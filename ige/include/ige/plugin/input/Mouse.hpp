@@ -5,7 +5,6 @@
 #include <glm/vec2.hpp>
 #include <unordered_map>
 
-
 namespace ige::plugin::input {
 
 enum class MouseButton {
