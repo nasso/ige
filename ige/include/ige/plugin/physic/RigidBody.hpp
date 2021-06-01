@@ -2,11 +2,8 @@
 #define C70372BC_9E7E_46A5_B19C_8A7750BC1EFD
 
 #include "Collider.hpp"
-
-#include <vector>
-
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <vector>
 
 namespace ige::plugin::physic {
 
@@ -67,6 +64,7 @@ private:
 
     RigidBodyStatus m_status;
 };
+
 }
 
 #endif /* C70372BC_9E7E_46A5_B19C_8A7750BC1EFD */

@@ -1,14 +1,12 @@
 #include "ige/plugin/PhysicPlugin.hpp"
+#include "btBulletCollisionCommon.h"
+#include "btBulletDynamicsCommon.h"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physic/RigidBody.hpp"
 #include "physic/bullet3/BulletRigidBody.hpp"
 #include "physic/bullet3/BulletWorld.hpp"
-
-#include "btBulletCollisionCommon.h"
-#include "btBulletDynamicsCommon.h"
-
 #include <algorithm>
 #include <chrono>
 

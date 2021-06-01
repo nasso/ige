@@ -4,7 +4,6 @@
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige.hpp"
-
 #include <memory>
 
 namespace ige::bt {

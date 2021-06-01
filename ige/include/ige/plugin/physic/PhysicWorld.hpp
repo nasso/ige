@@ -3,7 +3,6 @@
 
 #include "ige/ecs/Entity.hpp"
 #include "ige/plugin/physic/Constraint.hpp"
-
 #include <memory>
 #include <utility>
 #include <vector>

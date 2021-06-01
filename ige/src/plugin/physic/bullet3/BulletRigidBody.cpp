@@ -1,14 +1,11 @@
 #include "BulletRigidBody.hpp"
 #include "ige.hpp"
-
-#include <iostream>
-
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-; // TODO: https://bit.ly/3hhMJ58
+#include <iostream>
 
 using glm::mat4;
 using glm::quat;
