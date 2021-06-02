@@ -3,7 +3,6 @@
 
 #include "Collider.hpp"
 #include <glm/vec3.hpp>
-#include <vector>
 
 namespace ige::plugin::physics {
 
@@ -18,44 +17,37 @@ public:
 
     Collider collider() const;
 
-    RigidBody set_is_kinematic(bool is_kinematic);
-    void is_kinematic(bool is_kinematic);
+    RigidBody& set_kinematic(bool is_kinematic = true);
     bool is_kinematic() const;
 
-    RigidBody set_mass(float mass);
-    void mass(float mass);
+    RigidBody& set_mass(float mass);
     float mass() const;
 
-    RigidBody set_use_gravity(bool use_gravity);
+    RigidBody& set_use_gravity(bool use_gravity);
     bool use_gravity() const;
-    void use_gravity(bool use_gravity);
 
     void apply_force(const glm::vec3& force);
-    const std::vector<glm::vec3>& get_forces() const;
+    const glm::vec3& get_forces() const;
     void clear_forces();
 
-    RigidBody set_velocity(const glm::vec3& velocity);
-    void velocity(const glm::vec3& velocity);
-    glm::vec3 velocity() const;
+    RigidBody& set_velocity(const glm::vec3& velocity);
+    const glm::vec3& velocity() const;
 
-    RigidBody set_freeze_rotation(bool freeze_rotation);
+    RigidBody& set_freeze_rotation(bool freeze_rotation);
     bool freeze_rotation() const;
-    void freeze_rotation(bool freeze_rotation);
 
-    RigidBody set_freeze_position(bool freeze_position);
+    RigidBody& set_freeze_position(bool freeze_position);
     bool freeze_position() const;
-    void freeze_position(bool freeze_position);
 
-    RigidBody set_center_of_mass(const glm::vec3& center_of_mass);
-    glm::vec3 center_of_mass() const;
-    void center_of_mass(const glm::vec3& center_of_mass);
+    RigidBody& set_center_of_mass(const glm::vec3& center_of_mass);
+    const glm::vec3& center_of_mass() const;
     void reset_center_of_mass();
 
 private:
     Collider m_collider;
     float m_mass;
     bool m_is_kinematic;
-    std::vector<glm::vec3> m_forces;
+    glm::vec3 m_forces;
     glm::vec3 m_center_of_mass = glm::vec3 { 0.0f };
     glm::vec3 m_velocity = glm::vec3 { 0.0f };
     bool m_use_gravity = true;

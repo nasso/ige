@@ -95,14 +95,13 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
         m_rigidbody->setLinearFactor(
             rigidbody.freeze_position() ? btVector3 { 0.0f, 0.0f, 0.0f }
                                         : btVector3 { 1.0f, 1.0f, 1.0f });
-        const auto& forces = rigidbody.get_forces();
-        for (vec3 force : forces) {
-            m_rigidbody->applyCentralImpulse({ force.x, force.y, force.z });
-        }
+
+        const auto& force = rigidbody.get_forces();
+        m_rigidbody->applyCentralImpulse({ force.x, force.y, force.z });
         rigidbody.clear_forces();
 
         auto bt_center_of_mass = m_rigidbody->getCenterOfMassTransform();
-        auto center_of_mass = rigidbody.center_of_mass();
+        const auto& center_of_mass = rigidbody.center_of_mass();
         bt_center_of_mass.setOrigin({
             bt_center_of_mass.getOrigin().x() + center_of_mass.x,
             bt_center_of_mass.getOrigin().y() + center_of_mass.y,
