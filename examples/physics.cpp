@@ -125,8 +125,8 @@ class RootState : public State {
         auto physics_world = app.world().get<PhysicsWorld>();
 
         Constraint constraint = { *m_ball_id2 };
-        constraint.linearLowerLimit.y = -10;
-        constraint.linearUpperLimit.y = 10;
+        constraint.linear_lower_limit.y = -10;
+        constraint.linear_upper_limit.y = 10;
         physics_world->add_constraint(constraint);
     }
 

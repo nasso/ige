@@ -3,16 +3,15 @@
 
 #include "ige/ecs/Entity.hpp"
 #include <glm/vec3.hpp>
-#include <optional>
 
 namespace ige::plugin::physics {
 
 struct Constraint {
     ecs::EntityId entity;
-    glm::vec3 linearLowerLimit { 0.0f };
-    glm::vec3 linearUpperLimit { 0.0f };
-    glm::vec3 angularLowerLimit { 0.0f };
-    glm::vec3 angularUpperLimit { 0.0f };
+    glm::vec3 linear_lower_limit { 0.0f };
+    glm::vec3 linear_upper_limit { 0.0f };
+    glm::vec3 angular_lower_limit { 0.0f };
+    glm::vec3 angular_upper_limit { 0.0f };
 };
 
 }
