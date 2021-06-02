@@ -42,9 +42,9 @@ public:
 
     void tick() override
     {
-        if (direction != vec2 { 0.0f }) {
-            auto xform = get_component<Transform>();
+        auto xform = get_component<Transform>();
 
+        if (direction != vec2 { 0.0f }) {
             vec2 velocity = glm::normalize(direction) * 0.05f;
 
             if (running) {
@@ -53,11 +53,22 @@ public:
 
             xform->translate(vec3 { velocity.x, 0.0f, velocity.y });
         }
+
+        xform->rotate(vec3 { 0.0f, 1.0f, 0.0f });
     }
 };
 
 class PlayerController : public CppBehaviour {
+    std::shared_ptr<Mesh> m_mesh;
+    std::shared_ptr<Material> m_mat;
+
 public:
+    PlayerController(std::shared_ptr<Mesh> mesh, std::shared_ptr<Material> mat)
+        : m_mesh(mesh)
+        , m_mat(mat)
+    {
+    }
+
     void update() override
     {
         auto input = get_resource<InputManager>();
@@ -88,6 +99,15 @@ public:
         if (input->keyboard().is_down(KeyboardKey::KEY_ARROW_LEFT)) {
             controller->direction.x -= 1.0f;
         }
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_SPACE)) {
+            auto xform = get_component<Transform>();
+            auto pos = xform->world_translation();
+
+            world().create_entity(
+                Transform::from_pos({ pos.x, pos.y + 1.0f, pos.z }),
+                MeshRenderer { m_mesh, m_mat });
+        }
     }
 };
 
@@ -100,6 +120,7 @@ class RootState : public State {
         m_win_events.emplace(channel->subscribe());
 
         auto cube_mesh = Mesh::make_cube(1.0f);
+        auto cube_mat = Material::make_default();
         auto ground_mat = Material::make_default();
         ground_mat->set("base_color_factor", vec4 { 1.0f, 0.5f, 0.85f, 1.0f });
 
@@ -107,18 +128,14 @@ class RootState : public State {
             Transform {}
                 .set_translation(vec3 { 0.0f, -0.1f, 0.0f })
                 .set_scale(vec3 { 10.0f, 0.2f, 10.0f }),
-            MeshRenderer {
-                cube_mesh,
-                ground_mat,
-            });
+            MeshRenderer { cube_mesh, ground_mat });
 
         app.world().create_entity(
             Transform::from_pos({ 0.0f, 0.5f, 0.0f }),
-            MeshRenderer {
-                cube_mesh,
-                Material::make_default(),
-            },
-            Scripts::from(PlayerController {}, CharacterController {}));
+            MeshRenderer { cube_mesh, cube_mat },
+            Scripts::from(
+                PlayerController { cube_mesh, cube_mat },
+                CharacterController {}));
 
         app.world().create_entity(
             PerspectiveCamera { 70.0f },

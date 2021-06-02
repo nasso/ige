@@ -70,7 +70,7 @@ class RootState : public State {
         for (auto cube : cubes) {
             Transform* xform = cube.get_component<Transform>();
 
-            xform->set_rotation(vec3(t, 0.0f, t));
+            xform->set_rotation(vec3(t * 60.0f, 0.0f, t * 60.0f));
 
             t /= 2.0f;
         }

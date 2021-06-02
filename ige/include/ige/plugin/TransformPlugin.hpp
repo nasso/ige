@@ -60,6 +60,7 @@ public:
 
     Transform& set_translation(glm::vec3) &;
     Transform& set_rotation(glm::quat) &;
+    Transform& set_rotation(glm::vec3) &;
     Transform& set_scale(glm::vec3) &;
     Transform& set_scale(float) &;
 
@@ -73,6 +74,7 @@ public:
 
     Transform set_translation(glm::vec3) &&;
     Transform set_rotation(glm::quat) &&;
+    Transform set_rotation(glm::vec3) &&;
     Transform set_scale(glm::vec3) &&;
     Transform set_scale(float) &&;
     Transform

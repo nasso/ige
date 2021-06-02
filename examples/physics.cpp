@@ -69,7 +69,7 @@ class RootState : public State {
                                Transform {}
                                    .set_translation(vec3 { 0.0f, 0.0f, 0.0f })
                                    .set_scale(vec3 { 10.0f, 0.2f, 10.0f })
-                                   .set_rotation(vec3 { 90.f, 0.0f, 0.0f }),
+                                   .set_rotation(vec3 { -60.f, 0.0f, 0.0f }),
                                MeshRenderer { ground_mesh, ground_material })
                            .id();
         m_ground_id2

@@ -41,7 +41,7 @@ vec3 Transform::translation() const
 
 vec3 Transform::world_translation() const
 {
-    return vec4(m_translation, 1) * local_to_world();
+    return local_to_world() * vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 quat Transform::rotation() const
@@ -65,6 +65,15 @@ Transform& Transform::set_rotation(quat value) &
 {
     m_rotation = value;
     m_dirty = true;
+    return *this;
+}
+
+Transform& Transform::set_rotation(vec3 angles) &
+{
+    m_rotation = { 1.0f, 0.0f, 0.0f, 0.0f };
+    rotate(angles);
+    // rotate() already set the dirty flag
+    // m_dirty = true;
     return *this;
 }
 
@@ -129,6 +138,11 @@ Transform Transform::set_translation(vec3 value) &&
 Transform Transform::set_rotation(quat value) &&
 {
     return std::move(set_rotation(value));
+}
+
+Transform Transform::set_rotation(vec3 angles) &&
+{
+    return std::move(set_rotation(angles));
 }
 
 Transform Transform::set_scale(vec3 value) &&

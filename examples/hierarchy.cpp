@@ -1,5 +1,4 @@
 #include "ige.hpp"
-#include <chrono>
 #include <glm/trigonometric.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -19,6 +18,8 @@ using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::time::Time;
+using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Children;
 using ige::plugin::transform::Parent;
 using ige::plugin::transform::Transform;
@@ -29,18 +30,12 @@ using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
-    using Instant = std::chrono::time_point<std::chrono::steady_clock>;
-
     std::optional<EventChannel<WindowEvent>::Subscription> win_events;
     std::optional<World::EntityRef> root_cube;
     std::vector<World::EntityRef> children;
 
-    Instant start_time;
-
     void on_start(App& app) override
     {
-        start_time = std::chrono::steady_clock::now();
-
         // subscribe to the window event channel
         if (auto channel = app.world().get<EventChannel<WindowEvent>>()) {
             win_events.emplace(channel->subscribe());
@@ -75,16 +70,19 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        Instant now = std::chrono::steady_clock::now();
-        std::chrono::duration<float> dur = now - start_time;
-        float t = dur.count();
+        auto time = app.world().get<Time>();
+
+        if (!time) {
+            std::cerr << "Time isn't real :(" << std::endl;
+            return;
+        }
 
         // make the root cube move & rotate
         if (root_cube) {
             root_cube->get_component<Transform>()->set_rotation(
-                vec3(0.0f, t, 0.0f));
+                vec3(0.0f, 60.0f * time->now_seconds(), 0.0f));
 
-            if (t > 5.0f) {
+            if (time->now_seconds() > 5.0f) {
                 root_cube->remove();
                 root_cube.reset();
             }
@@ -92,7 +90,11 @@ class RootState : public State {
 
         // make the little cubes rotate too!!
         for (auto cube : children) {
-            cube.get_component<Transform>()->set_rotation(vec3(0.0f, t, t));
+            cube.get_component<Transform>()->set_rotation(vec3 {
+                0.0f,
+                60.0f * time->now_seconds(),
+                60.0f * time->now_seconds(),
+            });
         }
 
         // quit the app when the window closes
@@ -110,6 +112,7 @@ int main()
 
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
+        .add_plugin(TimePlugin {})
         .add_plugin(TransformPlugin {})
         .add_plugin(WindowPlugin {})
         .add_plugin(RenderPlugin {})
