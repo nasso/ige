@@ -153,11 +153,11 @@ class RootState : public State {
         auto rigidbody = app.world().get_component<RigidBody>(*m_ball_id2);
 
         if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
-            rigidbody->velocity({ 0.0f, 20.0f, 0.0f });
+            rigidbody->set_velocity({ 0.0f, 20.0f, 0.0f });
         } else if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
-            rigidbody->velocity({ 0.0f, -20.0f, 0.0f });
+            rigidbody->set_velocity({ 0.0f, -20.0f, 0.0f });
         } else {
-            rigidbody->velocity({ 0.0f, 0.0f, 0.0f });
+            rigidbody->set_velocity({ 0.0f, 0.0f, 0.0f });
         }
     }
 };
