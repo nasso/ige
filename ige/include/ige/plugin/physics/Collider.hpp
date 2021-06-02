@@ -3,7 +3,7 @@
 
 #include <glm/vec3.hpp>
 
-namespace ige::plugin::physic {
+namespace ige::plugin::physics {
 
 enum class ColliderType { SPHERE, BOX, CAPSULE };
 

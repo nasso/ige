@@ -5,7 +5,7 @@
 #include <glm/vec3.hpp>
 #include <optional>
 
-namespace ige::plugin::physic {
+namespace ige::plugin::physics {
 
 struct Constraint {
     ecs::EntityId entity;

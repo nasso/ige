@@ -5,7 +5,7 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-namespace ige::plugin::physic {
+namespace ige::plugin::physics {
 
 enum class RigidBodyStatus { CLEAN, DIRTY };
 

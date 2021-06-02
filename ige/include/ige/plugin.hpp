@@ -3,7 +3,7 @@
 
 #include "plugin/GltfPlugin.hpp"
 #include "plugin/InputPlugin.hpp"
-#include "plugin/PhysicPlugin.hpp"
+#include "plugin/PhysicsPlugin.hpp"
 #include "plugin/RenderPlugin.hpp"
 #include "plugin/ScriptPlugin.hpp"
 #include "plugin/TimePlugin.hpp"

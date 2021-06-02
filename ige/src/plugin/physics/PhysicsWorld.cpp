@@ -1,23 +1,24 @@
-#include "ige/plugin/physic/PhysicWorld.hpp"
 #include "ige/ecs/Entity.hpp"
+#include "ige/plugin/physics/PhysicsWorld.hpp"
+
 
 using ige::ecs::EntityId;
-using ige::plugin::physic::Collision;
-using ige::plugin::physic::Constraint;
-using ige::plugin::physic::PhysicWorld;
+using ige::plugin::physics::Collision;
+using ige::plugin::physics::Constraint;
+using ige::plugin::physics::PhysicsWorld;
 
-void PhysicWorld::add_collision(
+void PhysicsWorld::add_collision(
     const ecs::EntityId& entity1, const ecs::EntityId& entity2)
 {
     m_collisions.emplace_back(entity1, entity2);
 }
 
-const std::vector<Collision>& PhysicWorld::get_collisions() const
+const std::vector<Collision>& PhysicsWorld::get_collisions() const
 {
     return m_collisions;
 }
 
-bool PhysicWorld::collide(
+bool PhysicsWorld::collide(
     const ecs::EntityId& entity1, const ecs::EntityId& entity2) const
 {
     return std::find_if(
@@ -37,22 +38,22 @@ bool PhysicWorld::collide(
         != m_collisions.end();
 }
 
-void PhysicWorld::clear_collisions()
+void PhysicsWorld::clear_collisions()
 {
     m_collisions.clear();
 }
 
-void PhysicWorld::add_constraint(const Constraint& constraint)
+void PhysicsWorld::add_constraint(const Constraint& constraint)
 {
     m_new_constraints.push_back(constraint);
 }
 
-const std::vector<Constraint>& PhysicWorld::get_new_constraints() const
+const std::vector<Constraint>& PhysicsWorld::get_new_constraints() const
 {
     return m_new_constraints;
 }
 
-void PhysicWorld::clear_new_constraints()
+void PhysicsWorld::clear_new_constraints()
 {
     m_new_constraints.clear();
 }

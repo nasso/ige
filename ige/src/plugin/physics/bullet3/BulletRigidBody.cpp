@@ -14,10 +14,10 @@ using glm::vec4;
 using ige::bt::BulletRigidBody;
 using ige::ecs::EntityId;
 using ige::ecs::World;
-using ige::plugin::physic::Collider;
-using ige::plugin::physic::ColliderType;
-using ige::plugin::physic::RigidBody;
-using ige::plugin::physic::RigidBodyStatus;
+using ige::plugin::physics::Collider;
+using ige::plugin::physics::ColliderType;
+using ige::plugin::physics::RigidBody;
+using ige::plugin::physics::RigidBodyStatus;
 using ige::plugin::transform::Transform;
 
 BulletRigidBody::BulletRigidBody(

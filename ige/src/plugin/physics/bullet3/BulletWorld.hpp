@@ -3,7 +3,7 @@
 
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs.hpp"
-#include "ige/plugin/physic/PhysicWorld.hpp"
+#include "ige/plugin/physics/PhysicsWorld.hpp"
 #include <memory>
 #include <set>
 #include <utility>
@@ -19,12 +19,12 @@ public:
 
     void simulate(float time_step);
 
-    void get_collisions(ecs::World& wld, plugin::physic::PhysicWorld& world);
+    void get_collisions(ecs::World& wld, plugin::physics::PhysicsWorld& world);
 
     static void tick_update(btDynamicsWorld* world, btScalar timeStep);
 
     void new_constraint(
-        ecs::World& wld, const plugin::physic::Constraint& constraint);
+        ecs::World& wld, const plugin::physics::Constraint& constraint);
 
 private:
     btDefaultCollisionConfiguration m_collision_config;

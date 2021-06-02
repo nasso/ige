@@ -1,10 +1,10 @@
-#include "ige/plugin/physic/RigidBody.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
 #include "glm/vec3.hpp"
 
 using glm::vec3;
-using ige::plugin::physic::Collider;
-using ige::plugin::physic::RigidBody;
-using ige::plugin::physic::RigidBodyStatus;
+using ige::plugin::physics::Collider;
+using ige::plugin::physics::RigidBody;
+using ige::plugin::physics::RigidBodyStatus;
 
 RigidBody::RigidBody(Collider collider, float mass, bool is_kinematic)
     : m_collider(collider)
