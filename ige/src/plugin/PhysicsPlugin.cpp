@@ -113,7 +113,7 @@ void constraints_update(World& wld)
         return;
     }
 
-    auto constraints = physics_world->get_new_constraints();
+    auto constraints = physics_world->new_constraints();
 
     for (auto& constraint : constraints) {
         bt_world->new_constraint(wld, constraint);
