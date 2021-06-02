@@ -3,8 +3,6 @@
 
 #include "ige/ecs/Entity.hpp"
 #include "ige/plugin/physics/Constraint.hpp"
-#include <memory>
-#include <utility>
 #include <vector>
 
 namespace ige::plugin::physics {
