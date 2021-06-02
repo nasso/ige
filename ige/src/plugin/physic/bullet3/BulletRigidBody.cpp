@@ -83,21 +83,21 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
 
         m_motion_state->getWorldTransform(bt_transform);
 
-        const float* raw_matrix
-            = (const float*)glm::value_ptr(transform.local_to_world());
+        const float* raw_matrix = glm::value_ptr(transform.local_to_world());
         bt_transform.setFromOpenGLMatrix(raw_matrix);
         m_motion_state->setWorldTransform(bt_transform);
     }
+
     if (rigidbody.is_dirty()) {
         m_rigidbody->activate();
-        m_rigidbody->setAngularFactor(rigidbody.freeze_rotation() ? 0 : 1);
+        m_rigidbody->setAngularFactor(
+            rigidbody.freeze_rotation() ? 0.0f : 1.0f);
         m_rigidbody->setLinearFactor(
-            rigidbody.freeze_position() ? btVector3 { 0, 0, 0, }
-                                        : btVector3 { 1, 1, 1, });
+            rigidbody.freeze_position() ? btVector3 { 0.0f, 0.0f, 0.0f }
+                                        : btVector3 { 1.0f, 1.0f, 1.0f });
         const auto& forces = rigidbody.get_forces();
         for (vec3 force : forces) {
-            m_rigidbody->applyCentralImpulse(
-                btVector3(force.x, force.y, force.z));
+            m_rigidbody->applyCentralImpulse({ force.x, force.y, force.z });
         }
         rigidbody.clear_forces();
 
@@ -111,20 +111,16 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
         m_rigidbody->setCenterOfMassTransform(bt_center_of_mass);
 
         glm::vec3 velocity = rigidbody.velocity();
-        m_rigidbody->setLinearVelocity({
-            velocity.x,
-            velocity.y,
-            velocity.z,
-        });
-
-        btVector3 inertia;
+        m_rigidbody->setLinearVelocity({ velocity.x, velocity.y, velocity.z });
 
         if (rigidbody.use_gravity()) {
             btVector3 inertia;
+
             m_colShape->calculateLocalInertia(rigidbody.mass(), inertia);
             m_rigidbody->setMassProps(rigidbody.mass(), inertia);
         } else {
             btVector3 inertia;
+
             m_colShape->calculateLocalInertia(0, inertia);
             m_rigidbody->setMassProps(0, inertia);
         }
