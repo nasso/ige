@@ -13,6 +13,7 @@ namespace ige::asset {
 
 class Mesh {
 public:
+    using Handle = std::shared_ptr<Mesh>;
     using Buffer = std::vector<std::byte>;
 
     enum class Topology {
@@ -45,7 +46,7 @@ public:
     class Builder;
 
     static Mesh cube(float size);
-    static std::shared_ptr<Mesh> make_cube(float size);
+    static Handle make_cube(float size);
 
     Mesh(Mesh&&) = default;
     Mesh& operator=(Mesh&&) = default;

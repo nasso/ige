@@ -11,6 +11,8 @@ namespace ige::asset {
 
 class Texture {
 public:
+    using Handle = std::shared_ptr<Texture>;
+
     enum class Format {
         R = 6403,
         RG = 33319,
