@@ -32,13 +32,12 @@ void BulletWorld::clean_world()
     }
 }
 
-void BulletWorld::new_entity(World& wld, EntityId entity)
+void BulletWorld::new_entity(
+    World& wld, const EntityId& entity, const RigidBody& rigidbody,
+    const Transform& transform)
 {
-    auto transform = wld.get_component<Transform>(entity);
-    auto rigidbody = wld.get_component<RigidBody>(entity);
-
     wld.emplace_component<BulletRigidBody>(
-        entity, *rigidbody, *transform, &m_world);
+        entity, rigidbody, transform, &m_world);
 }
 
 void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
