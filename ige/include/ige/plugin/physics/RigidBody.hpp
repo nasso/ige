@@ -15,33 +15,35 @@ public:
     bool is_dirty() const;
     void clean();
 
-    Collider collider() const;
-
-    RigidBody& set_kinematic(bool is_kinematic = true);
+    const Collider& collider() const;
     bool is_kinematic() const;
-
-    RigidBody& set_mass(float mass);
     float mass() const;
-
-    RigidBody& set_use_gravity(bool use_gravity);
     bool use_gravity() const;
-
-    void apply_force(const glm::vec3& force);
+    bool freeze_rotation() const;
+    bool freeze_position() const;
     const glm::vec3& get_forces() const;
-    void clear_forces();
-
-    RigidBody& set_velocity(const glm::vec3& velocity);
+    const glm::vec3& center_of_mass() const;
     const glm::vec3& velocity() const;
 
-    RigidBody& set_freeze_rotation(bool freeze_rotation);
-    bool freeze_rotation() const;
-
-    RigidBody& set_freeze_position(bool freeze_position);
-    bool freeze_position() const;
-
-    RigidBody& set_center_of_mass(const glm::vec3& center_of_mass);
-    const glm::vec3& center_of_mass() const;
+    void apply_force(const glm::vec3& force);
+    void clear_forces();
     void reset_center_of_mass();
+
+    RigidBody& set_kinematic(bool is_kinematic = true) &;
+    RigidBody& set_mass(float mass) &;
+    RigidBody& set_use_gravity(bool use_gravity) &;
+    RigidBody& set_velocity(const glm::vec3& velocity) &;
+    RigidBody& set_freeze_rotation(bool freeze_rotation) &;
+    RigidBody& set_freeze_position(bool freeze_position) &;
+    RigidBody& set_center_of_mass(const glm::vec3& center_of_mass) &;
+
+    RigidBody set_kinematic(bool is_kinematic = true) &&;
+    RigidBody set_mass(float mass) &&;
+    RigidBody set_use_gravity(bool use_gravity) &&;
+    RigidBody set_velocity(const glm::vec3& velocity) &&;
+    RigidBody set_freeze_rotation(bool freeze_rotation = true) &&;
+    RigidBody set_freeze_position(bool freeze_position = true) &&;
+    RigidBody set_center_of_mass(const glm::vec3& center_of_mass) &&;
 
 private:
     Collider m_collider;
