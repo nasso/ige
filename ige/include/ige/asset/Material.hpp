@@ -14,7 +14,7 @@ namespace ige::asset {
 
 class Material {
 public:
-    static std::shared_ptr<Material> make_default();
+    using Handle = std::shared_ptr<Material>;
 
     enum class ParameterType {
         FLOAT,
@@ -32,7 +32,7 @@ public:
             glm::vec2 xy;
             glm::vec3 xyz;
             glm::vec4 xyzw;
-            std::shared_ptr<Texture> texture;
+            Texture::Handle texture;
         };
 
         Parameter(const Parameter&);
@@ -41,17 +41,14 @@ public:
         Parameter(glm::vec2);
         Parameter(glm::vec3);
         Parameter(glm::vec4);
-        Parameter(std::shared_ptr<Texture>);
+        Parameter(Texture::Handle);
         ~Parameter();
 
         Parameter& operator=(const Parameter&);
     };
 
-private:
-    std::unordered_map<std::string, Parameter> m_parameters;
-    bool m_double_sided = false;
+    static Handle make_default();
 
-public:
     void set_double_sided(bool double_sided = true);
     bool double_sided() const;
 
@@ -63,8 +60,11 @@ public:
     glm::vec2 get_or(const std::string&, glm::vec2) const;
     glm::vec3 get_or(const std::string&, glm::vec3) const;
     glm::vec4 get_or(const std::string&, glm::vec4) const;
-    std::shared_ptr<Texture>
-    get_or(const std::string&, std::shared_ptr<Texture>) const;
+    Texture::Handle get_or(const std::string&, Texture::Handle) const;
+
+private:
+    std::unordered_map<std::string, Parameter> m_parameters;
+    bool m_double_sided = false;
 };
 
 }
