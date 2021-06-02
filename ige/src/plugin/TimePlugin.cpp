@@ -3,6 +3,9 @@
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include <chrono>
+#include <cstdint>
+#include <iostream>
+#include <ratio>
 
 using ige::core::App;
 using ige::ecs::System;
@@ -66,9 +69,37 @@ void Time::update()
 
 namespace systems {
 
+struct FrameStats {
+    Time::Duration last_log;
+    std::uint64_t frames = 0;
+
+    FrameStats(const Time& time)
+        : last_log(time.now())
+    {
+    }
+};
+
 static void update_global_time(World& world)
 {
-    world.get_or_emplace<Time>().update();
+    auto& time = world.get_or_emplace<Time>();
+    time.update();
+
+    auto& stats = world.get_or_emplace<FrameStats>(time);
+    auto time_since_last_log = time.now() - stats.last_log;
+
+    if (time_since_last_log >= std::chrono::seconds(1)) {
+        auto average = time_since_last_log / stats.frames;
+        auto average_ms = duration_cast<duration<float, std::milli>>(average);
+        float fps = stats.frames
+            / duration_cast<duration<float>>(time_since_last_log).count();
+
+        std::cout << "[INFO] Average frame time: " << average_ms;
+        std::cout << " (" << fps << " FPS)" << std::endl;
+        stats.last_log = time.now();
+        stats.frames = 0;
+    }
+
+    stats.frames++;
 }
 
 }
