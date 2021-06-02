@@ -7,6 +7,7 @@
 #include <memory>
 
 namespace ige::bt {
+
 class BulletRigidBody {
 public:
     BulletRigidBody(
@@ -32,6 +33,7 @@ private:
     std::unique_ptr<btDefaultMotionState> m_motion_state;
     std::unique_ptr<btCollisionShape> m_colShape;
 };
+
 }
 
 #endif /* F564463C_F6C2_4B7F_86AB_387B624C888B */
