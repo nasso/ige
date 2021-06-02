@@ -116,7 +116,7 @@ class RootState : public State {
                   .id();
 
         app.world().create_entity(
-            RigidBody { capsule_collider },
+            RigidBody { capsule_collider }.set_freeze_rotation(),
             GltfScene { "assets/test_capsule.glb", GltfFormat::BINARY },
             Transform::from_pos(vec3(2, 10, 0)).set_scale(0.5f));
 
