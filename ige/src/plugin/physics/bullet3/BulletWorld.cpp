@@ -2,7 +2,6 @@
 #include "BulletRigidBody.hpp"
 #include "ige/ecs.hpp"
 #include "ige/plugin.hpp"
-#include <algorithm>
 #include <optional>
 
 using ige::bt::BulletWorld;
@@ -48,14 +47,11 @@ void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
 
     if (!rigidbody)
         return;
-    btTransform frameB;
-    frameB.setIdentity();
-    btGeneric6DofConstraint* constraint_ptr
-        = static_cast<btGeneric6DofConstraint*>(
-            m_constraints
-                .insert(std::make_unique<btGeneric6DofConstraint>(
-                    *rigidbody->body(), frameB, false))
-                .first->get());
+    auto constraint_ptr = static_cast<btGeneric6DofConstraint*>(
+        m_constraints
+            .insert(std::make_unique<btGeneric6DofConstraint>(
+                *rigidbody->body(), btTransform::getIdentity(), false))
+            .first->get());
     m_world.addConstraint(constraint_ptr);
     constraint_ptr->setDbgDrawSize(5.0f);
 
@@ -86,27 +82,32 @@ void BulletWorld::simulate(float time_step)
     m_world.stepSimulation(time_step);
 }
 
-void BulletWorld::get_collisions(World& wld, PhysicsWorld& world)
+void BulletWorld::get_collisions(World& wld, PhysicsWorld& phys_world)
 {
-    auto rigidbody_storage = wld.get_component_storage<BulletRigidBody>();
+    auto rigidbodies = wld.query<BulletRigidBody>();
 
-    std::for_each(m_collisions.begin(), m_collisions.end(), [&](auto& pair) {
+    for (auto [fst_body, snd_body] : m_collisions) {
         std::optional<EntityId> entity1;
-        for (auto it = rigidbody_storage->begin();
-             it != rigidbody_storage->end(); ++it) {
-            if (it->second == pair.first)
-                entity1 = it->first;
-        }
         std::optional<EntityId> entity2;
-        for (auto it = rigidbody_storage->begin();
-             it != rigidbody_storage->end(); ++it) {
-            if (it->second == pair.second)
-                entity2 = it->first;
+
+        for (const auto& [entity, body] : rigidbodies) {
+            if (body == fst_body) {
+                entity1 = entity;
+            }
+
+            if (body == snd_body) {
+                entity2 = entity;
+            }
+
+            if (entity1 && entity2) {
+                break;
+            }
         }
+
         if (entity1 || entity2) {
-            world.add_collision(entity1.value(), entity2.value());
+            phys_world.add_collision(entity1.value(), entity2.value());
         }
-    });
+    }
 }
 
 void BulletWorld::tick_update(btDynamicsWorld* dynamicsWorld, btScalar)
@@ -114,20 +115,14 @@ void BulletWorld::tick_update(btDynamicsWorld* dynamicsWorld, btScalar)
     auto self = static_cast<BulletWorld*>(dynamicsWorld->getWorldUserInfo());
 
     self->m_collisions.clear();
-    btDispatcher* const dispatcher = dynamicsWorld->getDispatcher();
-    const int num_manifolds = dispatcher->getNumManifolds();
+    auto& dispatcher = *dynamicsWorld->getDispatcher();
+    const int num_manifolds = dispatcher.getNumManifolds();
     for (int manifold_idx = 0; manifold_idx < num_manifolds; ++manifold_idx) {
-        const btPersistentManifold* const manifold
-            = dispatcher->getManifoldByIndexInternal(manifold_idx);
+        auto& manifold = *dispatcher.getManifoldByIndexInternal(manifold_idx);
 
-        const btRigidBody* object1
-            = static_cast<const btRigidBody*>(manifold->getBody0());
-        const btRigidBody* object2
-            = static_cast<const btRigidBody*>(manifold->getBody1());
-        self->m_collisions.push_back(
-            std::pair<const btRigidBody*, const btRigidBody*> {
-                object1,
-                object2,
-            });
+        self->m_collisions.push_back({
+            static_cast<const btRigidBody*>(manifold.getBody0()),
+            static_cast<const btRigidBody*>(manifold.getBody1()),
+        });
     }
 }
