@@ -60,9 +60,9 @@ void BulletRigidBody::set_rigibody_shape(const Collider& collider)
     switch (collider.type) {
     case ColliderType::BOX:
         m_colShape = std::make_unique<btBoxShape>(btVector3 {
-            collider.box.x / 2.f,
-            collider.box.y / 2.f,
-            collider.box.z / 2.f,
+            collider.box.extents.x / 2.0f,
+            collider.box.extents.y / 2.0f,
+            collider.box.extents.z / 2.0f,
         });
         break;
     case ColliderType::SPHERE:
