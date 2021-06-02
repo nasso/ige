@@ -1,7 +1,7 @@
+#include "ige/plugin/PhysicsPlugin.hpp"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs/World.hpp"
-#include "ige/plugin/PhysicsPlugin.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
@@ -9,7 +9,6 @@
 #include "physics/bullet3/BulletWorld.hpp"
 #include <algorithm>
 #include <chrono>
-
 
 using ige::bt::BulletRigidBody;
 using ige::bt::BulletWorld;
