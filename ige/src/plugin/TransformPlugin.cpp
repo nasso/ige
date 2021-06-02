@@ -11,6 +11,7 @@
 using glm::mat4;
 using glm::quat;
 using glm::vec3;
+using glm::vec4;
 using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
@@ -36,6 +37,11 @@ Transform Transform::from_pos(vec3 position)
 vec3 Transform::translation() const
 {
     return m_translation;
+}
+
+vec3 Transform::world_translation() const
+{
+    return vec4(m_translation, 1) * local_to_world();
 }
 
 quat Transform::rotation() const

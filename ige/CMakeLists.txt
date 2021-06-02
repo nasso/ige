@@ -49,6 +49,21 @@ if(NOT fx-gltf_POPULATED)
     add_subdirectory(${fx-gltf_SOURCE_DIR} ${fx-gltf_BINARY_DIR})
 endif()
 
+# Bullet3 - Physics engine
+FetchContent_Declare(bullet3
+    GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
+    GIT_TAG 3.17
+)
+FetchContent_GetProperties(bullet3)
+if(NOT bullet3_POPULATED)
+    FetchContent_Populate(bullet3)
+    set(OpenGL_GL_PREFERENCE "GLVND" CACHE STRING "" FORCE)
+    set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+    set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+    set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
+endif()
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -80,6 +95,10 @@ set(sources ${sources}
     "include/ige/plugin/input/Keyboard.hpp"
     "include/ige/plugin/input/Mouse.hpp"
     "include/ige/plugin/InputPlugin.hpp"
+    "include/ige/plugin/InputPlugin.hpp"
+    "include/ige/plugin/physics/PhysicsWorld.hpp"
+    "include/ige/plugin/physics/RigidBody.hpp"
+    "include/ige/plugin/PhysicsPlugin.hpp"
     "include/ige/plugin/RenderPlugin.hpp"
     "include/ige/plugin/ScriptPlugin.hpp"
     "include/ige/plugin/TimePlugin.hpp"
@@ -102,6 +121,14 @@ set(sources ${sources}
     "src/plugin/input/Keyboard.cpp"
     "src/plugin/input/Mouse.cpp"
     "src/plugin/InputPlugin.cpp"
+    "src/plugin/InputPlugin.cpp"
+    "src/plugin/physics/bullet3/BulletRigidBody.cpp"
+    "src/plugin/physics/bullet3/BulletRigidBody.hpp"
+    "src/plugin/physics/bullet3/BulletWorld.cpp"
+    "src/plugin/physics/bullet3/BulletWorld.hpp"
+    "src/plugin/physics/PhysicsWorld.cpp"
+    "src/plugin/physics/RigidBody.cpp"
+    "src/plugin/PhysicsPlugin.cpp"
     "src/plugin/renderer/backend.hpp"
     "src/plugin/renderer/opengl.cpp"
     "src/plugin/renderer/opengl/Buffer.cpp"
@@ -135,6 +162,7 @@ add_library(ige STATIC ${sources})
 target_include_directories(ige
     PRIVATE "include"
     SYSTEM INTERFACE "include"
+    PRIVATE ${BULLET_PHYSICS_SOURCE_DIR}/src
 )
 set_target_properties(ige
     PROPERTIES
@@ -145,7 +173,7 @@ set_target_properties(ige
 target_compile_options(ige
     PRIVATE
         $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4127>
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige
@@ -156,4 +184,7 @@ target_link_libraries(ige
     glm
     nlohmann_json::nlohmann_json
     fx-gltf::fx-gltf
+    BulletDynamics
+    BulletCollision
+    LinearMath
 )
