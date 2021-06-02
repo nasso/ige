@@ -20,21 +20,17 @@ const std::vector<Collision>& PhysicsWorld::collisions() const
 bool PhysicsWorld::collide(
     const ecs::EntityId& entity1, const ecs::EntityId& entity2) const
 {
-    return std::find_if(
-               m_collisions.begin(), m_collisions.end(),
-               [entity1, entity2](auto& collision) {
-                   if (collision.first == entity1
-                       && collision.second == entity2) {
-                       return true;
-                   } else if (
-                       collision.first == entity2
-                       && collision.second == entity1) {
-                       return true;
-                   } else {
-                       return false;
-                   }
-               })
-        != m_collisions.end();
+    for (const auto& [fst_entity, snd_entity] : m_collisions) {
+        if (fst_entity == entity1 && snd_entity == entity2) {
+            return true;
+        }
+
+        if (fst_entity == entity2 && snd_entity == entity1) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void PhysicsWorld::clear_collisions()
