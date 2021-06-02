@@ -173,7 +173,7 @@ set_target_properties(ige
 target_compile_options(ige
     PRIVATE
         $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4127>
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige
