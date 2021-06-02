@@ -26,12 +26,9 @@ BulletRigidBody::BulletRigidBody(
 {
     btTransform bt_transform;
 
-    const float* raw_matrix = (const float*)glm::value_ptr(
-        transform.local_to_world()
-        * glm::scale(mat4(1.0f), 1.0f / transform.scale()));
-    bt_transform.setFromOpenGLMatrix(raw_matrix);
-    m_motion_state = std::unique_ptr<btDefaultMotionState>(
-        new btDefaultMotionState(bt_transform));
+    mat4 matrix
+        = glm::scale(transform.local_to_world(), 1.0f / transform.scale());
+    bt_transform.setFromOpenGLMatrix(glm::value_ptr(matrix));
 
     set_rigibody_shape(rigidbody.collider());
     btVector3 inertia(0.f, 0.f, 0.f);
