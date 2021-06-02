@@ -12,11 +12,13 @@ struct SphereCollider {
 };
 
 struct CapsuleCollider {
-    int height;
+    float height;
     float radius;
 };
 
-using BoxCollider = glm::vec3;
+struct BoxCollider {
+    glm::vec3 extents;
+};
 
 struct Collider {
     ColliderType type;

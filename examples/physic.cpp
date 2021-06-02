@@ -57,7 +57,7 @@ class RootState : public State {
             "base_color_factor", vec4 { 0.75f, 1.0f, 0.35f, 1.0f });
         Collider ground_collider;
         ground_collider.type = ColliderType::BOX;
-        ground_collider.box = { 1.0f, 1.0f, 1.0f };
+        ground_collider.box.extents = { 1.0f, 1.0f, 1.0f };
 
         app.world().create_entity(
             PerspectiveCamera { 70.0f },
@@ -84,7 +84,7 @@ class RootState : public State {
 
         Collider cube_collider;
         cube_collider.type = ColliderType::BOX;
-        cube_collider.box = { 2.0f, 2.0f, 2.0f };
+        cube_collider.box.extents = { 2.0f, 2.0f, 2.0f };
 
         Collider ball_collider;
         ball_collider.type = ColliderType::SPHERE;
