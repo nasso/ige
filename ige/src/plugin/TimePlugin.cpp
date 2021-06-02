@@ -20,22 +20,22 @@ Time::Time()
 {
 }
 
-void Time::set_tick_duration(steady_clock::duration tick)
+void Time::set_tick_duration(Time::Duration tick)
 {
     m_tick = tick;
 }
 
-steady_clock::duration Time::now() const
+Time::Duration Time::now() const
 {
     return m_last_update - m_start_time;
 }
 
-steady_clock::duration Time::delta() const
+Time::Duration Time::delta() const
 {
     return m_delta;
 }
 
-steady_clock::duration Time::tick() const
+Time::Duration Time::tick() const
 {
     return m_tick;
 }
