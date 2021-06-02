@@ -94,6 +94,9 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
             rigidbody.freeze_position() ? btVector3 { 0.0f, 0.0f, 0.0f }
                                         : btVector3 { 1.0f, 1.0f, 1.0f });
 
+        glm::vec3 velocity = rigidbody.velocity();
+        m_rigidbody->setLinearVelocity({ velocity.x, velocity.y, velocity.z });
+
         const auto& force = rigidbody.get_forces();
         m_rigidbody->applyCentralImpulse({ force.x, force.y, force.z });
         rigidbody.clear_forces();
@@ -106,9 +109,6 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
             bt_center_of_mass.getOrigin().z() + center_of_mass.z,
         });
         m_rigidbody->setCenterOfMassTransform(bt_center_of_mass);
-
-        glm::vec3 velocity = rigidbody.velocity();
-        m_rigidbody->setLinearVelocity({ velocity.x, velocity.y, velocity.z });
 
         if (rigidbody.use_gravity()) {
             btVector3 inertia;
@@ -150,6 +150,11 @@ void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
             transform->set_translation(translation);
             transform->set_rotation(rotation);
         }
+
+        btVector3 velocity = m_rigidbody->getLinearVelocity();
+        rigidbody->set_velocity(
+            vec3 { velocity.x(), velocity.y(), velocity.z() });
+        rigidbody->clean();
     }
 }
 

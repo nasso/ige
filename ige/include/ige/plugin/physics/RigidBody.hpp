@@ -47,7 +47,7 @@ private:
     Collider m_collider;
     float m_mass;
     bool m_is_kinematic;
-    glm::vec3 m_forces;
+    glm::vec3 m_forces = glm::vec3 { 0.0f };
     glm::vec3 m_center_of_mass = glm::vec3 { 0.0f };
     glm::vec3 m_velocity = glm::vec3 { 0.0f };
     bool m_use_gravity = true;
