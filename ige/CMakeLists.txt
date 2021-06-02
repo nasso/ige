@@ -49,7 +49,7 @@ if(NOT fx-gltf_POPULATED)
     add_subdirectory(${fx-gltf_SOURCE_DIR} ${fx-gltf_BINARY_DIR})
 endif()
 
-# Bullet3 - Physic engine
+# Bullet3 - Physics engine
 FetchContent_Declare(bullet3
     GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
     GIT_TAG 3.17
@@ -96,9 +96,9 @@ set(sources ${sources}
     "include/ige/plugin/input/Mouse.hpp"
     "include/ige/plugin/InputPlugin.hpp"
     "include/ige/plugin/InputPlugin.hpp"
-    "include/ige/plugin/physic/PhysicWorld.hpp"
-    "include/ige/plugin/physic/RigidBody.hpp"
-    "include/ige/plugin/PhysicPlugin.hpp"
+    "include/ige/plugin/physics/PhysicsWorld.hpp"
+    "include/ige/plugin/physics/RigidBody.hpp"
+    "include/ige/plugin/PhysicsPlugin.hpp"
     "include/ige/plugin/RenderPlugin.hpp"
     "include/ige/plugin/ScriptPlugin.hpp"
     "include/ige/plugin/TimePlugin.hpp"
@@ -122,13 +122,13 @@ set(sources ${sources}
     "src/plugin/input/Mouse.cpp"
     "src/plugin/InputPlugin.cpp"
     "src/plugin/InputPlugin.cpp"
-    "src/plugin/physic/bullet3/BulletRigidBody.cpp"
-    "src/plugin/physic/bullet3/BulletRigidBody.hpp"
-    "src/plugin/physic/bullet3/BulletWorld.cpp"
-    "src/plugin/physic/bullet3/BulletWorld.hpp"
-    "src/plugin/physic/PhysicWorld.cpp"
-    "src/plugin/physic/RigidBody.cpp"
-    "src/plugin/PhysicPlugin.cpp"
+    "src/plugin/physics/bullet3/BulletRigidBody.cpp"
+    "src/plugin/physics/bullet3/BulletRigidBody.hpp"
+    "src/plugin/physics/bullet3/BulletWorld.cpp"
+    "src/plugin/physics/bullet3/BulletWorld.hpp"
+    "src/plugin/physics/PhysicsWorld.cpp"
+    "src/plugin/physics/RigidBody.cpp"
+    "src/plugin/PhysicsPlugin.cpp"
     "src/plugin/renderer/backend.hpp"
     "src/plugin/renderer/opengl.cpp"
     "src/plugin/renderer/opengl/Buffer.cpp"

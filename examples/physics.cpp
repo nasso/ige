@@ -1,6 +1,6 @@
 #include "TrackballCamera.hpp"
 #include "ige.hpp"
-#include "ige/plugin/physic/RigidBody.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <iostream>
@@ -23,12 +23,12 @@ using ige::plugin::gltf::GltfScene;
 using ige::plugin::input::InputManager;
 using ige::plugin::input::InputPlugin;
 using ige::plugin::input::KeyboardKey;
-using ige::plugin::physic::Collider;
-using ige::plugin::physic::ColliderType;
-using ige::plugin::physic::Constraint;
-using ige::plugin::physic::PhysicPlugin;
-using ige::plugin::physic::PhysicWorld;
-using ige::plugin::physic::RigidBody;
+using ige::plugin::physics::Collider;
+using ige::plugin::physics::ColliderType;
+using ige::plugin::physics::Constraint;
+using ige::plugin::physics::PhysicsPlugin;
+using ige::plugin::physics::PhysicsWorld;
+using ige::plugin::physics::RigidBody;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
@@ -122,12 +122,12 @@ class RootState : public State {
 
         auto channel = app.world().get<EventChannel<WindowEvent>>();
         m_win_events.emplace(channel->subscribe());
-        auto physic_world = app.world().get<PhysicWorld>();
+        auto physics_world = app.world().get<PhysicsWorld>();
 
         Constraint constraint = { *m_ball_id2 };
         constraint.linearLowerLimit.y = -10;
         constraint.linearUpperLimit.y = 10;
-        physic_world->add_constraint(constraint);
+        physics_world->add_constraint(constraint);
     }
 
     void on_update(App& app) override
@@ -138,11 +138,11 @@ class RootState : public State {
             }
         }
 
-        auto physic_world = app.world().get<PhysicWorld>();
+        auto physics_world = app.world().get<PhysicsWorld>();
 
-        if (physic_world) {
-            if (physic_world->collide(*m_ground_id1, *m_ball_id1)
-                || physic_world->collide(*m_ground_id2, *m_ball_id1)) {
+        if (physics_world) {
+            if (physics_world->collide(*m_ground_id1, *m_ball_id1)
+                || physics_world->collide(*m_ground_id2, *m_ball_id1)) {
                 std::cout << "Ball is on the ground" << std::endl;
             } else {
                 std::cout << "Ball is not on the ground" << std::endl;
@@ -169,7 +169,7 @@ int main()
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
         .add_plugin(TransformPlugin {})
-        .add_plugin(PhysicPlugin {})
+        .add_plugin(PhysicsPlugin {})
         .add_plugin(WindowPlugin {})
         .add_plugin(GltfPlugin {})
         .add_plugin(RenderPlugin {})

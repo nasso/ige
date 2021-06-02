@@ -8,9 +8,9 @@
 using ige::bt::BulletWorld;
 using ige::ecs::EntityId;
 using ige::ecs::World;
-using ige::plugin::physic::Constraint;
-using ige::plugin::physic::PhysicWorld;
-using ige::plugin::physic::RigidBody;
+using ige::plugin::physics::Constraint;
+using ige::plugin::physics::PhysicsWorld;
+using ige::plugin::physics::RigidBody;
 using ige::plugin::transform::Transform;
 
 BulletWorld::BulletWorld(btVector3 gravity)
@@ -86,7 +86,7 @@ void BulletWorld::simulate(float time_step)
     m_world.stepSimulation(time_step);
 }
 
-void BulletWorld::get_collisions(World& wld, PhysicWorld& world)
+void BulletWorld::get_collisions(World& wld, PhysicsWorld& world)
 {
     auto rigidbody_storage = wld.get_component_storage<BulletRigidBody>();
 

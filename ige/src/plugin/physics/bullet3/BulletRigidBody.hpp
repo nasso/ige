@@ -10,7 +10,7 @@ namespace ige::bt {
 class BulletRigidBody {
 public:
     BulletRigidBody(
-        const plugin::physic::RigidBody& rigidbody,
+        const plugin::physics::RigidBody& rigidbody,
         const plugin::transform::Transform& transform, btDynamicsWorld* world);
 
     btRigidBody* body();
@@ -23,10 +23,10 @@ public:
     bool operator==(const btRigidBody* rhs);
 
 private:
-    void set_rigibody_shape(const plugin::physic::Collider& collider);
+    void set_rigibody_shape(const plugin::physics::Collider& collider);
     void update(
         const plugin::transform::Transform& transform,
-        plugin::physic::RigidBody& rigidbody);
+        plugin::physics::RigidBody& rigidbody);
 
     std::unique_ptr<btRigidBody> m_rigidbody;
     std::unique_ptr<btDefaultMotionState> m_motion_state;

@@ -2,21 +2,21 @@
 #define AF61A46C_7207_4C78_BE75_D1ECC2F16751
 
 #include "ige/ecs/Entity.hpp"
-#include "ige/plugin/physic/Constraint.hpp"
+#include "ige/plugin/physics/Constraint.hpp"
 #include <memory>
 #include <utility>
 #include <vector>
 
-namespace ige::plugin::physic {
+namespace ige::plugin::physics {
 
 struct Collision {
     ecs::EntityId first;
     ecs::EntityId second;
 };
 
-class PhysicWorld {
+class PhysicsWorld {
 public:
-    PhysicWorld() = default;
+    PhysicsWorld() = default;
 
     void add_collision(const ecs::EntityId&, const ecs::EntityId&);
     const std::vector<Collision>& get_collisions() const;

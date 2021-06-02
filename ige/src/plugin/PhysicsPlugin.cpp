@@ -1,34 +1,35 @@
-#include "ige/plugin/PhysicPlugin.hpp"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/PhysicsPlugin.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
-#include "ige/plugin/physic/RigidBody.hpp"
-#include "physic/bullet3/BulletRigidBody.hpp"
-#include "physic/bullet3/BulletWorld.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
+#include "physics/bullet3/BulletRigidBody.hpp"
+#include "physics/bullet3/BulletWorld.hpp"
 #include <algorithm>
 #include <chrono>
+
 
 using ige::bt::BulletRigidBody;
 using ige::bt::BulletWorld;
 using ige::core::App;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::physic::PhysicPlugin;
-using ige::plugin::physic::PhysicWorld;
-using ige::plugin::physic::RigidBody;
+using ige::plugin::physics::PhysicsPlugin;
+using ige::plugin::physics::PhysicsWorld;
+using ige::plugin::physics::RigidBody;
 using ige::plugin::time::Time;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
-static void setup_physic_system(World& wld)
+static void setup_physics_system(World& wld)
 {
     wld.emplace<BulletWorld>();
-    wld.emplace<PhysicWorld>();
+    wld.emplace<PhysicsWorld>();
 }
 
-static void clean_physic_system(World& wld)
+static void clean_physics_system(World& wld)
 {
     auto bt_world = wld.get<BulletWorld>();
 
@@ -37,7 +38,7 @@ static void clean_physic_system(World& wld)
     }
 }
 
-static void physic_entities_update(World& wld)
+static void physics_entities_update(World& wld)
 {
     auto dynamicsWorld = wld.get<BulletWorld>();
 
@@ -68,7 +69,7 @@ static void ige_entities_update(World& wld)
     }
 }
 
-static void physic_world_simulate(World& wld)
+static void physics_world_simulate(World& wld)
 {
     auto dynamicsWorld = wld.get<BulletWorld>();
 
@@ -90,37 +91,37 @@ static void physic_world_simulate(World& wld)
 void collisions_update(World& wld)
 {
     auto bt_world = wld.get<BulletWorld>();
-    auto physic_world = wld.get<PhysicWorld>();
+    auto physics_world = wld.get<PhysicsWorld>();
 
-    if (!bt_world || !physic_world) {
+    if (!bt_world || !physics_world) {
         return;
     }
-    physic_world->clear_collisions();
-    bt_world->get_collisions(wld, *physic_world);
+    physics_world->clear_collisions();
+    bt_world->get_collisions(wld, *physics_world);
 }
 
 void constraints_update(World& wld)
 {
     auto bt_world = wld.get<BulletWorld>();
-    auto physic_world = wld.get<PhysicWorld>();
+    auto physics_world = wld.get<PhysicsWorld>();
 
-    if (!bt_world || !physic_world) {
+    if (!bt_world || !physics_world) {
         return;
     }
-    auto constraints = physic_world->get_new_constraints();
+    auto constraints = physics_world->get_new_constraints();
 
     std::for_each(
         constraints.begin(), constraints.end(),
         [&](auto& constraint) { bt_world->new_constraint(wld, constraint); });
-    physic_world->clear_new_constraints();
+    physics_world->clear_new_constraints();
 }
 
-void PhysicPlugin::plug(App::Builder& builder) const
+void PhysicsPlugin::plug(App::Builder& builder) const
 {
-    builder.add_startup_system(System(setup_physic_system));
-    builder.add_system(System(physic_entities_update));
-    builder.add_system(System(physic_world_simulate));
+    builder.add_startup_system(System(setup_physics_system));
+    builder.add_system(System(physics_entities_update));
+    builder.add_system(System(physics_world_simulate));
     builder.add_system(System(collisions_update));
     builder.add_system(System(constraints_update));
-    builder.add_cleanup_system(System(clean_physic_system));
+    builder.add_cleanup_system(System(clean_physics_system));
 }
