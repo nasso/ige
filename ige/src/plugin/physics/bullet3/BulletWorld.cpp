@@ -57,27 +57,27 @@ void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
                     *rigidbody->body(), frameB, false))
                 .first->get());
     m_world.addConstraint(constraint_ptr);
-    constraint_ptr->setDbgDrawSize(btScalar(5.f));
+    constraint_ptr->setDbgDrawSize(5.0f);
 
     constraint_ptr->setAngularLowerLimit({
-        constraint.angularLowerLimit.x,
-        constraint.angularLowerLimit.y,
-        constraint.angularLowerLimit.z,
+        constraint.angular_lower_limit.x,
+        constraint.angular_lower_limit.y,
+        constraint.angular_lower_limit.z,
     });
     constraint_ptr->setAngularUpperLimit({
-        constraint.angularUpperLimit.x,
-        constraint.angularUpperLimit.y,
-        constraint.angularUpperLimit.z,
+        constraint.angular_upper_limit.x,
+        constraint.angular_upper_limit.y,
+        constraint.angular_upper_limit.z,
     });
     constraint_ptr->setLinearLowerLimit({
-        constraint.linearLowerLimit.x,
-        constraint.linearLowerLimit.y,
-        constraint.linearLowerLimit.z,
+        constraint.linear_lower_limit.x,
+        constraint.linear_lower_limit.y,
+        constraint.linear_lower_limit.z,
     });
     constraint_ptr->setLinearUpperLimit({
-        constraint.linearUpperLimit.x,
-        constraint.linearUpperLimit.y,
-        constraint.linearUpperLimit.z,
+        constraint.linear_upper_limit.x,
+        constraint.linear_upper_limit.y,
+        constraint.linear_upper_limit.z,
     });
 }
 
