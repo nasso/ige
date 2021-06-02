@@ -5,7 +5,7 @@
 #include "ige/ecs.hpp"
 #include "ige/plugin/physics/PhysicsWorld.hpp"
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -33,7 +33,7 @@ private:
     btSequentialImpulseConstraintSolver m_solver;
     btDiscreteDynamicsWorld m_world;
     std::vector<std::pair<const btRigidBody*, const btRigidBody*>> m_collisions;
-    std::set<std::unique_ptr<btTypedConstraint>> m_constraints;
+    std::unordered_set<std::unique_ptr<btTypedConstraint>> m_constraints;
 };
 }
 
