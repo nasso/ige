@@ -156,8 +156,6 @@ class RootState : public State {
             rigidbody->set_velocity({ 0.0f, 20.0f, 0.0f });
         } else if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_DOWN)) {
             rigidbody->set_velocity({ 0.0f, -20.0f, 0.0f });
-        } else {
-            rigidbody->set_velocity({ 0.0f, 0.0f, 0.0f });
         }
     }
 };
