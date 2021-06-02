@@ -12,7 +12,7 @@ void PhysicsWorld::add_collision(
     m_collisions.emplace_back(entity1, entity2);
 }
 
-const std::vector<Collision>& PhysicsWorld::get_collisions() const
+const std::vector<Collision>& PhysicsWorld::collisions() const
 {
     return m_collisions;
 }
@@ -47,7 +47,7 @@ void PhysicsWorld::add_constraint(const Constraint& constraint)
     m_new_constraints.push_back(constraint);
 }
 
-const std::vector<Constraint>& PhysicsWorld::get_new_constraints() const
+const std::vector<Constraint>& PhysicsWorld::new_constraints() const
 {
     return m_new_constraints;
 }

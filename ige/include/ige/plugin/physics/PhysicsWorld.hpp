@@ -19,12 +19,12 @@ public:
     PhysicsWorld() = default;
 
     void add_collision(const ecs::EntityId&, const ecs::EntityId&);
-    const std::vector<Collision>& get_collisions() const;
+    const std::vector<Collision>& collisions() const;
     bool collide(const ecs::EntityId&, const ecs::EntityId&) const;
     void clear_collisions();
 
     void add_constraint(const Constraint& constraint);
-    const std::vector<Constraint>& get_new_constraints() const;
+    const std::vector<Constraint>& new_constraints() const;
     void clear_new_constraints();
 
 private:
