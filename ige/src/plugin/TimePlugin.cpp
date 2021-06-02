@@ -93,8 +93,8 @@ static void update_global_time(World& world)
         float fps = stats.frames
             / duration_cast<duration<float>>(time_since_last_log).count();
 
-        std::cout << "[INFO] Average frame time: " << average_ms;
-        std::cout << " (" << fps << " FPS)" << std::endl;
+        std::cout << "[INFO] Average frame time: " << average_ms.count() << "ms"
+                  << " (" << fps << " FPS)" << std::endl;
         stats.last_log = time.now();
         stats.frames = 0;
     }
