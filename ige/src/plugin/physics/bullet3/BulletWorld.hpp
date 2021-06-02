@@ -2,20 +2,27 @@
 #define A17BC820_E47A_445F_A85E_1D87FE8FB1EA
 
 #include "btBulletDynamicsCommon.h"
-#include "ige/ecs.hpp"
+#include "ige/ecs/Entity.hpp"
+#include "ige/ecs/World.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physics/PhysicsWorld.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
 #include <memory>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
 namespace ige::bt {
+
 class BulletWorld {
 public:
     BulletWorld(btVector3 gravity = { 0, -10, 0 });
 
     void clean_world();
-    void new_entity(ecs::World& wld, ecs::EntityId entity);
+    void new_entity(
+        ecs::World& wld, const ecs::EntityId& entity,
+        const plugin::physics::RigidBody& rigidbody,
+        const plugin::transform::Transform& transform);
 
     void simulate(float time_step);
 
@@ -35,6 +42,7 @@ private:
     std::vector<std::pair<const btRigidBody*, const btRigidBody*>> m_collisions;
     std::unordered_set<std::unique_ptr<btTypedConstraint>> m_constraints;
 };
+
 }
 
 #endif /* A17BC820_E47A_445F_A85E_1D87FE8FB1EA */

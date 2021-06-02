@@ -7,7 +7,6 @@
 #include "ige/plugin/physics/RigidBody.hpp"
 #include "physics/bullet3/BulletRigidBody.hpp"
 #include "physics/bullet3/BulletWorld.hpp"
-#include <algorithm>
 #include <chrono>
 
 using ige::bt::BulletRigidBody;
@@ -19,6 +18,7 @@ using ige::plugin::physics::PhysicsPlugin;
 using ige::plugin::physics::PhysicsWorld;
 using ige::plugin::physics::RigidBody;
 using ige::plugin::time::Time;
+using ige::plugin::transform::Transform;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
@@ -39,30 +39,31 @@ static void clean_physics_system(World& wld)
 
 static void physics_entities_update(World& wld)
 {
-    auto dynamicsWorld = wld.get<BulletWorld>();
+    auto bullet_world = wld.get<BulletWorld>();
 
-    if (!dynamicsWorld) {
+    if (!bullet_world) {
         return;
     }
-    auto bullet_world = wld.get<BulletWorld>();
-    for (auto [entity, body] : wld.query<RigidBody>()) {
+
+    for (auto [entity, body, xform] : wld.query<RigidBody, Transform>()) {
         auto rigidbody = wld.get_component<BulletRigidBody>(entity);
 
         if (rigidbody) {
-            rigidbody->update(wld, entity);
+            rigidbody->update(xform, body);
         } else {
-            bullet_world->new_entity(wld, entity);
+            bullet_world->new_entity(wld, entity, body, xform);
         }
     }
 }
 
 static void ige_entities_update(World& wld)
 {
-    auto dynamicsWorld = wld.get<BulletWorld>();
+    auto bullet_world = wld.get<BulletWorld>();
 
-    if (!dynamicsWorld) {
+    if (!bullet_world) {
         return;
     }
+
     for (auto [entity, body] : wld.query<BulletRigidBody>()) {
         body.sync_ige_entity(wld, entity);
     }
@@ -70,19 +71,22 @@ static void ige_entities_update(World& wld)
 
 static void physics_world_simulate(World& wld)
 {
-    auto dynamicsWorld = wld.get<BulletWorld>();
+    auto bullet_world = wld.get<BulletWorld>();
 
-    if (!dynamicsWorld) {
+    if (!bullet_world) {
         return;
     }
+
     if (auto time = wld.get<Time>()) {
         if (time->ticks() == 0) {
             return;
         }
+
         for (std::uint32_t i = 0; i < time->ticks(); i++) {
-            dynamicsWorld->simulate(
+            bullet_world->simulate(
                 duration_cast<duration<float>>(time->tick()).count());
         }
+
         ige_entities_update(wld);
     }
 }
@@ -95,6 +99,7 @@ void collisions_update(World& wld)
     if (!bt_world || !physics_world) {
         return;
     }
+
     physics_world->clear_collisions();
     bt_world->get_collisions(wld, *physics_world);
 }
@@ -107,11 +112,13 @@ void constraints_update(World& wld)
     if (!bt_world || !physics_world) {
         return;
     }
+
     auto constraints = physics_world->get_new_constraints();
 
-    std::for_each(
-        constraints.begin(), constraints.end(),
-        [&](auto& constraint) { bt_world->new_constraint(wld, constraint); });
+    for (auto& constraint : constraints) {
+        bt_world->new_constraint(wld, constraint);
+    }
+
     physics_world->clear_new_constraints();
 }
 

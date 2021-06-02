@@ -125,16 +125,6 @@ void BulletRigidBody::update(const Transform& transform, RigidBody& rigidbody)
     }
 }
 
-void BulletRigidBody::update(World& wld, EntityId entity)
-{
-    auto transform = wld.get_component<Transform>(entity);
-    auto rigidbody = wld.get_component<RigidBody>(entity);
-
-    if (transform && rigidbody) {
-        update(*transform, *rigidbody);
-    }
-}
-
 void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
 {
     auto transform = wld.get_component<Transform>(entity);
