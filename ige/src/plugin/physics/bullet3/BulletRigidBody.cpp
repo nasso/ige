@@ -29,6 +29,7 @@ BulletRigidBody::BulletRigidBody(
     mat4 matrix
         = glm::scale(transform.local_to_world(), 1.0f / transform.scale());
     bt_transform.setFromOpenGLMatrix(glm::value_ptr(matrix));
+    m_motion_state = std::make_unique<btDefaultMotionState>(bt_transform);
 
     set_rigibody_shape(rigidbody.collider());
     btVector3 inertia(0.f, 0.f, 0.f);
@@ -129,10 +130,9 @@ void BulletRigidBody::update(World& wld, EntityId entity)
     auto transform = wld.get_component<Transform>(entity);
     auto rigidbody = wld.get_component<RigidBody>(entity);
 
-    if (!transform || !rigidbody) {
-        return;
+    if (transform && rigidbody) {
+        update(*transform, *rigidbody);
     }
-    update(*transform, *rigidbody);
 }
 
 void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
@@ -140,27 +140,26 @@ void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
     auto transform = wld.get_component<Transform>(entity);
     auto rigidbody = wld.get_component<RigidBody>(entity);
 
-    if (!transform || !rigidbody) {
-        return;
-    }
-    btTransform bt_transform;
-    m_motion_state->getWorldTransform(bt_transform);
+    if (transform && rigidbody) {
+        btTransform bt_transform;
+        m_motion_state->getWorldTransform(bt_transform);
 
-    float matrix_raw[16];
-    bt_transform.getOpenGLMatrix(matrix_raw);
-    mat4 matrix = glm::make_mat4x4(matrix_raw);
+        float matrix_raw[16];
+        bt_transform.getOpenGLMatrix(matrix_raw);
+        mat4 matrix = glm::make_mat4x4(matrix_raw);
 
-    vec3 translation;
-    quat rotation;
-    vec3 scale;
-    vec3 skew;
-    vec4 perspective;
-    if (!glm::decompose(
-            matrix, scale, rotation, translation, skew, perspective)) {
-        std::cerr << "[WARN] Couldn't decompose node matrix." << std::endl;
-    } else {
-        transform->set_translation(translation);
-        transform->set_rotation(rotation);
+        vec3 translation;
+        quat rotation;
+        vec3 scale;
+        vec3 skew;
+        vec4 perspective;
+        if (!glm::decompose(
+                matrix, scale, rotation, translation, skew, perspective)) {
+            std::cerr << "[ERROR] Couldn't decompose node matrix." << std::endl;
+        } else {
+            transform->set_translation(translation);
+            transform->set_rotation(rotation);
+        }
     }
 }
 
