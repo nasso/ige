@@ -154,6 +154,7 @@ void BulletRigidBody::sync_ige_entity(World& wld, EntityId entity)
         btVector3 velocity = m_rigidbody->getLinearVelocity();
         rigidbody->set_velocity(
             vec3 { velocity.x(), velocity.y(), velocity.z() });
+        rigidbody->clean();
     }
 }
 
