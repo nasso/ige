@@ -15,20 +15,21 @@ using ige::plugin::transform::Transform;
 BulletWorld::BulletWorld(btVector3 gravity)
     : m_dispatcher(&m_collision_config)
     , m_broadphase(new btDbvtBroadphase)
-    , m_world(&m_dispatcher, m_broadphase.get(), &m_solver, &m_collision_config)
+    , m_world(new btDiscreteDynamicsWorld(
+          &m_dispatcher, m_broadphase.get(), &m_solver, &m_collision_config))
 {
-    m_world.setGravity(gravity);
-    m_world.setInternalTickCallback(tick_update, this);
+    m_world->setGravity(gravity);
+    m_world->setInternalTickCallback(tick_update, this);
 }
 
 void BulletWorld::clean_world()
 {
-    for (int i = m_world.getNumConstraints() - 1; i >= 0; i--) {
-        m_world.removeConstraint(m_world.getConstraint(i));
+    for (int i = m_world->getNumConstraints() - 1; i >= 0; i--) {
+        m_world->removeConstraint(m_world->getConstraint(i));
     }
-    for (int i = m_world.getNumCollisionObjects() - 1; i >= 0; i--) {
-        btCollisionObject* obj = m_world.getCollisionObjectArray()[i];
-        m_world.removeCollisionObject(obj);
+    for (int i = m_world->getNumCollisionObjects() - 1; i >= 0; i--) {
+        btCollisionObject* obj = m_world->getCollisionObjectArray()[i];
+        m_world->removeCollisionObject(obj);
     }
 }
 
@@ -37,7 +38,7 @@ void BulletWorld::new_entity(
     const Transform& transform)
 {
     wld.emplace_component<BulletRigidBody>(
-        entity, rigidbody, transform, &m_world);
+        entity, rigidbody, transform, m_world);
 }
 
 void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
@@ -51,7 +52,7 @@ void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
             .insert(std::make_unique<btGeneric6DofConstraint>(
                 *rigidbody->body(), btTransform::getIdentity(), false))
             .first->get());
-    m_world.addConstraint(constraint_ptr);
+    m_world->addConstraint(constraint_ptr);
     constraint_ptr->setDbgDrawSize(5.0f);
 
     constraint_ptr->setAngularLowerLimit({
@@ -78,7 +79,7 @@ void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
 
 void BulletWorld::simulate(float time_step)
 {
-    m_world.stepSimulation(time_step);
+    m_world->stepSimulation(time_step);
 }
 
 void BulletWorld::get_collisions(World& wld, PhysicsWorld& phys_world)
