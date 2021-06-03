@@ -12,7 +12,14 @@ class BulletRigidBody {
 public:
     BulletRigidBody(
         const plugin::physics::RigidBody& rigidbody,
-        const plugin::transform::Transform& transform, btDynamicsWorld* world);
+        const plugin::transform::Transform& transform,
+        std::shared_ptr<btDynamicsWorld> world);
+
+    BulletRigidBody(BulletRigidBody&&);
+
+    ~BulletRigidBody();
+
+    BulletRigidBody& operator=(BulletRigidBody&&);
 
     btRigidBody* body();
 
@@ -31,6 +38,8 @@ private:
     std::unique_ptr<btRigidBody> m_rigidbody;
     std::unique_ptr<btDefaultMotionState> m_motion_state;
     std::unique_ptr<btCollisionShape> m_colShape;
+    std::weak_ptr<btDynamicsWorld> m_world;
+    bool m_moved = false;
 };
 
 }

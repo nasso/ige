@@ -22,7 +22,7 @@ using ige::plugin::transform::Transform;
 
 BulletRigidBody::BulletRigidBody(
     const RigidBody& rigidbody, const Transform& transform,
-    btDynamicsWorld* world)
+    std::shared_ptr<btDynamicsWorld> world)
 {
     btTransform bt_transform;
 
@@ -51,6 +51,29 @@ BulletRigidBody::BulletRigidBody(
             | btRigidBody::CF_KINEMATIC_OBJECT);
     }
     world->addRigidBody(m_rigidbody.get());
+    m_world = world;
+}
+
+BulletRigidBody::~BulletRigidBody()
+{
+    if (!m_moved && !m_world.expired()) {
+        m_world.lock()->removeRigidBody(m_rigidbody.get());
+    }
+}
+
+BulletRigidBody::BulletRigidBody(BulletRigidBody&& other)
+{
+    *this = std::move(other);
+}
+
+BulletRigidBody& BulletRigidBody::operator=(BulletRigidBody&& rhs)
+{
+    m_colShape = std::move(rhs.m_colShape);
+    m_motion_state = std::move(rhs.m_motion_state);
+    m_rigidbody = std::move(rhs.m_rigidbody);
+    m_world = std::move(rhs.m_world);
+    rhs.m_moved = true;
+    return *this;
 }
 
 void BulletRigidBody::set_rigibody_shape(const Collider& collider)

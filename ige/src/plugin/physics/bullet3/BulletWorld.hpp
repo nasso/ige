@@ -38,7 +38,7 @@ private:
     btCollisionDispatcher m_dispatcher;
     std::unique_ptr<btBroadphaseInterface> m_broadphase;
     btSequentialImpulseConstraintSolver m_solver;
-    btDiscreteDynamicsWorld m_world;
+    std::shared_ptr<btDiscreteDynamicsWorld> m_world;
     std::vector<std::pair<const btRigidBody*, const btRigidBody*>> m_collisions;
     std::unordered_set<std::unique_ptr<btTypedConstraint>> m_constraints;
 };
