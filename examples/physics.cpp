@@ -149,6 +149,12 @@ class RootState : public State {
             }
         }
 
+        auto transform = app.world().get_component<Transform>(*m_ball_id1);
+
+        if (transform && transform->world_translation().y < -100.f) {
+            app.world().remove_entity(*m_ball_id1);
+        }
+
         auto manager = app.world().get<InputManager>();
         auto rigidbody = app.world().get_component<RigidBody>(*m_ball_id2);
 
