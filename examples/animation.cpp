@@ -18,6 +18,7 @@ using ige::core::State;
 using ige::ecs::Schedule;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::animation::AnimationPlayer;
 using ige::plugin::animation::AnimationPlugin;
 using ige::plugin::animation::Animator;
 using ige::plugin::gltf::GltfFormat;
@@ -47,20 +48,27 @@ public:
     {
         auto input = get_resource<InputManager>();
         auto scene = get_component<GltfScene>();
-        auto animator = get_or_emplace_component<Animator>();
+        auto animator = get_component<Animator>();
 
-        if (!animator->current_animation && scene->has_loaded()) {
-            auto animation = scene->get_animation(0);
-
-            animator->current_animation = animation;
+        if (animator && !animator->player) {
+            animator->player.emplace();
         }
 
         if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_LEFT)) {
-            animator->current_time = Animator::Duration::zero();
+            animator->player->current_time = AnimationPlayer::Duration::zero();
+        }
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_UP)) {
+            animator->player->index++;
+            animator->player->index %= animator->animations.size();
         }
 
         if (input->keyboard().is_pressed(KeyboardKey::KEY_SPACE)) {
-            animator->paused = !animator->paused;
+            animator->player->paused = !animator->player->paused;
+        }
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_L)) {
+            animator->player->loop = !animator->player->loop;
         }
     }
 };

@@ -4,7 +4,7 @@
 #include <chrono>
 #include <cstddef>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,8 +17,10 @@ struct Sampler {
 
     const T& operator[](std::size_t idx) const
     {
+        static const T DEFAULT_VALUE {};
+
         if (idx >= samples.size()) {
-            return samples.empty() ? T {} : samples.back();
+            return samples.empty() ? DEFAULT_VALUE : samples.back();
         } else {
             return samples[idx];
         }
@@ -26,17 +28,19 @@ struct Sampler {
 };
 
 struct JointSampler {
-    Sampler<glm::vec4> pos_scale_samples;
-    Sampler<glm::quat> rotation_samples;
+    Sampler<glm::vec3> pos_sampler;
+    Sampler<glm::quat> rotation_sampler;
+    Sampler<glm::vec3> scale_sampler;
 };
 
 struct AnimationClip {
     using Handle = std::shared_ptr<AnimationClip>;
+    using Duration = std::chrono::steady_clock::duration;
 
     std::string name = "";
-    float duration = 0.0f;
     std::vector<JointSampler> joints;
-    std::chrono::steady_clock::duration sample_duration;
+    Duration duration = Duration::zero();
+    Duration sample_duration = Duration::zero();
 };
 
 }

@@ -4,14 +4,15 @@
 #include <cstddef>
 #include <glm/mat4x4.hpp>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace ige::asset {
 
 struct SkeletonJoint {
-    glm::mat4 inv_bind_post;
-    std::size_t parent;
+    glm::mat4 inv_bind_matrix;
+    std::optional<std::size_t> parent;
 };
 
 struct Skeleton {

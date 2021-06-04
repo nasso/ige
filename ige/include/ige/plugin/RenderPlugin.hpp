@@ -5,6 +5,7 @@
 #include "ige/asset/Mesh.hpp"
 #include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
+#include "ige/ecs/Entity.hpp"
 #include <cstdint>
 #include <filesystem>
 #include <glm/vec4.hpp>
@@ -49,6 +50,7 @@ private:
 struct MeshRenderer {
     asset::Mesh::Handle mesh;
     asset::Material::Handle material;
+    std::optional<ecs::EntityId> skeleton_pose;
 };
 
 struct RectRenderer {

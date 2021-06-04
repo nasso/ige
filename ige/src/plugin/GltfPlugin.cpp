@@ -2,6 +2,7 @@
 #include "ige/asset/AnimationClip.hpp"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
+#include "ige/asset/Skeleton.hpp"
 #include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
@@ -9,6 +10,7 @@
 #include "ige/plugin/AnimationPlugin.hpp"
 #include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -31,6 +33,7 @@
 #include <memory>
 #include <optional>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <type_traits>
 #include <unordered_map>
@@ -44,13 +47,17 @@ using glm::vec4;
 using ige::asset::AnimationClip;
 using ige::asset::Material;
 using ige::asset::Mesh;
+using ige::asset::Skeleton;
+using ige::asset::SkeletonJoint;
 using ige::asset::Texture;
 using ige::asset::animation::Sampler;
 using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::animation::Animation;
 using ige::plugin::animation::Animator;
+using ige::plugin::animation::SkeletonPose;
 using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
@@ -72,44 +79,6 @@ void GltfScene::set_loaded(bool val)
     m_loaded = val;
 }
 
-std::size_t GltfScene::add_animation(AnimationClip::Handle anim)
-{
-    std::size_t idx = m_animations.size();
-
-    m_animations.push_back(anim);
-
-    if (!anim->name.empty()) {
-        m_animation_names.emplace(anim->name, idx);
-    }
-
-    return idx;
-}
-
-std::size_t GltfScene::animation_count() const
-{
-    return m_animations.size();
-}
-
-AnimationClip::Handle GltfScene::get_animation(const std::string& name) const
-{
-    auto iter = m_animation_names.find(name);
-
-    if (iter != m_animation_names.end()) {
-        return m_animations[iter->second];
-    } else {
-        return nullptr;
-    }
-}
-
-AnimationClip::Handle GltfScene::get_animation(std::size_t idx) const
-{
-    if (idx < m_animations.size()) {
-        return m_animations[idx];
-    } else {
-        return nullptr;
-    }
-}
-
 bool GltfScene::has_loaded() const
 {
     return m_loaded;
@@ -124,8 +93,6 @@ GltfFormat GltfScene::format() const
 {
     return m_format;
 }
-
-namespace detail {
 
 static fx::gltf::Document
 read_document(const std::string& path, GltfFormat format)
@@ -252,6 +219,11 @@ public:
         return m_ref.count;
     }
 
+    fx::gltf::Accessor::ComponentType component_type() const
+    {
+        return m_ref.componentType;
+    }
+
     std::size_t component_size() const
     {
         switch (m_ref.componentType) {
@@ -375,26 +347,51 @@ private:
     BufferView m_view;
 };
 
+static Mesh::DataType convert(fx::gltf::Accessor::ComponentType value)
+{
+    switch (value) {
+    case fx::gltf::Accessor::ComponentType::Float:
+        return Mesh::DataType::FLOAT;
+    case fx::gltf::Accessor::ComponentType::UnsignedShort:
+        return Mesh::DataType::UNSIGNED_SHORT;
+    case fx::gltf::Accessor::ComponentType::UnsignedInt:
+        return Mesh::DataType::UNSIGNED_INT;
+    case fx::gltf::Accessor::ComponentType::UnsignedByte:
+        return Mesh::DataType::UNSIGNED_BYTE;
+    case fx::gltf::Accessor::ComponentType::Byte:
+        return Mesh::DataType::BYTE;
+    case fx::gltf::Accessor::ComponentType::Short:
+        return Mesh::DataType::SHORT;
+    default:
+        throw std::runtime_error("Unsupported component type");
+    }
+}
+
+static Mesh::Topology convert(fx::gltf::Primitive::Mode value)
+{
+    switch (value) {
+    case fx::gltf::Primitive::Mode::Triangles:
+        return Mesh::Topology::TRIANGLES;
+    case fx::gltf::Primitive::Mode::TriangleStrip:
+        return Mesh::Topology::TRIANGLE_STRIP;
+    default:
+        throw std::runtime_error("Unsupported mesh topology");
+    }
+}
+
 static Mesh build_primitive(
     const fx::gltf::Document& doc, const fx::gltf::Primitive& primitive)
 {
     Mesh::Builder builder;
 
-    switch (primitive.mode) {
-    case fx::gltf::Primitive::Mode::Triangles:
-        builder.set_topology(Mesh::Topology::TRIANGLES);
-        break;
-    case fx::gltf::Primitive::Mode::TriangleStrip:
-        builder.set_topology(Mesh::Topology::TRIANGLE_STRIP);
-        break;
-    default:
-        throw std::runtime_error("Unsupported topology");
-    }
+    builder.set_topology(convert(primitive.mode));
 
     const auto& attrs = primitive.attributes;
     auto it_pos = attrs.find("POSITION");
     auto it_norm = attrs.find("NORMAL");
     auto it_uv = attrs.find("TEXCOORD_0");
+    auto it_joints = attrs.find("JOINTS_0");
+    auto it_weights = attrs.find("WEIGHTS_0");
 
     if (it_pos == attrs.end()) {
         throw std::runtime_error("Missing POSITION attribute");
@@ -407,9 +404,12 @@ static Mesh build_primitive(
 
         Mesh::Attribute attribute;
 
+        // perf: we could avoid creating a new buffer for each accessor
+        //       it could drastically reduce memory usage for interleaved data
         attribute.buffer = builder.add_buffer(accessor.view().span());
         attribute.stride = accessor.view().stride();
         attribute.offset = accessor.offset();
+        attribute.type = convert(accessor.component_type());
         return attribute;
     };
 
@@ -418,6 +418,14 @@ static Mesh build_primitive(
 
     if (it_uv != attrs.end()) {
         builder.attr_tex_coords(get_attrib(it_uv->second));
+    }
+
+    if (it_joints != attrs.end()) {
+        builder.attr_joints(get_attrib(it_joints->second));
+    }
+
+    if (it_weights != attrs.end()) {
+        builder.attr_weights(get_attrib(it_weights->second));
     }
 
     Accessor index_buffer_accessor(doc, primitive.indices);
@@ -432,18 +440,153 @@ static Mesh build_primitive(
     return builder.build();
 }
 
+template <typename T>
+T interpolate(const T& a, const T& b, float t)
+{
+    return a + t * (b - a);
+}
+
+template <>
+quat interpolate(const quat& a, const quat& b, float t)
+{
+    return glm::slerp(a, b, t);
+}
+
+/**
+ * @brief Class storing the glTF data required to create entities representing a
+ * glTF scene.
+ */
 class GltfSceneData {
 public:
     using Primitive = std::tuple<Mesh::Handle, Material::Handle>;
+
+    struct SkeletalAnimation {
+        std::uint32_t skeleton_index;
+        AnimationClip::Handle clip;
+    };
 
 private:
     std::vector<std::vector<Primitive>> m_meshes;
     std::vector<Material::Handle> m_materials;
     std::vector<Texture::Handle> m_textures;
-    std::vector<AnimationClip::Handle> m_animations;
+    std::vector<Skeleton::Handle> m_skeletons;
+    std::vector<SkeletalAnimation> m_animations;
+
+    /**
+     * @brief Represents a skeleton joint
+     */
+    struct JointNode {
+        std::uint32_t skeleton_idx;
+        std::size_t joint_idx;
+    };
+
+    // maps a node id to a joint
+    std::unordered_map<std::uint32_t, JointNode> m_joints;
 
     fx::gltf::Document m_doc;
     std::filesystem::path m_root;
+
+    std::optional<JointNode> get_joint(std::int32_t node)
+    {
+        if (node < 0) {
+            return std::nullopt;
+        }
+
+        auto it = m_joints.find(node);
+
+        if (it != m_joints.end()) {
+            return it->second;
+        } else {
+            return std::nullopt;
+        }
+    }
+
+    template <typename T, typename Duration>
+    Sampler<T> get_samples(
+        const fx::gltf::Animation::Sampler& gltf_sampler,
+        Duration sample_duration)
+    {
+        using Seconds = std::chrono::duration<float>;
+
+        Sampler<T> sampler;
+
+        Accessor input(m_doc, gltf_sampler.input);
+        Accessor output(m_doc, gltf_sampler.output);
+
+        std::vector<float> keyframes = input.collect<float>();
+        std::vector<T> values = output.collect<T>();
+
+        if (keyframes.empty() || values.empty()) {
+            throw std::runtime_error("invalid keyframe data");
+        }
+
+        const std::size_t keyframe_count = values.size();
+        const Seconds duration(keyframes.back());
+        const std::size_t sample_count
+            = static_cast<std::size_t>(duration / sample_duration) + 1;
+
+        sampler.samples.reserve(sample_count);
+
+        // the initial value can only be the first one
+        sampler.samples.push_back(values.front());
+
+        switch (gltf_sampler.interpolation) {
+        case fx::gltf::Animation::Sampler::Type::Linear: {
+            for (std::size_t i = 0; i < keyframe_count - 1; i++) {
+                const float t_a = keyframes[i];
+                const float t_b = keyframes[i + 1];
+                const T& v_a = values[i];
+                const T& v_b = values[i + 1];
+                const Seconds interval(t_b - t_a);
+                const std::size_t len
+                    = static_cast<std::size_t>(interval / sample_duration);
+
+                for (std::size_t s = 1; s <= len; s++) {
+                    float t = static_cast<float>(s) / static_cast<float>(len);
+
+                    sampler.samples.push_back(interpolate(v_a, v_b, t));
+                }
+            }
+        } break;
+        case fx::gltf::Animation::Sampler::Type::Step: {
+            for (std::size_t i = 0; i < keyframe_count - 1; i++) {
+                const float t_a = keyframes[i];
+                const float t_b = keyframes[i + 1];
+                const T& v_a = values[i];
+                const T& v_b = values[i + 1];
+                const Seconds interval(t_b - t_a);
+                const std::size_t len
+                    = static_cast<std::size_t>(interval / sample_duration);
+
+                for (std::size_t s = 1; s <= len; s++) {
+                    if (s != len) {
+                        sampler.samples.push_back(v_a);
+                    } else {
+                        sampler.samples.push_back(v_b);
+                    }
+                }
+            }
+        } break;
+        case fx::gltf::Animation::Sampler::Type::CubicSpline: {
+            throw std::runtime_error(
+                "unsupported interpolation mode: cubic spline");
+        } break;
+        }
+
+        return sampler;
+    }
+
+    std::optional<std::uint32_t>
+    get_animated_skeleton(const fx::gltf::Animation& anim)
+    {
+        auto joint = get_joint(anim.channels[0].target.node);
+
+        if (joint) {
+            return joint->skeleton_idx;
+        } else {
+            return std::nullopt;
+        }
+    }
 
     Texture::Handle get_texture(std::size_t idx)
     {
@@ -568,105 +711,6 @@ private:
         return m_materials[idx] = mat;
     }
 
-    template <typename K, typename V>
-    std::map<K, V> collect_map(Accessor keys_acc, Accessor values_acc)
-    {
-        auto keys = keys_acc.collect<K>();
-        auto values = values_acc.collect<V>();
-
-        if (keys.size() != values.size()) {
-            throw std::runtime_error("Key/value count mismatch");
-        }
-
-        std::map<K, V> map;
-
-        for (std::size_t i = 0; i < keys.size(); i++) {
-            map.emplace(keys[i], values[i]);
-        }
-
-        return map;
-    }
-
-    template <typename T>
-    T interpolate(
-        fx::gltf::Animation::Sampler::Type inter, const T& a, const T& b,
-        float t)
-    {
-        switch (inter) {
-        case fx::gltf::Animation::Sampler::Type::Linear:
-            return a + t * (b - a);
-        case fx::gltf::Animation::Sampler::Type::Step:
-            return t == 1.0f ? b : a;
-        default:
-            throw std::runtime_error("Unsupported interpolation mode");
-        }
-    }
-
-    template <>
-    quat interpolate<quat>(
-        fx::gltf::Animation::Sampler::Type inter, const quat& a, const quat& b,
-        float t)
-    {
-        switch (inter) {
-        case fx::gltf::Animation::Sampler::Type::Linear:
-            return glm::slerp(a, b, t);
-        case fx::gltf::Animation::Sampler::Type::Step:
-            return t == 1.0f ? b : a;
-        default:
-            throw std::runtime_error("Unsupported interpolation mode");
-        }
-    }
-
-    AnimationClip::Handle load_animation(const fx::gltf::Animation& tf_anim)
-    {
-        auto anim = std::make_shared<AnimationClip>();
-
-        {
-            using namespace std::literals::chrono_literals;
-
-            // TODO: allow changing the sample rate
-            auto one_sec = duration_cast<steady_clock::duration>(1s);
-            anim->sample_duration = one_sec / 60;
-        }
-
-        /*
-        for (const auto& channel : tf_anim.channels) {
-            auto& node_anim = (*anim)[channel.target.node];
-            const auto& tf_sampler = tf_anim.samplers[channel.sampler];
-
-            if (tf_sampler.interpolation
-                == fx::gltf::Animation::Sampler::Type::CubicSpline) {
-                std::cerr
-                    << "[WARN] Skipping unsupported cubicspline animation \""
-                    << channel.target.path << "\"" << std::endl;
-                continue;
-            }
-
-            Accessor acc_input(m_doc, tf_sampler.input);
-            Accessor acc_output(m_doc, tf_sampler.output);
-
-            if (channel.target.path == "translation") {
-                node_anim.translation.emplace(
-                    collect_map<float, vec3>(acc_input, acc_output),
-                    convert(tf_sampler.interpolation));
-            } else if (channel.target.path == "rotation") {
-                node_anim.rotation.emplace(
-                    collect_map<float, quat>(acc_input, acc_output),
-                    convert(tf_sampler.interpolation));
-            } else if (channel.target.path == "scale") {
-                node_anim.scale.emplace(
-                    collect_map<float, vec3>(acc_input, acc_output),
-                    convert(tf_sampler.interpolation));
-            } else {
-                std::cerr << "[WARN] Skipping unsupported animation target \""
-                          << channel.target.path << "\"" << std::endl;
-            }
-        }
-        */
-
-        return anim;
-    }
-
     std::vector<Primitive> load_mesh(const fx::gltf::Mesh& mesh)
     {
         std::vector<Primitive> mesh_prims;
@@ -682,6 +726,176 @@ private:
         return mesh_prims;
     }
 
+    SkeletalAnimation load_animation(const fx::gltf::Animation& tf_anim)
+    {
+        if (tf_anim.channels.empty()) {
+            throw std::runtime_error("Animation doesn't have any channel");
+        }
+
+        // try to figure out what skeleton we're animating (if any)
+        // TODO: support multi-skeleton animations
+        auto skeleton_index = get_animated_skeleton(tf_anim);
+
+        if (!skeleton_index) {
+            std::ostringstream ss;
+            ss << "Couldn't guess skeleton for ";
+
+            if (tf_anim.name.empty()) {
+                ss << "unnamed";
+            } else {
+                ss << "\"" << tf_anim.name << "\"";
+            }
+
+            ss << " animation";
+
+            throw std::runtime_error(ss.str());
+        }
+
+        std::cout << "[INFO] Found animation for skeleton #" << *skeleton_index
+                  << std::endl;
+
+        Skeleton::Handle skeleton = load_skeleton(*skeleton_index);
+
+        auto clip = std::make_shared<AnimationClip>();
+
+        {
+            using std::chrono::duration_cast;
+            using namespace std::chrono_literals;
+
+            // TODO: allow changing the sample rate
+            clip->sample_duration
+                = duration_cast<AnimationClip::Duration>(1s) / 60;
+        }
+
+        clip->name = tf_anim.name;
+        clip->joints.resize(skeleton->joints.size());
+
+        for (const auto& channel : tf_anim.channels) {
+            auto joint_info = get_joint(channel.target.node);
+
+            if (!joint_info) {
+                continue;
+            }
+
+            auto& joint_samplers = clip->joints[joint_info->joint_idx];
+
+            if (channel.target.path == "translation") {
+                auto sampler = get_samples<vec3>(
+                    tf_anim.samplers[channel.sampler], clip->sample_duration);
+
+                auto sampler_duration
+                    = clip->sample_duration * sampler.samples.size();
+                if (clip->duration < sampler_duration) {
+                    clip->duration = sampler_duration;
+                }
+
+                joint_samplers.pos_sampler = std::move(sampler);
+            } else if (channel.target.path == "rotation") {
+                auto sampler = get_samples<quat>(
+                    tf_anim.samplers[channel.sampler], clip->sample_duration);
+
+                auto sampler_duration
+                    = clip->sample_duration * sampler.samples.size();
+                if (clip->duration < sampler_duration) {
+                    clip->duration = sampler_duration;
+                }
+
+                joint_samplers.rotation_sampler = std::move(sampler);
+            } else if (channel.target.path == "scale") {
+                auto sampler = get_samples<vec3>(
+                    tf_anim.samplers[channel.sampler], clip->sample_duration);
+
+                auto sampler_duration
+                    = clip->sample_duration * sampler.samples.size();
+                if (clip->duration < sampler_duration) {
+                    clip->duration = sampler_duration;
+                }
+
+                joint_samplers.scale_sampler = std::move(sampler);
+            } else {
+                std::cerr << "[WARN] Skipping unsupported animation target \""
+                          << channel.target.path << "\"" << std::endl;
+            }
+        }
+
+        return SkeletalAnimation { *skeleton_index, clip };
+    }
+
+    Skeleton::Handle load_skeleton(std::uint32_t skeleton_index)
+    {
+        auto& skeleton = m_skeletons[skeleton_index];
+
+        if (skeleton != nullptr) {
+            return skeleton;
+        }
+
+        const auto& skin = m_doc.skins[skeleton_index];
+
+        // allocate new skeleton
+        skeleton = std::make_shared<Skeleton>();
+
+        // retrieve the inverse bind matrices somehow (see spec)
+        auto inv_bind_matrices = [&]() {
+            // skin.inverseBindMatrices: The index of the accessor containing
+            // the floating-point 4x4 inverse-bind matrices.
+            if (skin.inverseBindMatrices >= 0) {
+                Accessor inv_bind_matrices(m_doc, skin.inverseBindMatrices);
+
+                if (inv_bind_matrices.count() != skin.joints.size()) {
+                    throw std::runtime_error("joint/matrix count mismatch");
+                }
+
+                return inv_bind_matrices.collect<mat4>();
+            } else {
+                // The default is that each matrix is a 4x4 identity matrix,
+                // which implies that inverse-bind matrices were pre-applied.
+                return std::vector<mat4>(skin.joints.size(), mat4(1.0f));
+            }
+        }();
+
+        // helper map to find the parent of a joint from its node id
+        // key = node id | value = parent joint id
+        std::unordered_map<std::uint32_t, std::size_t> parent_map;
+
+        // create the joints
+        skeleton->joints.resize(skin.joints.size());
+
+        // assign inverse bind matrices
+        for (std::size_t i = 0; i < skin.joints.size(); i++) {
+            SkeletonJoint& joint = skeleton->joints[i];
+            joint.inv_bind_matrix = inv_bind_matrices[i];
+            // joint.parent = unknown yet;
+
+            JointNode joint_info;
+            joint_info.joint_idx = i;
+            joint_info.skeleton_idx = skeleton_index;
+
+            m_joints.emplace(skin.joints[i], joint_info);
+
+            // populate the parent map
+            const auto& joint_node = m_doc.nodes[skin.joints[i]];
+            for (std::uint32_t child : joint_node.children) {
+                parent_map.emplace(child, i);
+            }
+        }
+
+        // assign joint parents
+        for (std::size_t i = 0; i < skin.joints.size(); i++) {
+            SkeletonJoint& joint = skeleton->joints[i];
+
+            auto it = parent_map.find(skin.joints[i]);
+
+            if (it != parent_map.end()) {
+                joint.parent = it->second;
+            }
+        }
+
+        std::cout << "[INFO] Loaded skeleton #" << skeleton_index << " ("
+                  << skin.joints.size() << " joints)." << std::endl;
+
+        return skeleton;
+    }
+
 public:
     GltfSceneData(const GltfScene& scene)
         : m_doc(read_document(scene.uri(), scene.format()))
@@ -692,15 +906,27 @@ public:
         m_textures.resize(m_doc.textures.size());
 
         // create meshes
-        m_meshes.reserve(m_doc.meshes.size());
-        for (const auto& mesh : m_doc.meshes) {
-            m_meshes.emplace_back(load_mesh(mesh));
+        m_meshes.resize(m_doc.meshes.size());
+        m_skeletons.resize(m_doc.skins.size());
+
+        for (const auto& node : m_doc.nodes) {
+            if (node.mesh >= 0 && m_meshes[node.mesh].empty()) {
+                m_meshes[node.mesh] = load_mesh(m_doc.meshes[node.mesh]);
+            }
+
+            if (node.skin >= 0) {
+                load_skeleton(node.skin);
+            }
         }
 
         // load animations
         m_animations.reserve(m_doc.animations.size());
         for (const auto& animation : m_doc.animations) {
-            m_animations.push_back(load_animation(animation));
+            try {
+                m_animations.push_back(load_animation(animation));
+            } catch (const std::exception& e) {
+                std::cerr << "[ERROR] " << e.what() << std::endl;
+            }
         }
     }
 
@@ -719,17 +945,30 @@ public:
         return { m_meshes[idx] };
     }
 
-    std::span<AnimationClip::Handle> animations()
+    std::span<Skeleton::Handle> skeletons()
+    {
+        return m_skeletons;
+    }
+
+    std::span<const Skeleton::Handle> skeletons() const
+    {
+        return m_skeletons;
+    }
+
+    std::span<SkeletalAnimation> animations()
     {
         return m_animations;
     }
 
-    std::span<const AnimationClip::Handle> animations() const
+    std::span<const SkeletalAnimation> animations() const
     {
         return m_animations;
     }
 };
 
+/**
+ * @brief Resource holding all the GltfSceneData that were previously loaded.
+ */
 class GltfSceneCache {
 private:
     unordered_map<std::string, GltfSceneData> m_cache;
@@ -747,6 +986,12 @@ public:
     }
 };
 
+/**
+ * @brief Component attached to an entity which has a GltfScene
+ *
+ * Holds references to all entities so that they can be deleted when the
+ * GltfScene is removed.
+ */
 class GltfSceneHandle {
 public:
     const unordered_map<std::uint32_t, EntityId>& nodes() const
@@ -785,16 +1030,41 @@ private:
             const auto& doc = cache.document();
             const auto& gscene = doc.scenes[0];
 
-            for (auto anim : cache.animations()) {
-                scene.add_animation(anim);
-            }
-
             for (auto node_id : gscene.nodes) {
                 spawn_node(world, cache, node_id, parent);
+            }
+
+            auto& animator = world.get_or_emplace_component<Animator>(parent);
+
+            animator.animations.reserve(
+                animator.animations.size() + cache.animations().size());
+            for (const auto& anim : cache.animations()) {
+                animator.animations.push_back(Animation {
+                    m_skeletons.at(anim.skeleton_index),
+                    anim.clip,
+                    anim.clip->name,
+                });
             }
         } catch (const std::exception& e) {
             std::cerr << "[ERROR] Couldn't load " << scene.uri() << ": "
                       << e.what() << std::endl;
+        }
+    }
+
+    EntityId get_skeleton_entity(
+        World& world, const GltfSceneData& data, std::uint32_t skin)
+    {
+        auto it = m_skeletons.find(skin);
+
+        if (it != m_skeletons.end()) {
+            return it->second;
+        } else {
+            auto entity
+                = world.create_entity(SkeletonPose { data.skeletons()[skin] });
+
+            m_entities.push_back(entity);
+            m_skeletons.emplace(skin, entity);
+            return entity;
         }
     }
 
@@ -856,8 +1126,15 @@ private:
             }
         }
 
+        std::optional<EntityId> skeleton_pose;
+
+        if (node.skin >= 0) {
+            skeleton_pose = get_skeleton_entity(world, data, node.skin);
+        }
+
         auto entity
             = world.create_entity(Parent { parent }, Transform { xform });
+
         m_entities.push_back(entity);
         m_nodes.emplace(node_id, entity);
 
@@ -865,7 +1142,8 @@ private:
             for (auto [mesh, material] : data.mesh(node.mesh)) {
                 auto primitive_entity = world.create_entity(
                     Transform {}, Parent { entity },
-                    MeshRenderer { mesh, material });
+                    MeshRenderer { mesh, material, skeleton_pose });
+
                 m_entities.push_back(primitive_entity);
             }
         }
@@ -880,18 +1158,13 @@ private:
     std::string m_current_scene;
     std::vector<EntityId> m_entities;
     unordered_map<std::uint32_t, EntityId> m_nodes;
+    unordered_map<std::uint32_t, EntityId> m_skeletons;
 };
-
-}
-
-namespace systems {
 
 static void spawn_gltf_scenes(World& world)
 {
     for (auto [entity, scene] : world.query<GltfScene>()) {
-        auto& animator = world.get_or_emplace_component<Animator>(entity);
-        auto& handle
-            = world.get_or_emplace_component<detail::GltfSceneHandle>(entity);
+        auto& handle = world.get_or_emplace_component<GltfSceneHandle>(entity);
 
         handle.update_scene(world, scene, entity);
     }
@@ -899,22 +1172,20 @@ static void spawn_gltf_scenes(World& world)
 
 static void despawn_gltf_scenes(World& world)
 {
-    for (auto [entity, handle] : world.query<detail::GltfSceneHandle>()) {
+    for (auto [entity, handle] : world.query<GltfSceneHandle>()) {
         if (!world.get_component<GltfScene>(entity)) {
             handle.despawn(world);
 
             // remove the handle from the entity
             // after this call, `handle` is invalid
-            world.remove_component<detail::GltfSceneHandle>(entity);
+            world.remove_component<GltfSceneHandle>(entity);
             continue;
         }
     }
 }
 
-}
-
 void GltfPlugin::plug(App::Builder& builder) const
 {
-    builder.add_system(System::from(systems::spawn_gltf_scenes));
-    builder.add_system(System::from(systems::despawn_gltf_scenes));
+    builder.add_system(System::from(spawn_gltf_scenes));
+    builder.add_system(System::from(despawn_gltf_scenes));
 }

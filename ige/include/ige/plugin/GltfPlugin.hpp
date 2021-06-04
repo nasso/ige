@@ -22,17 +22,10 @@ public:
     const std::string& uri() const;
     GltfFormat format() const;
 
-    std::size_t add_animation(asset::AnimationClip::Handle anim);
-    std::size_t animation_count() const;
-    asset::AnimationClip::Handle get_animation(const std::string& name) const;
-    asset::AnimationClip::Handle get_animation(std::size_t idx) const;
-
 private:
     bool m_loaded = false;
     std::string m_uri;
     GltfFormat m_format;
-    std::vector<asset::AnimationClip::Handle> m_animations;
-    std::unordered_map<std::string, std::size_t> m_animation_names;
 };
 
 class GltfPlugin : public core::App::Plugin {

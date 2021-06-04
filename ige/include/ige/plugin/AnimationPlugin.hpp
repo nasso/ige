@@ -2,16 +2,17 @@
 #define AA5258CB_6999_4F5C_82F1_8CBD11058CFC
 
 #include "ige/asset/AnimationClip.hpp"
+#include "ige/asset/Skeleton.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include <cstddef>
-#include <functional>
-#include <iostream>
+#include <glm/mat4x4.hpp>
 #include <memory>
+#include <optional>
 #include <string>
-#include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace ige::plugin::animation {
 
@@ -22,16 +23,33 @@ struct JointPose {
 };
 
 struct SkeletonPose {
-    std::vector<JointPose> joint_poses;
+    asset::Skeleton::Handle skeleton;
+    std::vector<JointPose> joint_pose;
+    std::vector<glm::mat4> global_pose;
+
+    SkeletonPose(asset::Skeleton::Handle);
+};
+
+struct Animation {
+    ecs::EntityId target;
+    asset::AnimationClip::Handle clip;
+    std::string name = "";
+};
+
+struct AnimationPlayer {
+    using Duration = time::Time::Duration;
+
+    Duration current_time = Duration::zero();
+    std::size_t index;
+    // float factor = 1.0f;
+    bool loop = true;
+    bool paused = false;
 };
 
 struct Animator {
-    using Duration = time::Time::Duration;
-
-    bool loop = true;
-    bool paused = false;
-    Duration current_time = Duration::zero();
-    asset::AnimationClip::Handle current_animation = nullptr;
+    std::vector<Animation> animations;
+    // std::vector<AnimationPlayer> players;
+    std::optional<AnimationPlayer> player;
 };
 
 class AnimationPlugin : public core::App::Plugin {

@@ -1,13 +1,15 @@
 #include "ige/asset/Mesh.hpp"
+#include "ige/asset/Skeleton.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <optional>
 #include <span>
 #include <stdexcept>
-#include <vector>
+#include <utility>
 
 using ige::asset::Mesh;
+using ige::asset::Skeleton;
 
 Mesh Mesh::cube(float s)
 {
@@ -102,9 +104,19 @@ Mesh::Attribute Mesh::attr_normal() const
     return m_attr_normal;
 }
 
-std::span<const Mesh::Attribute> Mesh::attr_tex_coords() const
+std::optional<Mesh::Attribute> Mesh::attr_tex_coords() const
 {
     return m_attr_uvs;
+}
+
+std::optional<Mesh::Attribute> Mesh::attr_joints() const
+{
+    return m_attr_joints;
+}
+
+std::optional<Mesh::Attribute> Mesh::attr_weights() const
+{
+    return m_attr_weights;
 }
 
 Mesh::Topology Mesh::topology() const
@@ -136,8 +148,17 @@ Mesh Mesh::Builder::build()
     mesh.m_attr_normal = *m_attr_normal;
     m_attr_normal.reset();
 
-    mesh.m_attr_uvs = std::move(m_attr_uvs);
-    m_attr_uvs.clear();
+    mesh.m_attr_uvs = m_attr_uvs;
+    m_attr_uvs.reset();
+
+    mesh.m_attr_joints = m_attr_joints;
+    m_attr_joints.reset();
+
+    mesh.m_attr_weights = m_attr_weights;
+    m_attr_weights.reset();
+
+    mesh.m_skeleton = std::move(m_skeleton);
+    m_skeleton = nullptr;
 
     return mesh;
 }
@@ -153,9 +174,10 @@ Mesh::Topology Mesh::Builder::topology() const
     return m_topology;
 }
 
-std::span<const Mesh::Buffer> Mesh::Builder::buffers() const
+Mesh::Builder& Mesh::Builder::set_skeleton(Skeleton::Handle skeleton)
 {
-    return m_buffers;
+    m_skeleton = skeleton;
+    return *this;
 }
 
 Mesh::Builder&
@@ -165,20 +187,10 @@ Mesh::Builder::set_index_buffer(std::span<const std::uint32_t> data)
     return *this;
 }
 
-std::span<const std::uint32_t> Mesh::Builder::index_buffer() const
-{
-    return m_index_buffer;
-}
-
 Mesh::Builder& Mesh::Builder::attr_position(Mesh::Attribute layout)
 {
     m_attr_position = layout;
     return *this;
-}
-
-std::optional<Mesh::Attribute> Mesh::Builder::attr_position() const
-{
-    return m_attr_position;
 }
 
 Mesh::Builder& Mesh::Builder::attr_normal(Mesh::Attribute layout)
@@ -187,18 +199,60 @@ Mesh::Builder& Mesh::Builder::attr_normal(Mesh::Attribute layout)
     return *this;
 }
 
+Mesh::Builder& Mesh::Builder::attr_tex_coords(Mesh::Attribute layout)
+{
+    m_attr_uvs = layout;
+    return *this;
+}
+
+Mesh::Builder& Mesh::Builder::attr_joints(Mesh::Attribute layout)
+{
+    m_attr_joints = layout;
+    return *this;
+}
+
+Mesh::Builder& Mesh::Builder::attr_weights(Mesh::Attribute layout)
+{
+    m_attr_weights = layout;
+    return *this;
+}
+
+std::span<const Mesh::Buffer> Mesh::Builder::buffers() const
+{
+    return m_buffers;
+}
+
+std::span<const std::uint32_t> Mesh::Builder::index_buffer() const
+{
+    return m_index_buffer;
+}
+
+std::optional<Mesh::Attribute> Mesh::Builder::attr_position() const
+{
+    return m_attr_position;
+}
+
 std::optional<Mesh::Attribute> Mesh::Builder::attr_normal() const
 {
     return m_attr_normal;
 }
 
-Mesh::Builder& Mesh::Builder::attr_tex_coords(Mesh::Attribute layout)
-{
-    m_attr_uvs.push_back(layout);
-    return *this;
-}
-
-std::span<const Mesh::Attribute> Mesh::Builder::attr_tex_coords() const
+std::optional<Mesh::Attribute> Mesh::Builder::attr_tex_coords() const
 {
     return m_attr_uvs;
+}
+
+std::optional<Mesh::Attribute> Mesh::Builder::attr_joints() const
+{
+    return m_attr_joints;
+}
+
+std::optional<Mesh::Attribute> Mesh::Builder::attr_weights() const
+{
+    return m_attr_weights;
+}
+
+Skeleton::Handle Mesh::skeleton() const
+{
+    return m_skeleton;
 }
