@@ -13,34 +13,36 @@
 
 namespace ige {
 namespace plugin {
-namespace audio {
+    namespace audio {
 
-    class AudioPluginException : public std::exception {
-    public:
-        explicit AudioPluginException()
-            : AudioPluginException("Generic exception")
-        {
-        }
+        class AudioPluginException : public std::exception {
+        public:
+            explicit AudioPluginException()
+                : AudioPluginException("Generic exception")
+            {
+            }
 
-        explicit AudioPluginException(const std::string& message)
-            : msg_(message)
-        {
-        }
+            explicit AudioPluginException(const std::string& message)
+                : msg_(message)
+            {
+            }
 
-        virtual ~AudioPluginException() noexcept { }
+            virtual ~AudioPluginException() noexcept
+            {
+            }
 
-        virtual const char* what() const noexcept
-        {
-            return (msg_.c_str());
-        }
+            virtual const char* what() const noexcept
+            {
+                return (msg_.c_str());
+            }
 
-    protected:
-        std::string msg_;
+        protected:
+            std::string msg_;
 
-    private:
-    };
+        private:
+        };
 
-}
+    }
 }
 }
 
