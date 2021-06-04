@@ -73,7 +73,12 @@ FetchContent_MakeAvailable(libnyquist)
 FetchContent_Declare(OpenAL
     URL https://github.com/kcat/openal-soft/archive/refs/tags/1.21.1.zip
 )
-FetchContent_MakeAvailable(OpenAL)
+if(NOT OpenAL_POPULATED)
+    FetchContent_Populate(OpenAL)
+    set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${OpenAL_SOURCE_DIR} ${OpenAL_BINARY_DIR})
+endif()
+
 
 # source files
 set(sources ${sources}
