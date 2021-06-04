@@ -16,6 +16,7 @@
 #include "opengl/VertexArray.hpp"
 #include <cstddef>
 #include <functional>
+#include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec4.hpp>
 #include <iostream>
@@ -26,6 +27,7 @@
 
 namespace gl = ige::gl;
 
+using glm::mat3;
 using glm::mat4;
 using glm::vec4;
 using ige::asset::Material;
@@ -299,10 +301,9 @@ static void draw_mesh(
     RenderCache& cache, const MeshRenderer& renderer, const mat4& projection,
     const mat4& view, const mat4& model)
 {
-    mat4 vm = view * model;
-    mat4 pvm = projection * vm;
+    mat4 pvm = projection * view * model;
 
-    mat4 normal_matrix = glm::transpose(glm::inverse(vm));
+    mat3 normal_matrix = glm::transpose(glm::inverse(mat3(model)));
     bool double_sided = false;
 
     const MeshCache& mesh = cache.get(renderer.mesh);

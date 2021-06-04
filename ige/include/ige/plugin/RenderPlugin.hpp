@@ -24,8 +24,8 @@ struct PerspectiveCamera {
 };
 
 struct MeshRenderer {
-    std::shared_ptr<asset::Mesh> mesh;
-    std::shared_ptr<asset::Material> material;
+    asset::Mesh::Handle mesh;
+    asset::Material::Handle material;
 };
 
 class RenderPlugin : public core::App::Plugin {
