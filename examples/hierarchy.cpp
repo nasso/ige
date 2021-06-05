@@ -13,6 +13,7 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
+using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
@@ -31,8 +32,8 @@ using ige::plugin::window::WindowSettings;
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> win_events;
-    std::optional<World::EntityRef> root_cube;
-    std::vector<World::EntityRef> children;
+    std::optional<EntityId> root_cube;
+    std::vector<EntityId> children;
 
     void on_start(App& app) override
     {
@@ -55,17 +56,17 @@ class RootState : public State {
 
         auto satellite = app.world().create_entity(
             Transform::from_pos({ 2.0f, 0.0f, 0.0f }).set_scale(0.5f),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { root_cube->id() });
+            MeshRenderer { cube_mesh, cube_mat }, Parent { *root_cube });
 
         children.push_back(app.world().create_entity(
             Transform::from_pos({ 1.0f, 0.0f, 0.0f }).set_scale(0.5f),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite }));
         children.push_back(app.world().create_entity(
             Transform::from_pos({ 0.0f, 1.0f, 0.0f }).set_scale(0.5f),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite }));
         children.push_back(app.world().create_entity(
             Transform::from_pos({ 0.0f, 0.0f, 1.0f }).set_scale(0.5f),
-            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite.id() }));
+            MeshRenderer { cube_mesh, cube_mat }, Parent { satellite }));
     }
 
     void on_update(App& app) override
@@ -79,18 +80,19 @@ class RootState : public State {
 
         // make the root cube move & rotate
         if (root_cube) {
-            root_cube->get_component<Transform>()->set_rotation(
-                vec3(0.0f, 60.0f * time->now_seconds(), 0.0f));
+            app.world()
+                .get_component<Transform>(*root_cube)
+                ->set_rotation(vec3(0.0f, 60.0f * time->now_seconds(), 0.0f));
 
             if (time->now_seconds() > 5.0f) {
-                root_cube->remove();
+                app.world().remove_entity(*root_cube);
                 root_cube.reset();
             }
         }
 
         // make the little cubes rotate too!!
         for (auto cube : children) {
-            cube.get_component<Transform>()->set_rotation(vec3 {
+            app.world().get_component<Transform>(cube)->set_rotation(vec3 {
                 0.0f,
                 60.0f * time->now_seconds(),
                 60.0f * time->now_seconds(),

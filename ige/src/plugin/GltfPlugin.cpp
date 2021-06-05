@@ -469,27 +469,16 @@ namespace detail {
                 }
             }
 
-            auto entity = world.create_entity(
-                Parent {
-                    parent,
-                },
-                Transform {
-                    xform,
-                });
-            m_entities.push_back(entity.id());
+            auto entity
+                = world.create_entity(Parent { parent }, Transform { xform });
+            m_entities.push_back(entity);
 
             if (node.mesh >= 0) {
                 for (auto [mesh, material] : data.mesh(node.mesh)) {
                     auto primitive_entity = world.create_entity(
-                        Transform {},
-                        Parent {
-                            entity.id(),
-                        },
-                        MeshRenderer {
-                            mesh,
-                            material,
-                        });
-                    m_entities.push_back(primitive_entity.id());
+                        Transform {}, Parent { entity },
+                        MeshRenderer { mesh, material });
+                    m_entities.push_back(primitive_entity);
                 }
             }
 
@@ -499,7 +488,7 @@ namespace detail {
                     continue;
                 }
 
-                spawn_node(world, data, child_id, entity.id());
+                spawn_node(world, data, child_id, entity);
             }
         }
 

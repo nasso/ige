@@ -1,4 +1,5 @@
 #include "ige/ecs/World.hpp"
+#include "ige/ecs/Entity.hpp"
 #include "ige/ecs/VecStorage.hpp"
 #include "gtest/gtest.h"
 #include <algorithm>
@@ -17,6 +18,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<A, B>& p)
 
 }
 
+using ige::ecs::EntityId;
 using ige::ecs::VecStorage;
 using ige::ecs::World;
 
@@ -58,7 +60,7 @@ TEST(World, Spawn)
 {
     World world;
 
-    World::EntityRef entities[] = {
+    EntityId entities[] = {
         world.create_entity(),
         world.create_entity(),
         world.create_entity(),
@@ -104,12 +106,12 @@ TEST(World, AddComponent)
 
     auto ent = world.create_entity();
 
-    ASSERT_EQ(ent.emplace_component<std::string>("hello"), "hello");
-    ASSERT_EQ(ent.emplace_component<int>(65), 65);
-    ASSERT_EQ(ent.emplace_component<float>(48.3f), 48.3f);
-    ASSERT_EQ(ent.emplace_component<double>(), 0);
+    ASSERT_EQ(world.emplace_component<std::string>(ent, "hello"), "hello");
+    ASSERT_EQ(world.emplace_component<int>(ent, 65), 65);
+    ASSERT_EQ(world.emplace_component<float>(ent, 48.3f), 48.3f);
+    ASSERT_EQ(world.emplace_component<double>(ent), 0);
     ASSERT_EQ(
-        (ent.emplace_component<std::pair<int, int>>(38, 19)),
+        (world.emplace_component<std::pair<int, int>>(ent, 38, 19)),
         std::make_pair(38, 19));
 }
 
@@ -121,12 +123,13 @@ TEST(World, AddComponentsAtCreation)
         std::string("hello"), int(65), float(48.3f), double(),
         std::make_pair<int, int>(38, 19));
 
-    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
-    ASSERT_EQ(*ent.get_component<int>(), 65);
-    ASSERT_EQ(*ent.get_component<float>(), 48.3f);
-    ASSERT_EQ(*ent.get_component<double>(), 0);
+    ASSERT_EQ(*world.get_component<std::string>(ent), "hello");
+    ASSERT_EQ(*world.get_component<int>(ent), 65);
+    ASSERT_EQ(*world.get_component<float>(ent), 48.3f);
+    ASSERT_EQ(*world.get_component<double>(ent), 0);
     ASSERT_EQ(
-        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
+        *(world.get_component<std::pair<int, int>>(ent)),
+        std::make_pair(38, 19));
 }
 
 TEST(World, GetComponent)
@@ -135,19 +138,20 @@ TEST(World, GetComponent)
 
     auto ent = world.create_entity();
 
-    ent.emplace_component<std::string>("hello");
-    ent.emplace_component<int>(65);
-    ent.emplace_component<float>(48.3f);
-    ent.emplace_component<double>();
-    ent.emplace_component<std::pair<int, int>>(38, 19);
+    world.emplace_component<std::string>(ent, "hello");
+    world.emplace_component<int>(ent, 65);
+    world.emplace_component<float>(ent, 48.3f);
+    world.emplace_component<double>(ent);
+    world.emplace_component<std::pair<int, int>>(ent, 38, 19);
 
-    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
-    ASSERT_EQ(*ent.get_component<int>(), 65);
-    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
-    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
+    ASSERT_EQ(*world.get_component<std::string>(ent), "hello");
+    ASSERT_EQ(*world.get_component<int>(ent), 65);
+    ASSERT_FLOAT_EQ(*world.get_component<float>(ent), 48.3f);
+    ASSERT_DOUBLE_EQ(*world.get_component<double>(ent), 0.0);
     ASSERT_EQ(
-        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
-    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
+        *(world.get_component<std::pair<int, int>>(ent)),
+        std::make_pair(38, 19));
+    ASSERT_FALSE(world.get_component<std::vector<int>>(ent) != nullptr);
 }
 
 TEST(World, GetComponentConst)
@@ -156,21 +160,22 @@ TEST(World, GetComponentConst)
 
     auto ent = world.create_entity();
 
-    ent.emplace_component<std::string>("hello");
-    ent.emplace_component<int>(65);
-    ent.emplace_component<float>(48.3f);
-    ent.emplace_component<double>();
-    ent.emplace_component<std::pair<int, int>>(38, 19);
+    world.emplace_component<std::string>(ent, "hello");
+    world.emplace_component<int>(ent, 65);
+    world.emplace_component<float>(ent, 48.3f);
+    world.emplace_component<double>(ent);
+    world.emplace_component<std::pair<int, int>>(ent, 38, 19);
 
     const World& ref = world;
 
-    ASSERT_EQ(*ent.get_component<std::string>(), "hello");
-    ASSERT_EQ(*ent.get_component<int>(), 65);
-    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
-    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
+    ASSERT_EQ(*world.get_component<std::string>(ent), "hello");
+    ASSERT_EQ(*world.get_component<int>(ent), 65);
+    ASSERT_FLOAT_EQ(*world.get_component<float>(ent), 48.3f);
+    ASSERT_DOUBLE_EQ(*world.get_component<double>(ent), 0.0);
     ASSERT_EQ(
-        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
-    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
+        *(world.get_component<std::pair<int, int>>(ent)),
+        std::make_pair(38, 19));
+    ASSERT_FALSE(world.get_component<std::vector<int>>(ent) != nullptr);
 }
 
 TEST(World, RemoveComponent)
@@ -179,22 +184,23 @@ TEST(World, RemoveComponent)
 
     auto ent = world.create_entity();
 
-    ent.emplace_component<std::string>("hello");
-    ent.emplace_component<int>(65);
-    ent.emplace_component<float>(48.3f);
-    ent.emplace_component<double>();
-    ent.emplace_component<std::pair<int, int>>(38, 19);
+    world.emplace_component<std::string>(ent, "hello");
+    world.emplace_component<int>(ent, 65);
+    world.emplace_component<float>(ent, 48.3f);
+    world.emplace_component<double>(ent);
+    world.emplace_component<std::pair<int, int>>(ent, 38, 19);
 
-    ASSERT_EQ(*ent.remove_component<std::string>(), "hello");
-    ASSERT_EQ(*ent.remove_component<int>(), 65);
+    ASSERT_EQ(*world.remove_component<std::string>(ent), "hello");
+    ASSERT_EQ(*world.remove_component<int>(ent), 65);
 
-    ASSERT_FALSE(ent.get_component<std::string>() != nullptr);
-    ASSERT_FALSE(ent.get_component<int>() != nullptr);
-    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
-    ASSERT_FLOAT_EQ(*ent.get_component<float>(), 48.3f);
-    ASSERT_DOUBLE_EQ(*ent.get_component<double>(), 0.0);
+    ASSERT_FALSE(world.get_component<std::string>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<int>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<std::vector<int>>(ent) != nullptr);
+    ASSERT_FLOAT_EQ(*world.get_component<float>(ent), 48.3f);
+    ASSERT_DOUBLE_EQ(*world.get_component<double>(ent), 0.0);
     ASSERT_EQ(
-        *(ent.get_component<std::pair<int, int>>()), std::make_pair(38, 19));
+        *(world.get_component<std::pair<int, int>>(ent)),
+        std::make_pair(38, 19));
 }
 
 TEST(World, RemoveEntity)
@@ -203,40 +209,40 @@ TEST(World, RemoveEntity)
 
     auto ent = world.create_entity();
 
-    ent.emplace_component<std::string>("hello");
-    ent.emplace_component<int>(65);
-    ent.emplace_component<float>(48.3f);
-    ent.emplace_component<double>();
-    ent.emplace_component<std::pair<int, int>>(38, 19);
+    world.emplace_component<std::string>(ent, "hello");
+    world.emplace_component<int>(ent, 65);
+    world.emplace_component<float>(ent, 48.3f);
+    world.emplace_component<double>(ent);
+    world.emplace_component<std::pair<int, int>>(ent, 38, 19);
 
-    ent.remove();
+    world.remove_entity(ent);
 
-    ASSERT_FALSE(ent.get_component<std::string>() != nullptr);
-    ASSERT_FALSE(ent.get_component<int>() != nullptr);
-    ASSERT_FALSE(ent.get_component<float>() != nullptr);
-    ASSERT_FALSE(ent.get_component<double>() != nullptr);
-    ASSERT_FALSE(ent.get_component<std::vector<int>>() != nullptr);
+    ASSERT_FALSE(world.get_component<std::string>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<int>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<float>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<double>(ent) != nullptr);
+    ASSERT_FALSE(world.get_component<std::vector<int>>(ent) != nullptr);
 }
 
 TEST(World, CustomStorage)
 {
     World world;
 
-    World::EntityRef ent[] = {
+    EntityId ent[] = {
         world.create_entity(),
         world.create_entity(),
         world.create_entity(),
     };
 
-    ent[0].emplace_component<Vectorized>();
-    ent[1].emplace_component<Vectorized>();
-    ent[2].emplace_component<Vectorized>();
+    world.emplace_component<Vectorized>(ent[0]);
+    world.emplace_component<Vectorized>(ent[1]);
+    world.emplace_component<Vectorized>(ent[2]);
 
     auto strg = world.get<VecStorage<Vectorized>>();
     ASSERT_TRUE(strg != nullptr);
-    ASSERT_TRUE(strg->get(ent[0].id().index()) != nullptr);
-    ASSERT_TRUE(strg->get(ent[1].id().index()) != nullptr);
-    ASSERT_TRUE(strg->get(ent[2].id().index()) != nullptr);
+    ASSERT_TRUE(strg->get(ent[0].index()) != nullptr);
+    ASSERT_TRUE(strg->get(ent[1].index()) != nullptr);
+    ASSERT_TRUE(strg->get(ent[2].index()) != nullptr);
 }
 
 TEST(World, EntityQueryBasicUsage)
@@ -267,7 +273,7 @@ TEST(World, EntityQueryMapStorage)
 {
     World world;
 
-    std::tuple<bool, World::EntityRef> entities[] = {
+    std::tuple<bool, EntityId> entities[] = {
         { false, world.create_entity(A { 1 }, C { 2 }) },
         { true, world.create_entity(A { 3 }, B { 4 }, C { 5 }) },
         { true, world.create_entity(A { 6 }, B { 7 }) },
@@ -283,7 +289,7 @@ TEST(World, EntityQueryMapStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity.id();
+                return e == entity;
             });
 
         if (should_match) {
@@ -298,7 +304,7 @@ TEST(World, EntityQueryVecStorage)
 {
     World world;
 
-    std::tuple<bool, World::EntityRef> entities[] = {
+    std::tuple<bool, EntityId> entities[] = {
         { false, world.create_entity(D { 1 }, F { 2 }) },
         { true, world.create_entity(D { 3 }, E { 4 }, F { 5 }) },
         { true, world.create_entity(D { 6 }, E { 7 }) },
@@ -314,7 +320,7 @@ TEST(World, EntityQueryVecStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity.id();
+                return e == entity;
             });
 
         if (should_match) {
@@ -329,7 +335,7 @@ TEST(World, EntityQueryMixedStorage)
 {
     World world;
 
-    std::tuple<bool, World::EntityRef> entities[] = {
+    std::tuple<bool, EntityId> entities[] = {
         { false, world.create_entity(A { 1 }, B { 2 }) },
         { true, world.create_entity(A { 3 }, E { 4 }, B { 5 }) },
         { true, world.create_entity(A { 6 }, E { 7 }) },
@@ -345,39 +351,6 @@ TEST(World, EntityQueryMixedStorage)
             query.begin(), query.end(), [entity](const auto& tuple) {
                 const auto& [e, a, b] = tuple;
 
-                return e == entity.id();
-            });
-
-        if (should_match) {
-            ASSERT_EQ(count, 1);
-        } else {
-            ASSERT_EQ(count, 0);
-        }
-    }
-}
-
-/* TODO: constant World queries
-TEST(World, ConstEntityQueryMapStorage)
-{
-    World world;
-
-    std::tuple<bool, World::EntityRef> entities[] = {
-        { false, world.create_entity(A { 1 }, C { 2 }) },
-        { true, world.create_entity(A { 3 }, B { 4 }, C { 5 }) },
-        { true, world.create_entity(A { 6 }, B { 7 }) },
-        { false, world.create_entity(A { 8 }) },
-        { false, world.create_entity() },
-        { false, world.create_entity(B { 9 }) },
-    };
-
-    const World& world_ref = world;
-    auto query = world_ref.query<A, B>();
-
-    for (auto [should_match, entity] : entities) {
-        auto count = std::count_if(
-            query.begin(), query.end(), [entity](const auto& tuple) {
-                const auto& [e, a, b] = tuple;
-
                 return e == entity;
             });
 
@@ -388,68 +361,3 @@ TEST(World, ConstEntityQueryMapStorage)
         }
     }
 }
-
-TEST(World, ConstEntityQueryVecStorage)
-{
-    World world;
-
-    std::tuple<bool, World::EntityRef> entities[] = {
-        { false, world.create_entity(D { 1 }, F { 2 }) },
-        { true, world.create_entity(D { 3 }, E { 4 }, F { 5 }) },
-        { true, world.create_entity(D { 6 }, E { 7 }) },
-        { false, world.create_entity(D { 8 }) },
-        { false, world.create_entity() },
-        { false, world.create_entity(E { 9 }) },
-    };
-
-    const World& world_ref = world;
-    auto query = world_ref.query<D, E>();
-
-    for (auto [should_match, entity] : entities) {
-        auto count = std::count_if(
-            query.begin(), query.end(), [entity](const auto& tuple) {
-                const auto& [e, a, b] = tuple;
-
-                return e == entity;
-            });
-
-        if (should_match) {
-            ASSERT_EQ(count, 1);
-        } else {
-            ASSERT_EQ(count, 0);
-        }
-    }
-}
-
-TEST(World, ConstEntityQueryMixedStorage)
-{
-    World world;
-
-    std::tuple<bool, World::EntityRef> entities[] = {
-        { false, world.create_entity(A { 1 }, B { 2 }) },
-        { true, world.create_entity(A { 3 }, E { 4 }, B { 5 }) },
-        { true, world.create_entity(A { 6 }, E { 7 }) },
-        { false, world.create_entity(A { 8 }) },
-        { false, world.create_entity() },
-        { false, world.create_entity(E { 9 }) },
-    };
-
-    const World& world_ref = world;
-    auto query = world_ref.query<A, E>();
-
-    for (auto [should_match, entity] : entities) {
-        auto count = std::count_if(
-            query.begin(), query.end(), [entity](const auto& tuple) {
-                const auto& [e, a, b] = tuple;
-
-                return e == entity;
-            });
-
-        if (should_match) {
-            ASSERT_EQ(count, 1);
-        } else {
-            ASSERT_EQ(count, 0);
-        }
-    }
-}
-*/

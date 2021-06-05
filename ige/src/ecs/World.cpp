@@ -10,32 +10,6 @@ World::World(Resources res)
 {
 }
 
-World::EntityRef::EntityRef(World& wld, EntityId id)
-    : m_wld(&wld)
-    , m_id(id)
-{
-}
-
-bool World::EntityRef::operator==(const World::EntityRef& other) const
-{
-    return m_id == other.m_id && m_wld == other.m_wld;
-}
-
-bool World::EntityRef::operator!=(const World::EntityRef& other) const
-{
-    return !(*this == other);
-}
-
-bool World::EntityRef::remove()
-{
-    return m_wld->remove_entity(m_id);
-}
-
-EntityId World::EntityRef::id() const
-{
-    return m_id;
-}
-
 bool World::exists(const EntityId& ent)
 {
     return m_entities.exists(ent);

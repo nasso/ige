@@ -63,24 +63,19 @@ class RootState : public State {
             PerspectiveCamera { 70.0f },
             Scripts::from(TrackballCamera { 15.0f, 90.0f }));
 
-        m_ground_id1 = app.world()
-                           .create_entity(
-                               RigidBody { ground_collider, 0 },
-                               Transform {}
-                                   .set_translation(vec3 { 0.0f, 0.0f, 0.0f })
-                                   .set_scale(vec3 { 10.0f, 0.2f, 10.0f })
-                                   .set_rotation(vec3 { -60.f, 0.0f, 0.0f }),
-                               MeshRenderer { ground_mesh, ground_material })
-                           .id();
-        m_ground_id2
-            = app.world()
-                  .create_entity(
-                      RigidBody { ground_collider, 0 },
-                      Transform {}
-                          .set_translation(vec3 { 0.0f, -5.0f, -10.0f })
-                          .set_scale(vec3 { 10.0f, 0.2f, 15.0f }),
-                      MeshRenderer { ground_mesh, ground_material })
-                  .id();
+        m_ground_id1 = app.world().create_entity(
+            RigidBody { ground_collider, 0 },
+            Transform {}
+                .set_translation(vec3 { 0.0f, 0.0f, 0.0f })
+                .set_scale(vec3 { 10.0f, 0.2f, 10.0f })
+                .set_rotation(vec3 { -60.f, 0.0f, 0.0f }),
+            MeshRenderer { ground_mesh, ground_material });
+        m_ground_id2 = app.world().create_entity(
+            RigidBody { ground_collider, 0 },
+            Transform {}
+                .set_translation(vec3 { 0.0f, -5.0f, -10.0f })
+                .set_scale(vec3 { 10.0f, 0.2f, 15.0f }),
+            MeshRenderer { ground_mesh, ground_material });
 
         Collider cube_collider;
         cube_collider.type = ColliderType::BOX;
@@ -100,20 +95,14 @@ class RootState : public State {
             GltfScene { "assets/test_box.glb", GltfFormat::BINARY },
             Transform::from_pos(vec3(0, 10, 0)).set_scale(0.5));
 
-        m_ball_id1
-            = app.world()
-                  .create_entity(
-                      RigidBody { ball_collider },
-                      GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
-                      Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5f))
-                  .id();
-        m_ball_id2
-            = app.world()
-                  .create_entity(
-                      RigidBody { ball_collider },
-                      GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
-                      Transform::from_pos(vec3(0, 10, -7)).set_scale(0.5f))
-                  .id();
+        m_ball_id1 = app.world().create_entity(
+            RigidBody { ball_collider },
+            GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
+            Transform::from_pos(vec3(1, 10, 0)).set_scale(0.5f));
+        m_ball_id2 = app.world().create_entity(
+            RigidBody { ball_collider },
+            GltfScene { "assets/test_ball.glb", GltfFormat::BINARY },
+            Transform::from_pos(vec3(0, 10, -7)).set_scale(0.5f));
 
         app.world().create_entity(
             RigidBody { capsule_collider }.set_freeze_rotation(),

@@ -12,6 +12,8 @@ namespace ige::ecs {
 class EntityId {
 public:
     EntityId(std::size_t index, std::uint64_t gen);
+    EntityId(const EntityId&) = default;
+    EntityId& operator=(const EntityId&) = default;
 
     bool operator==(const EntityId&) const = default;
 
