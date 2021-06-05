@@ -52,6 +52,10 @@ void Scripts::run_all(World& world, EntityId entity)
     for (auto& [type, bhvr] : m_bhvrs) {
         if (bhvr->set_context(world, entity)) {
             bhvr->on_start();
+
+            if (!world.exists(entity)) {
+                return;
+            }
         }
     }
 
@@ -59,12 +63,20 @@ void Scripts::run_all(World& world, EntityId entity)
         for (std::uint32_t i = 0; i < time->ticks(); i++) {
             for (auto& [type, bhvr] : m_bhvrs) {
                 bhvr->tick();
+
+                if (!world.exists(entity)) {
+                    return;
+                }
             }
         }
     }
 
     for (auto& [type, bhvr] : m_bhvrs) {
         bhvr->update();
+
+        if (!world.exists(entity)) {
+            return;
+        }
     }
 }
 
