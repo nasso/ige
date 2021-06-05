@@ -44,6 +44,8 @@ bool World::exists(const EntityId& ent)
 bool World::remove_entity(const EntityId& ent)
 {
     if (m_entities.release(ent)) {
+        m_generation.remove(ent.index());
+
         for (auto& comp : m_components) {
             comp.second(ent);
         }

@@ -4,25 +4,24 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <limits>
 #include <unordered_set>
 
 namespace ige::ecs {
 
 class EntityId {
-private:
-    std::size_t m_index;
-    std::uint64_t m_generation;
-
-    EntityId(std::size_t index, std::uint64_t gen);
-
 public:
-    EntityId(std::size_t index);
+    EntityId(std::size_t index, std::uint64_t gen);
 
     bool operator==(const EntityId&) const = default;
 
     std::size_t index() const;
     std::uint64_t generation() const;
     EntityId next_gen() const;
+
+private:
+    std::size_t m_index;
+    std::uint64_t m_generation;
 };
 
 }
