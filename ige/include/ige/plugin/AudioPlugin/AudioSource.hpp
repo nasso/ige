@@ -24,6 +24,8 @@ namespace plugin {
         class AudioSource {
         public:
             AudioSource();
+            AudioSource(AudioSource&&);
+            AudioSource(const AudioSource& other) = delete;
             ~AudioSource();
 
             void load_clip(std::shared_ptr<AudioClip> clip);
@@ -43,9 +45,12 @@ namespace plugin {
             void set_reference_distance(float distance);
             float reference_distance() const;
 
+            AudioSource& operator=(AudioSource&&);
+
         protected:
         private:
             ALuint m_source;
+            bool m_moved = false;
             std::shared_ptr<AudioClip> m_clip;
 
             glm::vec3 get_property3f(ALenum alProp) const;

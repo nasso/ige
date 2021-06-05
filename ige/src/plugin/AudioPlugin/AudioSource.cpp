@@ -25,9 +25,23 @@ namespace plugin {
             alGenSources(1, &m_source);
         }
 
+        AudioSource::AudioSource(AudioSource&& source)
+        {
+            source.m_moved = true;
+            this->m_source = source.m_source;
+        }
+
+        AudioSource& AudioSource::operator=(AudioSource&& source)
+        {
+            source.m_moved = true;
+            this->m_source = source.m_source;
+            return *this;
+        }
+
         AudioSource::~AudioSource()
         {
-            alDeleteSources(1, &m_source);
+            if (!this->m_moved)
+                alDeleteSources(1, &m_source);
         }
 
         bool AudioSource::is_playing()
@@ -40,6 +54,7 @@ namespace plugin {
 
         void AudioSource::load_clip(std::shared_ptr<AudioClip> clip)
         {
+            AudioEngine::get_native_exception();
             m_clip = clip;
             alSourcei(this->m_source, AL_LOOPING, 0);
             AudioEngine::get_native_exception();

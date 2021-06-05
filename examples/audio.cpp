@@ -29,17 +29,15 @@ class RootState : public State {
             new AudioClip("./assets/waves_mono.ogg"));
 
         // Warning: Only mono sound files support 3D Spatialization
-        auto demo_ent = app.world().create_entity();
-        demo_ent.emplace_component<AudioSource>();
-        demo_ent.add_component<Transform>(
-            Transform::from_pos(glm::vec3(500.0f, 0.0f, 0.0f)));
-        demo_ent.get_component<AudioSource>()->load_clip(clip);
-        demo_ent.get_component<AudioSource>()->play();
+        auto demo_ent = app.world().create_entity(
+            AudioSource {}, Transform::from_pos(glm::vec3(500.0f, 0.0f, 0.0f)));
+        app.world().get_component<AudioSource>(demo_ent)->load_clip(clip);
+        app.world().get_component<AudioSource>(demo_ent)->play();
 
         // Warning: A world can only contain one AudioListener !
-        auto listener = app.world().create_entity();
-        listener.emplace_component<Transform>();
-        listener.emplace_component<AudioListener>(glm::vec3(0.0f, 0.0f, 0.0f));
+        auto listener = app.world().create_entity(AudioListener {});
+        app.world().add_component<Transform>(
+            listener, Transform::from_pos(glm::vec3(0.0f, 0.0f, 0.0f)));
     }
 
     void on_update(App& app) override
