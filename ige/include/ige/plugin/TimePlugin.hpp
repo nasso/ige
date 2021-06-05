@@ -21,6 +21,7 @@ public:
     Duration tick() const;
     float now_seconds() const;
     float delta_seconds() const;
+    float tick_seconds() const;
     std::uint32_t ticks() const;
 
 private:

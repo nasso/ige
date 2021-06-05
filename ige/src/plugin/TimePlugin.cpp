@@ -53,6 +53,11 @@ float Time::delta_seconds() const
     return duration_cast<duration<float>>(delta()).count();
 }
 
+float Time::tick_seconds() const
+{
+    return duration_cast<duration<float>>(tick()).count();
+}
+
 std::uint32_t Time::ticks() const
 {
     return static_cast<std::uint32_t>((m_last_update - m_last_tick) / m_tick);
