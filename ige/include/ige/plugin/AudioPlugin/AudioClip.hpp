@@ -19,18 +19,20 @@ namespace plugin {
         class AudioClip {
         public:
             AudioClip(const std::string& path);
-            AudioClip(const AudioClip& other);
+            AudioClip(const AudioClip& other) = delete;
+            AudioClip(AudioClip&&);
             ~AudioClip();
 
             std::vector<float>& get_samples();
             ALuint get_al_buffer();
 
-            AudioClip& operator=(const AudioClip& other);
+            AudioClip& operator=(AudioClip&& other);
 
         protected:
         private:
             nqr::AudioData m_audio_data;
             ALuint m_buffer;
+            bool m_moved;
 
             ALenum find_sample_mode(const nqr::AudioData&);
         };

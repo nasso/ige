@@ -77,20 +77,24 @@ namespace plugin {
             AudioEngine::get_native_exception();
         }
 
-        AudioClip::AudioClip(const AudioClip& other)
+        AudioClip::AudioClip(AudioClip&& source)
         {
-            *this = other;
+            source.m_moved = true;
+            this->m_audio_data = source.m_audio_data;
+            this->m_buffer = source.m_buffer;
         }
 
         AudioClip::~AudioClip()
         {
-            alDeleteBuffers(1, &this->m_buffer);
+            if (!this->m_moved)
+                alDeleteBuffers(1, &this->m_buffer);
         }
 
-        AudioClip& AudioClip::operator=(const AudioClip& other)
+        AudioClip& AudioClip::operator=(AudioClip&& source)
         {
-            this->m_audio_data = other.m_audio_data;
-            this->m_buffer = other.m_buffer;
+            source.m_moved = true;
+            this->m_buffer = source.m_buffer;
+            this->m_audio_data = source.m_audio_data;
             return *this;
         }
 
