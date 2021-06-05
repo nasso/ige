@@ -2,7 +2,10 @@
 #include <iostream>
 #include <optional>
 #include <stdio.h>
+#include <thread>
+#include <chrono>
 
+using namespace std::literals::chrono_literals;
 using ige::asset::Material;
 using ige::asset::Mesh;
 using ige::asset::Texture;
@@ -48,16 +51,16 @@ class RootState : public State {
         if (!std::get<1>(source[0]).is_playing()) {
             app.quit();
         }
-        if (count++ > 1000) {
-            count = 0;
-            for (auto& [entity, listener, xform] : listeners) {
-                xform.translate(glm::vec3(1, 0, 0));
-                std::cout << "New listener position:"
-                          << " X=" << xform.translation().x
-                          << " Y=" << xform.translation().y
-                          << " Z=" << xform.translation().z << std::endl;
-            }
+        for (auto& [entity, listener, xform] : listeners) {
+            xform.translate(glm::vec3(1, 0, 0));
+            std::cout << "New listener position:"
+                        << " X=" << xform.translation().x
+                        << " Y=" << xform.translation().y
+                        << " Z=" << xform.translation().z << std::endl;
         }
+
+        // This is just to slow the process down a bit, don't use that in a real use case
+        std::this_thread::sleep_for(10ms);
     }
 };
 
