@@ -1,9 +1,9 @@
 #include "ige.hpp"
+#include <chrono>
 #include <iostream>
 #include <optional>
 #include <stdio.h>
 #include <thread>
-#include <chrono>
 
 using namespace std::literals::chrono_literals;
 using ige::asset::Material;
@@ -54,12 +54,13 @@ class RootState : public State {
         for (auto& [entity, listener, xform] : listeners) {
             xform.translate(glm::vec3(1, 0, 0));
             std::cout << "New listener position:"
-                        << " X=" << xform.translation().x
-                        << " Y=" << xform.translation().y
-                        << " Z=" << xform.translation().z << std::endl;
+                      << " X=" << xform.translation().x
+                      << " Y=" << xform.translation().y
+                      << " Z=" << xform.translation().z << std::endl;
         }
 
-        // This is just to slow the process down a bit, don't use that in a real use case
+        // This is just to slow the process down a bit, don't use that in a real
+        // use case
         std::this_thread::sleep_for(10ms);
     }
 };
