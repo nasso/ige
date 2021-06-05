@@ -10,6 +10,7 @@ jobs:
     env:
       CC: gcc-10
       CXX: g++-10
+      LIBNYQUIST_ASOUND: 1
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
@@ -24,6 +25,8 @@ jobs:
 
   build-epitest:
     runs-on: ubuntu-latest
+    env:
+      LIBNYQUIST_ASOUND: 1
     container: epitechcontent/epitest-docker
     if: >
       ${{ false
