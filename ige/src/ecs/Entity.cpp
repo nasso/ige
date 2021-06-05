@@ -12,11 +12,6 @@ EntityId::EntityId(std::size_t index, std::uint64_t gen)
 {
 }
 
-EntityId::EntityId(std::size_t index)
-    : EntityId(index, 0)
-{
-}
-
 std::size_t EntityId::index() const
 {
     return m_index;
@@ -29,7 +24,7 @@ std::uint64_t EntityId::generation() const
 
 EntityId EntityId::next_gen() const
 {
-    return EntityId { m_index, m_generation + 1 };
+    return { m_index, m_generation + 1 };
 }
 
 EntityId EntityPool::allocate()
@@ -42,7 +37,7 @@ EntityId EntityPool::allocate()
         m_entities.insert(entity);
         return entity;
     } else {
-        EntityId entity { m_size++ };
+        EntityId entity { m_size++, 0 };
         m_entities.insert(entity);
         return entity;
     }

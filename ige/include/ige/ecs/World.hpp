@@ -7,6 +7,7 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/MapStorage.hpp"
 #include "ige/ecs/Resources.hpp"
+#include "ige/ecs/VecStorage.hpp"
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -110,6 +111,8 @@ public:
     EntityRef create_entity(Cs&&... components)
     {
         EntityRef entity(*this, m_entities.allocate());
+
+        m_generation.set(entity.id().index(), entity.id().generation());
 
         entity.add_all_components(std::forward<Cs>(components)...);
         return entity;
@@ -296,10 +299,11 @@ private:
             auto& storage = std::get<StorageOf<C>&>(*m_storages);
 
             for (const auto& [id, comp] : storage) {
-                auto components = m_world.get_component_bundle<Cs...>(id);
+                EntityId ent { id, *m_world.m_generation.get(id) };
+                auto components = m_world.get_component_bundle<Cs...>(ent);
 
                 if (components) {
-                    entities.emplace_back(id, std::get<Cs&>(*components)...);
+                    entities.emplace_back(ent, std::get<Cs&>(*components)...);
                 }
             }
 
@@ -320,6 +324,7 @@ private:
     using CompRemover = std::function<bool(EntityId)>;
 
     EntityPool m_entities;
+    VecStorage<std::uint64_t> m_generation;
     std::unordered_map<core::TypeId, CompRemover> m_components;
     Resources m_resources;
 };
