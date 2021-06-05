@@ -27,6 +27,7 @@ using ige::plugin::render::RenderPlugin;
 using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
+using ige::plugin::time::Time;
 using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
@@ -34,6 +35,30 @@ using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
+
+class RemoveInOneSec : public CppBehaviour {
+public:
+    float timer = 0.0f;
+
+    RemoveInOneSec()
+    {
+        std::cout << "RemoveInOneSec()" << std::endl;
+    }
+
+    void on_start() override
+    {
+        std::cout << "start" << std::endl;
+    }
+
+    void tick() override
+    {
+        timer += get_resource<Time>()->tick_seconds();
+
+        if (timer >= 1.0f) {
+            world().remove_entity(entity());
+        }
+    }
+};
 
 class CharacterController : public CppBehaviour {
 public:
@@ -106,7 +131,8 @@ public:
 
             world().create_entity(
                 Transform::from_pos({ pos.x, pos.y + 1.0f, pos.z }),
-                MeshRenderer { m_mesh, m_mat });
+                MeshRenderer { m_mesh, m_mat },
+                Scripts::from(RemoveInOneSec {}));
         }
     }
 };
