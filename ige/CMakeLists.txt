@@ -73,11 +73,7 @@ FetchContent_MakeAvailable(libnyquist)
 FetchContent_Declare(OpenAL
     URL https://github.com/kcat/openal-soft/archive/refs/tags/1.21.1.zip
 )
-if(NOT OpenAL_POPULATED)
-    FetchContent_Populate(OpenAL)
-    set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${OpenAL_SOURCE_DIR} ${OpenAL_BINARY_DIR})
-endif()
+FetchContent_MakeAvailable(OpenAL)
 
 
 # source files
@@ -187,6 +183,8 @@ set(compile_flags
     GLM_FORCE_SILENT_WARNINGS
     IGE_OPENGL
 )
+
+set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
 
 # static library
 add_library(ige STATIC ${sources})
