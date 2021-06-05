@@ -23,10 +23,10 @@ TEST(EntityPool, MadeUpEntityDoesntExist)
 {
     EntityPool pool;
 
-    ASSERT_FALSE(pool.exists(EntityId { 0 }));
-    ASSERT_FALSE(pool.exists(EntityId { 1 }));
-    ASSERT_FALSE(pool.exists(EntityId { 2 }));
-    ASSERT_FALSE(pool.exists(EntityId { 3 }));
+    ASSERT_FALSE(pool.exists(EntityId { 0, 0 }));
+    ASSERT_FALSE(pool.exists(EntityId { 1, 0 }));
+    ASSERT_FALSE(pool.exists(EntityId { 2, 0 }));
+    ASSERT_FALSE(pool.exists(EntityId { 3, 0 }));
 }
 
 TEST(EntityPool, ReleasedEntityIsRecycled)

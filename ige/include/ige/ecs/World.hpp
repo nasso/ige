@@ -23,98 +23,18 @@ namespace ige::ecs {
 
 class World {
 public:
-    class EntityRef {
-    private:
-        World* m_wld;
-        EntityId m_id;
-
-    public:
-        EntityRef(World&, EntityId);
-        EntityRef(const EntityRef&) = default;
-        EntityRef& operator=(const EntityRef&) = default;
-
-        bool operator==(const EntityRef&) const;
-        bool operator!=(const EntityRef&) const;
-        bool remove();
-
-        template <Component C>
-        C& add_component(C comp)
-        {
-            return m_wld->add_component(m_id, std::move(comp));
-        }
-
-        template <Component C, typename... Args>
-        requires std::constructible_from<C, Args...> C&
-        emplace_component(Args&&... args)
-        {
-            return m_wld->emplace_component<C>(
-                m_id, std::forward<Args>(args)...);
-        }
-
-        template <Component C>
-        C* get_component()
-        {
-            return m_wld->get_component<C>(m_id);
-        }
-
-        template <Component C>
-        const C* get_component() const
-        {
-            return m_wld->get_component<C>(m_id);
-        }
-
-        template <Component C, typename... Args>
-        requires std::constructible_from<C, Args...> C&
-        get_or_emplace_component(Args&&... args)
-        {
-            return m_wld->get_or_emplace_component<C>(
-                m_id, std::forward<Args>(args)...);
-        }
-
-        template <Component... Cs>
-        decltype(auto) get_component_bundle()
-        {
-            return m_wld->get_component_bundle<Cs...>();
-        }
-
-        template <Component... Cs>
-        decltype(auto) get_component_bundle() const
-        {
-            return m_wld->get_component_bundle<Cs...>();
-        }
-
-        template <Component C>
-        std::optional<C> remove_component()
-        {
-            return m_wld->remove_component<C>(m_id);
-        }
-
-        void add_all_components()
-        {
-        }
-
-        template <Component C, Component... Cs>
-        void add_all_components(C&& component, Cs&&... rest)
-        {
-            add_component(std::move(component));
-            add_all_components(std::forward<Cs>(rest)...);
-        }
-
-        EntityId id() const;
-    };
-
     World(Resources = {});
 
     bool remove_entity(const EntityId&);
 
     template <Component... Cs>
-    EntityRef create_entity(Cs&&... components)
+    EntityId create_entity(Cs&&... components)
     {
-        EntityRef entity(*this, m_entities.allocate());
+        EntityId entity = m_entities.allocate();
 
-        m_generation.set(entity.id().index(), entity.id().generation());
+        m_generation.set(entity.index(), entity.generation());
 
-        entity.add_all_components(std::forward<Cs>(components)...);
+        add_all_components(entity, std::forward<Cs>(components)...);
         return entity;
     }
 
@@ -170,9 +90,15 @@ public:
     }
 
     template <Component C>
-    C& add_component(const EntityId& ent, C comp)
+    C& add_component(const EntityId& ent, C&& comp)
     {
-        return emplace_component<C>(ent, std::move(comp));
+        return emplace_component<C>(ent, std::forward<C>(comp));
+    }
+
+    template <Component... Cs>
+    void add_all_components(const EntityId& ent, Cs&&... comp)
+    {
+        ((add_component(ent, std::forward<Cs>(comp)), void()), ...);
     }
 
     template <Component C, typename... Args>

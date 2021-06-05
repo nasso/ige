@@ -12,6 +12,7 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
+using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
@@ -29,7 +30,7 @@ using ige::plugin::window::WindowSettings;
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
 
-    std::vector<World::EntityRef> cubes;
+    std::vector<EntityId> cubes;
 
     void on_start(App& app) override
     {
@@ -50,12 +51,9 @@ class RootState : public State {
 
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 1; y++) {
-                auto cube = app.world().create_entity();
-                auto& xform = cube.emplace_component<Transform>();
-                cube.emplace_component<MeshRenderer>(mesh, material);
-                cubes.push_back(cube);
-
-                xform.set_translation({ x * 1.5f, 0.0f, y * 1.5f });
+                cubes.push_back(app.world().create_entity(
+                    Transform::from_pos({ x * 1.5f, 0.0f, y * 1.5f }),
+                    MeshRenderer { mesh, material }));
             }
         }
 
@@ -67,8 +65,8 @@ class RootState : public State {
     {
         float t = app.world().get<Time>()->now_seconds();
 
-        for (auto cube : cubes) {
-            Transform* xform = cube.get_component<Transform>();
+        for (const auto& cube : cubes) {
+            Transform* xform = app.world().get_component<Transform>(cube);
 
             xform->set_rotation(vec3(t * 60.0f, 0.0f, t * 60.0f));
 
