@@ -92,11 +92,15 @@ class RootState : public State {
 
         // make the little cubes rotate too!!
         for (auto cube : children) {
-            app.world().get_component<Transform>(cube)->set_rotation(vec3 {
-                0.0f,
-                60.0f * time->now_seconds(),
-                60.0f * time->now_seconds(),
-            });
+            auto xform = app.world().get_component<Transform>(cube);
+
+            if (xform) {
+                xform->set_rotation(vec3 {
+                    0.0f,
+                    60.0f * time->now_seconds(),
+                    60.0f * time->now_seconds(),
+                });
+            }
         }
 
         // quit the app when the window closes
