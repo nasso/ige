@@ -14,12 +14,16 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
+using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
+using ige::plugin::input::InputManager;
+using ige::plugin::input::InputPlugin;
+using ige::plugin::input::KeyboardKey;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
@@ -47,6 +51,8 @@ static void rotation_system(World& world)
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
+    std::optional<EntityId> entity_to_edit;
+    std::optional<EntityId> entity_to_remove;
 
     void on_start(App& app) override
     {
@@ -54,7 +60,7 @@ class RootState : public State {
         m_win_events.emplace(channel->subscribe());
 
         // create model
-        app.world().create_entity(
+        entity_to_edit = app.world().create_entity(
             Transform::from_pos(vec3(-2.0f, 0.0f, 0.0f)),
             Rotation {
                 vec3(0.0f, 20.0f, 0.0f),
@@ -64,7 +70,7 @@ class RootState : public State {
                 GltfFormat::BINARY,
             });
 
-        app.world().create_entity(
+        entity_to_remove = app.world().create_entity(
             Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.2f),
             Rotation {
                 vec3(0.0f, 20.0f, 0.0f),
@@ -82,6 +88,13 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
+        auto input = app.world().get<InputManager>();
+
+        if (input->keyboard().is_pressed(KeyboardKey::KEY_DELETE)) {
+            app.world().remove_component<GltfScene>(*entity_to_edit);
+            app.world().remove_entity(*entity_to_remove);
+        }
+
         while (auto event = m_win_events->next_event()) {
             if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
@@ -96,6 +109,7 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
+            .add_plugin(InputPlugin {})
             .add_plugin(TimePlugin {})
             .add_plugin(GltfPlugin {})
             .add_plugin(TransformPlugin {})

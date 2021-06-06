@@ -232,8 +232,11 @@ static void compute_children_sets(World& world)
             world.get_or_emplace_component<Children>(parent.entity)
                 .entities.insert(child);
         } else {
-            // orphans are detached from their parent
-            world.remove_component<Parent>(child);
+            // orphans are removed
+            world.remove_entity(child);
+
+            // note: if they themselves had children, they will be removed next
+            //       frame
         }
     }
 }
