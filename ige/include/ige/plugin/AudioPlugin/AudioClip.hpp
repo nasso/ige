@@ -1,16 +1,11 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioClip
-*/
-
 #ifndef AUDIOCLIP_HPP_
 #define AUDIOCLIP_HPP_
 
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <libnyquist/Decoders.h>
+
+#include "ige/plugin/AudioPlugin/AudioBuffer.hpp"
 
 namespace ige {
 namespace plugin {

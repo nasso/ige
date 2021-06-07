@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioPlugin
-*/
-
 #include "ige/plugin/AudioPlugin/AudioPlugin.hpp"
 #include "ige.hpp"
 #include "ige/plugin/AudioPlugin/AudioEngine.hpp"

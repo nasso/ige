@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioSource
-*/
-
 #ifndef AUDIOSOURCE_HPP_
 #define AUDIOSOURCE_HPP_
 

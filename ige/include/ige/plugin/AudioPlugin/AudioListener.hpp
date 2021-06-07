@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioListener
-*/
-
 #ifndef AUDIOLISTENER_HPP_
 #define AUDIOLISTENER_HPP_
 

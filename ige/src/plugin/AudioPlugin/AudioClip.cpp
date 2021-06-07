@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioClip
-*/
-
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <libnyquist/Decoders.h>

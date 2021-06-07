@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioListener
-*/
-
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 

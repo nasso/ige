@@ -1,10 +1,3 @@
-/*
-** EPITECH PROJECT, 2021
-** ige
-** File description:
-** AudioPluginException
-*/
-
 #ifndef AUDIOPLUGINEXCEPTION_HPP_
 #define AUDIOPLUGINEXCEPTION_HPP_
 
