@@ -58,21 +58,18 @@ namespace plugin {
                       << "\n"
                       << "Frame Size    : " << this->m_audio_data.frameSize
                       << std::endl;
-            alGenBuffers(1, &(this->m_buffer));
-            AudioEngine::get_native_exception();
             auto sample_mode = this->find_sample_mode(this->m_audio_data);
             if (sample_mode == AL_FORMAT_MONO8
                 || sample_mode == AL_FORMAT_STEREO8) {
                 auto alvec = to_al_vector8(this->m_audio_data.samples);
-                alBufferData(
-                    this->m_buffer, this->find_sample_mode(this->m_audio_data),
-                    alvec.data(), alvec.size(), this->m_audio_data.sampleRate);
+
+                this->m_buffer.set_data(
+                    sample_mode, alvec, this->m_audio_data.sampleRate);
             } else {
                 auto alvec = to_al_vector16(this->m_audio_data.samples);
-                alBufferData(
-                    this->m_buffer, this->find_sample_mode(this->m_audio_data),
-                    alvec.data(), alvec.size() * sizeof(signed short),
-                    this->m_audio_data.sampleRate);
+
+                this->m_buffer.set_data(
+                    sample_mode, alvec, this->m_audio_data.sampleRate);
             }
             AudioEngine::get_native_exception();
         }
@@ -81,19 +78,17 @@ namespace plugin {
         {
             source.m_moved = true;
             this->m_audio_data = source.m_audio_data;
-            this->m_buffer = source.m_buffer;
+            this->m_buffer = std::move(source.m_buffer);
         }
 
         AudioClip::~AudioClip()
         {
-            if (!this->m_moved)
-                alDeleteBuffers(1, &this->m_buffer);
         }
 
         AudioClip& AudioClip::operator=(AudioClip&& source)
         {
             source.m_moved = true;
-            this->m_buffer = source.m_buffer;
+            this->m_buffer = std::move(source.m_buffer);
             this->m_audio_data = source.m_audio_data;
             return *this;
         }
@@ -123,11 +118,10 @@ namespace plugin {
             return this->m_audio_data.samples;
         }
 
-        ALuint AudioClip::get_al_buffer()
+        AudioBuffer& AudioClip::get_audio_buffer()
         {
-            return this->m_buffer;
+            return m_buffer;
         }
-
     }
 }
 }

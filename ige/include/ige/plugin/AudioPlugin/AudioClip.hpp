@@ -24,14 +24,14 @@ namespace plugin {
             ~AudioClip();
 
             std::vector<float>& get_samples();
-            ALuint get_al_buffer();
+            AudioBuffer& get_audio_buffer();
 
             AudioClip& operator=(AudioClip&& other);
 
         protected:
         private:
             nqr::AudioData m_audio_data;
-            ALuint m_buffer;
+            AudioBuffer m_buffer;
             bool m_moved;
 
             ALenum find_sample_mode(const nqr::AudioData&);

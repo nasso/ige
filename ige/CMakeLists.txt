@@ -122,6 +122,7 @@ set(sources ${sources}
     "include/ige/plugin/AudioPlugin/AudioClip.hpp"
     "include/ige/plugin/AudioPlugin/AudioSource.hpp"
     "include/ige/plugin/AudioPlugin/AudioListener.hpp"
+    "include/ige/plugin/AudioPlugin/AudioBuffer.hpp"
     "include/ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
 
     "src/asset/Material.cpp"
@@ -174,6 +175,7 @@ set(sources ${sources}
     "src/plugin/AudioPlugin/AudioClip.cpp"
     "src/plugin/AudioPlugin/AudioPlugin.cpp"
     "src/plugin/AudioPlugin/AudioSource.cpp"
+    "src/plugin/AudioPlugin/AudioBuffer.cpp"
     "src/plugin/AudioPlugin/AudioListener.cpp"
 )
 
