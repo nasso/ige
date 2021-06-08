@@ -183,9 +183,12 @@ set(sources ${sources}
     "src/plugin/renderer/opengl/Texture.hpp"
     "src/plugin/renderer/opengl/VertexArray.cpp"
     "src/plugin/renderer/opengl/VertexArray.hpp"
+    "src/plugin/renderer/RectRenderer.cpp"
     "src/plugin/RenderPlugin.cpp"
     "src/plugin/ScriptPlugin.cpp"
     "src/plugin/TimePlugin.cpp"
+    "src/plugin/transform/RectTransform.cpp"
+    "src/plugin/transform/Transform.cpp"
     "src/plugin/TransformPlugin.cpp"
     "src/plugin/WindowPlugin.cpp"
 )

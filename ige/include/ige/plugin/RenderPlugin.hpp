@@ -4,6 +4,8 @@
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
 #include "ige/core/App.hpp"
+#include <cstdint>
+#include <glm/vec4.hpp>
 #include <memory>
 #include <optional>
 
@@ -26,6 +28,20 @@ struct PerspectiveCamera {
 struct MeshRenderer {
     asset::Mesh::Handle mesh;
     asset::Material::Handle material;
+};
+
+struct RectRenderer {
+    glm::vec4 background_color;
+
+    RectRenderer& set_background_rgba(glm::vec4 rgba) &;
+    RectRenderer set_background_rgba(glm::vec4 rgba) &&;
+    RectRenderer& set_background_rgb(glm::vec3 rgb) &;
+    RectRenderer set_background_rgb(glm::vec3 rgb) &&;
+
+    RectRenderer& set_background_rgba(std::uint32_t rgba) &;
+    RectRenderer set_background_rgba(std::uint32_t rgba) &&;
+    RectRenderer& set_background_rgb(std::uint32_t rgb) &;
+    RectRenderer set_background_rgb(std::uint32_t rgb) &&;
 };
 
 class RenderPlugin : public core::App::Plugin {

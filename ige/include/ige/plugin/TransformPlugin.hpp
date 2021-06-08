@@ -7,6 +7,7 @@
 #include "ige/ecs/World.hpp"
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <optional>
 #include <unordered_set>
@@ -85,6 +86,36 @@ public:
 
     const glm::mat4& local_to_world() const;
     const glm::mat4& world_to_local() const;
+};
+
+struct RectTransform {
+    glm::vec2 bounds_min { 0.0f };
+    glm::vec2 bounds_max { 0.0f };
+    glm::vec2 anchors_min { 0.5f };
+    glm::vec2 anchors_max { 0.5f };
+
+    RectTransform& set_bounds(glm::vec2 min, glm::vec2 max) &;
+    RectTransform set_bounds(glm::vec2 min, glm::vec2 max) &&;
+
+    /**
+     * @brief Set the bounds to represent a centered rectangle.
+     *
+     * Effectively calls `set_bounds(-size / 2.0f, size / 2.0f)`.
+     *
+     * @param size The dimensions of the rectangle.
+     * @return A reference to this `RectTransform`
+     */
+    RectTransform& set_rect(glm::vec2 size) &;
+
+    /**
+     * @copydoc RectTransform::set_rect(glm::vec2) &
+     */
+    RectTransform set_rect(glm::vec2 size) &&;
+
+    RectTransform& set_anchors(glm::vec2 min, glm::vec2 max) &;
+    RectTransform set_anchors(glm::vec2 min, glm::vec2 max) &&;
+    RectTransform& set_anchors(glm::vec2 all) &;
+    RectTransform set_anchors(glm::vec2 all) &&;
 };
 
 class TransformPlugin : public core::App::Plugin {
