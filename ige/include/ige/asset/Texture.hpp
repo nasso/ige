@@ -1,6 +1,7 @@
 #ifndef CE8932E3_3765_4F70_8A57_81C1AAF1C4C6
 #define CE8932E3_3765_4F70_8A57_81C1AAF1C4C6
 
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -40,19 +41,6 @@ public:
         REPEAT = 10497,
     };
 
-private:
-    std::uint64_t m_version = 0;
-    Format m_format = Format::R;
-    std::size_t m_width = 0;
-    std::size_t m_height = 0;
-    std::vector<std::byte> m_pixels;
-
-    MagFilter m_mag_filter = MagFilter::NEAREST;
-    MinFilter m_min_filter = MinFilter::NEAREST_MIPMAP_NEAREST;
-    WrappingMode m_wrap_s = WrappingMode::CLAMP_TO_EDGE;
-    WrappingMode m_wrap_t = WrappingMode::CLAMP_TO_EDGE;
-
-public:
     Texture(Format format, std::size_t width, std::size_t height);
     Texture(std::span<const std::byte> image_data);
     Texture(const std::filesystem::path&);
@@ -78,6 +66,25 @@ public:
         std::vector<std::byte> pixels);
     void load(std::span<const std::byte>);
     void load(const std::filesystem::path&);
+
+    template <typename... Args>
+        requires std::constructible_from<Texture, Args...>
+    static Handle make_new(Args&&... args)
+    {
+        return std::make_shared<Texture>(std::forward<Args>(args)...);
+    }
+
+private:
+    std::uint64_t m_version = 0;
+    Format m_format = Format::R;
+    std::size_t m_width = 0;
+    std::size_t m_height = 0;
+    std::vector<std::byte> m_pixels;
+
+    MagFilter m_mag_filter = MagFilter::LINEAR;
+    MinFilter m_min_filter = MinFilter::NEAREST;
+    WrappingMode m_wrap_s = WrappingMode::REPEAT;
+    WrappingMode m_wrap_t = WrappingMode::REPEAT;
 };
 
 }

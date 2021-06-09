@@ -3,7 +3,9 @@
 #include "Error.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
+#include "TextureCache.hpp"
 #include "VertexArray.hpp"
+#include "WeakPtrMap.hpp"
 #include "blobs/shaders/gl3/main-fs.glsl.h"
 #include "blobs/shaders/gl3/main-vs.glsl.h"
 #include "glad/gl.h"
@@ -40,34 +42,6 @@ using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::window::WindowInfo;
-
-template <typename T>
-struct WeakRefHash {
-    std::size_t operator()(const std::weak_ptr<T>& ptr) const
-    {
-        std::size_t res = 17;
-        res = res * 31 + std::hash<bool>()(ptr.expired());
-        res = res * 31 + std::hash<T*>()(ptr.lock().get());
-        return res;
-    }
-};
-
-template <typename T>
-struct WeakRefEq {
-    bool
-    operator()(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const
-    {
-        if (lhs.expired() || rhs.expired()) {
-            return lhs.expired() && rhs.expired();
-        }
-
-        return lhs.lock().get() == rhs.lock().get();
-    }
-};
-
-template <typename K, typename V>
-using WeakRefCache
-    = std::unordered_map<std::weak_ptr<K>, V, WeakRefHash<K>, WeakRefEq<K>>;
 
 class MeshCache {
 private:
@@ -141,116 +115,10 @@ public:
 
 std::size_t MeshCache::GID = 0;
 
-class TextureCache {
-private:
-    static std::size_t GID;
-
-    std::size_t m_id;
-
-    gl::Texture::Format convert(Texture::Format fmt)
-    {
-        switch (fmt) {
-        case Texture::Format::R:
-            return gl::Texture::Format::RED;
-        case Texture::Format::RG:
-            return gl::Texture::Format::RG;
-        case Texture::Format::RGB:
-            return gl::Texture::Format::RGB;
-        case Texture::Format::RGBA:
-            return gl::Texture::Format::RGBA;
-        default:
-            throw std::runtime_error("Unsupported texture format");
-        }
-    }
-
-    gl::Texture::MagFilter convert(Texture::MagFilter filter)
-    {
-        switch (filter) {
-        case Texture::MagFilter::LINEAR:
-            return gl::Texture::MagFilter::LINEAR;
-        case Texture::MagFilter::NEAREST:
-            return gl::Texture::MagFilter::NEAREST;
-        default:
-            throw std::runtime_error("Unsupported texture mag filter");
-        }
-    }
-
-    gl::Texture::MinFilter convert(Texture::MinFilter filter)
-    {
-        switch (filter) {
-        case Texture::MinFilter::LINEAR:
-            return gl::Texture::MinFilter::LINEAR;
-        case Texture::MinFilter::LINEAR_MIPMAP_LINEAR:
-            return gl::Texture::MinFilter::LINEAR_MIPMAP_LINEAR;
-        case Texture::MinFilter::LINEAR_MIPMAP_NEAREST:
-            return gl::Texture::MinFilter::LINEAR_MIPMAP_NEAREST;
-        case Texture::MinFilter::NEAREST:
-            return gl::Texture::MinFilter::NEAREST;
-        case Texture::MinFilter::NEAREST_MIPMAP_LINEAR:
-            return gl::Texture::MinFilter::NEAREST_MIPMAP_LINEAR;
-        case Texture::MinFilter::NEAREST_MIPMAP_NEAREST:
-            return gl::Texture::MinFilter::NEAREST_MIPMAP_NEAREST;
-        default:
-            throw std::runtime_error("Unsupported texture min filter");
-        }
-    }
-
-    gl::Texture::Wrap convert(Texture::WrappingMode mode)
-    {
-        switch (mode) {
-        case Texture::WrappingMode::CLAMP_TO_EDGE:
-            return gl::Texture::Wrap::CLAMP_TO_EDGE;
-        case Texture::WrappingMode::MIRRORED_REPEAT:
-            return gl::Texture::Wrap::MIRRORED_REPEAT;
-        case Texture::WrappingMode::REPEAT:
-            return gl::Texture::Wrap::REPEAT;
-        default:
-            throw std::runtime_error("Unsupported texture wrapping mode");
-        }
-    }
-
-public:
-    gl::Texture gl_texture;
-
-    TextureCache(const Texture& texture)
-        : m_id(++GID)
-    {
-        gl_texture.load_pixels(
-            static_cast<GLsizei>(texture.width()),
-            static_cast<GLsizei>(texture.height()), convert(texture.format()),
-            gl::Texture::Type::UNSIGNED_BYTE, texture.data().data());
-        gl_texture.filter(
-            convert(texture.mag_filter()), convert(texture.min_filter()));
-        gl_texture.wrap(convert(texture.wrap_s()), convert(texture.wrap_t()));
-
-        gl::Error::audit("texture cache - texture loading");
-
-        switch (texture.min_filter()) {
-        case Texture::MinFilter::NEAREST_MIPMAP_NEAREST:
-        case Texture::MinFilter::NEAREST_MIPMAP_LINEAR:
-        case Texture::MinFilter::LINEAR_MIPMAP_NEAREST:
-        case Texture::MinFilter::LINEAR_MIPMAP_LINEAR:
-            gl_texture.gen_mipmaps();
-            break;
-        default:
-            break;
-        }
-
-        gl::Error::audit("texture cache - mipmaps gen");
-    }
-
-    ~TextureCache()
-    {
-        std::cerr << "Releasing texture cache " << m_id << std::endl;
-    }
-};
-
-std::size_t TextureCache::GID = 0;
-
 class RenderCache {
 private:
-    WeakRefCache<Mesh, MeshCache> m_meshes;
-    WeakRefCache<Texture, TextureCache> m_textures;
+    WeakPtrMap<Mesh, MeshCache> m_meshes;
+    WeakPtrMap<Texture, TextureCache> m_textures;
 
 public:
     std::optional<gl::Program> main_program;
@@ -292,6 +160,7 @@ public:
         auto iter = m_textures.find(texture);
 
         if (iter == m_textures.end()) {
+            // FIXME: textures are never destroyed
             iter = m_textures.emplace(texture, *texture).first;
         }
 

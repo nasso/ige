@@ -1,10 +1,15 @@
 #include "UiRenderer.hpp"
 #include "Program.hpp"
 #include "Shader.hpp"
+#include "TextureCache.hpp"
 #include "VertexArray.hpp"
-#include "blobs/shaders/gl3/ui-fs.glsl.h"
-#include "blobs/shaders/gl3/ui-vs.glsl.h"
+#include "WeakPtrMap.hpp"
+#include "blobs/shaders/gl3/ui-img-fs.glsl.h"
+#include "blobs/shaders/gl3/ui-img-vs.glsl.h"
+#include "blobs/shaders/gl3/ui-rect-fs.glsl.h"
+#include "blobs/shaders/gl3/ui-rect-vs.glsl.h"
 #include "glad/gl.h"
+#include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
@@ -17,16 +22,20 @@
 
 using glm::vec2;
 using glm::vec4;
+using ige::asset::Texture;
 using ige::core::App;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::render::ImageRenderer;
 using ige::plugin::render::RectRenderer;
 using ige::plugin::transform::RectTransform;
 using ige::plugin::window::WindowInfo;
 
 struct UiRenderCache {
     gl::VertexArray quad_vao;
-    gl::Program program;
+    gl::Program rect_program;
+    gl::Program image_program;
+    WeakPtrMap<Texture, TextureCache> textures;
 
     // called on the first frame
     UiRenderCache()
@@ -43,15 +52,41 @@ struct UiRenderCache {
         {
             gl::Shader vs {
                 gl::Shader::ShaderType::VERTEX,
-                BLOBS_SHADERS_GL3_UI_VS_GLSL,
+                BLOBS_SHADERS_GL3_UI_RECT_VS_GLSL,
             };
 
             gl::Shader fs {
                 gl::Shader::ShaderType::FRAGMENT,
-                BLOBS_SHADERS_GL3_UI_FS_GLSL,
+                BLOBS_SHADERS_GL3_UI_RECT_FS_GLSL,
             };
 
-            program.link(vs, fs);
+            rect_program.link(vs, fs);
+        }
+
+        {
+            gl::Shader vs {
+                gl::Shader::ShaderType::VERTEX,
+                BLOBS_SHADERS_GL3_UI_IMG_VS_GLSL,
+            };
+
+            gl::Shader fs {
+                gl::Shader::ShaderType::FRAGMENT,
+                BLOBS_SHADERS_GL3_UI_IMG_FS_GLSL,
+            };
+
+            image_program.link(vs, fs);
+        }
+    }
+
+    gl::Texture& operator[](Texture::Handle tex)
+    {
+        auto it = textures.find(tex);
+
+        if (it != textures.end()) {
+            return it->second.gl_texture;
+        } else {
+            // FIXME: textures are never destroyed
+            return textures.emplace(tex, *tex).first->second.gl_texture;
         }
     }
 };
@@ -77,17 +112,36 @@ static void render_ui(World& wld)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    cache.quad_vao.bind();
+
     for (auto [ent, rect, xform] : wld.query<RectRenderer, RectTransform>()) {
-        cache.program.use();
-        cache.program.uniform("u_BaseColorFactor", rect.background_color);
-        cache.program.uniform(
+        cache.rect_program.use();
+        cache.rect_program.uniform("u_FillColor", rect.fill);
+        cache.rect_program.uniform(
             "u_Bounds",
             vec4 {
                 xform.abs_bounds_min() / winsize * 2.0f - 1.0f,
                 xform.abs_bounds_max() / winsize * 2.0f - 1.0f,
             });
 
-        cache.quad_vao.bind();
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    for (auto [ent, img, xform] : wld.query<ImageRenderer, RectTransform>()) {
+        if (img.texture == nullptr) {
+            continue;
+        }
+
+        cache.image_program.use();
+        cache.image_program.uniform("u_Texture", cache[img.texture]);
+        cache.image_program.uniform("u_Tint", img.tint);
+        cache.image_program.uniform(
+            "u_Bounds",
+            vec4 {
+                xform.abs_bounds_min() / winsize * 2.0f - 1.0f,
+                xform.abs_bounds_max() / winsize * 2.0f - 1.0f,
+            });
+
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 }

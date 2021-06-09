@@ -3,8 +3,10 @@
 
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
+#include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
 #include <cstdint>
+#include <filesystem>
 #include <glm/vec4.hpp>
 #include <memory>
 #include <optional>
@@ -31,17 +33,48 @@ struct MeshRenderer {
 };
 
 struct RectRenderer {
-    glm::vec4 background_color;
+    RectRenderer& set_fill_rgba(glm::vec4 rgba) &;
+    RectRenderer set_fill_rgba(glm::vec4 rgba) &&;
+    RectRenderer& set_fill_rgb(glm::vec3 rgb) &;
+    RectRenderer set_fill_rgb(glm::vec3 rgb) &&;
 
-    RectRenderer& set_background_rgba(glm::vec4 rgba) &;
-    RectRenderer set_background_rgba(glm::vec4 rgba) &&;
-    RectRenderer& set_background_rgb(glm::vec3 rgb) &;
-    RectRenderer set_background_rgb(glm::vec3 rgb) &&;
+    RectRenderer& set_fill_rgba(std::uint32_t rgba) &;
+    RectRenderer set_fill_rgba(std::uint32_t rgba) &&;
+    RectRenderer& set_fill_rgb(std::uint32_t rgb) &;
+    RectRenderer set_fill_rgb(std::uint32_t rgb) &&;
 
-    RectRenderer& set_background_rgba(std::uint32_t rgba) &;
-    RectRenderer set_background_rgba(std::uint32_t rgba) &&;
-    RectRenderer& set_background_rgb(std::uint32_t rgb) &;
-    RectRenderer set_background_rgb(std::uint32_t rgb) &&;
+    glm::vec4 fill;
+};
+
+struct ImageRenderer {
+    enum class Mode {
+        STRETCH,
+        SLICED,
+        TILED,
+    };
+
+    ImageRenderer(asset::Texture::Handle texture, Mode mode = Mode::STRETCH);
+
+    ImageRenderer& set_tint_rgba(glm::vec4 rgba) &;
+    ImageRenderer set_tint_rgba(glm::vec4 rgba) &&;
+    ImageRenderer& set_tint_rgb(glm::vec3 rgb) &;
+    ImageRenderer set_tint_rgb(glm::vec3 rgb) &&;
+
+    ImageRenderer& set_tint_rgba(std::uint32_t rgba) &;
+    ImageRenderer set_tint_rgba(std::uint32_t rgba) &&;
+    ImageRenderer& set_tint_rgb(std::uint32_t rgb) &;
+    ImageRenderer set_tint_rgb(std::uint32_t rgb) &&;
+
+    ImageRenderer& set_mode(Mode mode) &;
+    ImageRenderer set_mode(Mode mode) &&;
+
+    ImageRenderer& set_borders(glm::vec4 top_right_bottom_left) &;
+    ImageRenderer set_borders(glm::vec4 top_right_bottom_left) &&;
+
+    asset::Texture::Handle texture;
+    glm::vec4 borders { 1.0f / 3.0f };
+    glm::vec4 tint { 1.0f };
+    Mode mode = Mode::STRETCH;
 };
 
 class RenderPlugin : public core::App::Plugin {
