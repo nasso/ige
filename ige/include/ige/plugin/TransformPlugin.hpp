@@ -88,34 +88,40 @@ public:
     const glm::mat4& world_to_local() const;
 };
 
-struct RectTransform {
+class RectTransform {
+public:
+    // bottom left corner location (in pixels)
     glm::vec2 bounds_min { 0.0f };
+
+    // top right corner location (in pixels)
     glm::vec2 bounds_max { 0.0f };
-    glm::vec2 anchors_min { 0.5f };
-    glm::vec2 anchors_max { 0.5f };
+
+    // bottom left anchor location (0..1 proportional to parent)
+    glm::vec2 anchors_min { 0.0f };
+
+    // top right anchor location (0..1 proportional to parent)
+    glm::vec2 anchors_max { 1.0f };
 
     RectTransform& set_bounds(glm::vec2 min, glm::vec2 max) &;
     RectTransform set_bounds(glm::vec2 min, glm::vec2 max) &&;
-
-    /**
-     * @brief Set the bounds to represent a centered rectangle.
-     *
-     * Effectively calls `set_bounds(-size / 2.0f, size / 2.0f)`.
-     *
-     * @param size The dimensions of the rectangle.
-     * @return A reference to this `RectTransform`
-     */
-    RectTransform& set_rect(glm::vec2 size) &;
-
-    /**
-     * @copydoc RectTransform::set_rect(glm::vec2) &
-     */
-    RectTransform set_rect(glm::vec2 size) &&;
 
     RectTransform& set_anchors(glm::vec2 min, glm::vec2 max) &;
     RectTransform set_anchors(glm::vec2 min, glm::vec2 max) &&;
     RectTransform& set_anchors(glm::vec2 all) &;
     RectTransform set_anchors(glm::vec2 all) &&;
+
+    void force_update(
+        glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max);
+
+    /// @brief Get the absolute position of the lower left corner.
+    glm::vec2 abs_bounds_min() const;
+
+    /// @brief Get the absolute position of the top right corner.
+    glm::vec2 abs_bounds_max() const;
+
+private:
+    glm::vec2 m_abs_bounds_min { 0.0f };
+    glm::vec2 m_abs_bounds_max { 0.0f };
 };
 
 class TransformPlugin : public core::App::Plugin {

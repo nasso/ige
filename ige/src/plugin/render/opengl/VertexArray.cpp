@@ -36,6 +36,8 @@ VertexArray::~VertexArray()
     if (m_id) {
         glDeleteVertexArrays(1, &m_id);
     }
+
+    m_buffers.clear();
 }
 
 void VertexArray::unbind()

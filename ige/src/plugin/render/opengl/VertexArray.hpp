@@ -8,6 +8,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <span>
+#include <vector>
 
 namespace gl {
 
@@ -17,19 +18,6 @@ public:
         FLOAT = GL_FLOAT,
     };
 
-private:
-    GLuint m_id = 0;
-
-    template <typename T>
-    void attrib(GLuint idx, GLint size, Type type, std::span<const T> data)
-    {
-        gl::Buffer vbo;
-        vbo.load(data);
-
-        attrib(idx, size, type, std::move(vbo));
-    }
-
-public:
     VertexArray();
     VertexArray(const VertexArray&) = delete;
     VertexArray& operator=(const VertexArray&) = delete;
@@ -48,6 +36,19 @@ public:
     void attrib(GLuint idx, std::span<const glm::vec2> data);
     void attrib(GLuint idx, std::span<const glm::vec3> data);
     void attrib(GLuint idx, std::span<const glm::vec4> data);
+
+private:
+    GLuint m_id = 0;
+    std::vector<gl::Buffer> m_buffers;
+
+    template <typename T>
+    void attrib(GLuint idx, GLint size, Type type, std::span<const T> data)
+    {
+        auto& vbo = m_buffers.emplace_back();
+        vbo.load(data);
+
+        attrib(idx, size, type, vbo);
+    }
 };
 
 }

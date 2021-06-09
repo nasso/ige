@@ -23,13 +23,19 @@ public:
         LinkError(const std::string& info_log);
     };
 
-    Program(const Shader& vs, const Shader& fs);
+    Program();
     Program(const Program&) = delete;
     Program& operator=(const Program&) = delete;
     Program(Program&&);
     Program& operator=(Program&&);
     ~Program();
 
+    Program(const Shader& vs, const Shader& fs);
+
+    void attach(const Shader&);
+    void detach(const Shader&);
+    void link(const Shader&, const Shader&);
+    void link();
     void use() const;
     GLuint id() const;
 

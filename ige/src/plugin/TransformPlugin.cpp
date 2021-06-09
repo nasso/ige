@@ -2,44 +2,61 @@
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/WindowPlugin.hpp"
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <utility>
 
 using glm::mat4;
+using glm::vec2;
 using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::transform::Children;
 using ige::plugin::transform::Parent;
+using ige::plugin::transform::RectTransform;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
+using ige::plugin::window::WindowInfo;
 
 Parent::Parent(ecs::EntityId parent_entity)
     : entity(parent_entity)
 {
 }
 
-namespace systems {
+static void update_transform_tree(
+    World& world, EntityId entity, Transform& transform,
+    const mat4& parent_xform, bool force = false)
+{
+    if (transform.needs_update() || force) {
+        force = true;
+        transform.force_update(parent_xform);
+    }
 
-namespace utils {
-    static void update_transform_tree(
-        World& world, EntityId entity, Transform& transform,
-        const mat4& parent_xform, bool force = false)
-    {
-        if (transform.needs_update() || force) {
-            force = true;
-            transform.force_update(parent_xform);
+    if (auto children = world.get_component<Children>(entity)) {
+        for (auto child : children->entities) {
+            if (auto child_transform = world.get_component<Transform>(child)) {
+                update_transform_tree(
+                    world, child, *child_transform, transform.local_to_world(),
+                    force);
+            }
         }
+    }
+}
 
-        if (auto children = world.get_component<Children>(entity)) {
-            for (auto child : children->entities) {
-                if (auto child_transform
-                    = world.get_component<Transform>(child)) {
-                    update_transform_tree(
-                        world, child, *child_transform,
-                        transform.local_to_world(), force);
-                }
+static void update_transform_tree(
+    World& world, EntityId entity, RectTransform& rect,
+    vec2 parent_abs_bounds_min, vec2 parent_abs_bounds_max)
+{
+    rect.force_update(parent_abs_bounds_min, parent_abs_bounds_max);
+
+    if (auto children = world.get_component<Children>(entity)) {
+        for (auto child : children->entities) {
+            if (auto child_rect = world.get_component<RectTransform>(child)) {
+                update_transform_tree(
+                    world, child, *child_rect, rect.abs_bounds_min(),
+                    rect.abs_bounds_max());
             }
         }
     }
@@ -75,22 +92,40 @@ static void compute_children_sets(World& world)
     }
 }
 
-static void compute_world_transform(World& world)
+static void compute_world_transforms(World& world)
 {
     for (auto [entity, transform] : world.query<Transform>()) {
         // only update tree roots (entities without a parent)
         // children will get recursively updated
         if (!world.get_component<Parent>(entity)) {
-            utils::update_transform_tree(
-                world, entity, transform, mat4 { 1.0f });
+            update_transform_tree(world, entity, transform, mat4 { 1.0f });
         }
     }
 }
 
+static void compute_rect_transforms(World& world)
+{
+    vec2 root_abs_min(0.0f);
+    vec2 root_abs_max(0.0f);
+
+    if (auto wininfo = world.get<WindowInfo>()) {
+        root_abs_max.x = static_cast<float>(wininfo->width);
+        root_abs_max.y = static_cast<float>(wininfo->height);
+    }
+
+    for (auto [entity, rect] : world.query<RectTransform>()) {
+        // only update tree roots (entities without a parent)
+        // children will get recursively updated
+        if (!world.get_component<Parent>(entity)) {
+            update_transform_tree(
+                world, entity, rect, root_abs_min, root_abs_max);
+        }
+    }
 }
 
 void TransformPlugin::plug(App::Builder& builder) const
 {
-    builder.add_system(System::from(systems::compute_children_sets));
-    builder.add_system(System::from(systems::compute_world_transform));
+    builder.add_system(System::from(compute_children_sets));
+    builder.add_system(System::from(compute_world_transforms));
+    builder.add_system(System::from(compute_rect_transforms));
 }
