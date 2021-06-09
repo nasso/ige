@@ -6,7 +6,7 @@
 #include <string>
 #include <string_view>
 
-namespace ige::gl {
+namespace gl {
 
 class Shader {
 public:

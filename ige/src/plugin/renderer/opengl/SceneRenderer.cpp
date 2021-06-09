@@ -1,19 +1,20 @@
-#include "backend.hpp"
+#include "SceneRenderer.hpp"
+#include "Buffer.hpp"
+#include "Error.hpp"
+#include "Program.hpp"
+#include "Shader.hpp"
+#include "VertexArray.hpp"
 #include "blobs/shaders/gl3/main-fs.glsl.h"
 #include "blobs/shaders/gl3/main-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
 #include "ige/asset/Texture.hpp"
+#include "ige/core/App.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
-#include "opengl/Buffer.hpp"
-#include "opengl/Error.hpp"
-#include "opengl/Program.hpp"
-#include "opengl/Shader.hpp"
-#include "opengl/VertexArray.hpp"
 #include <cstddef>
 #include <functional>
 #include <glm/mat3x3.hpp>
@@ -25,17 +26,18 @@
 #include <tuple>
 #include <unordered_map>
 
-namespace gl = ige::gl;
-
 using glm::mat3;
 using glm::mat4;
 using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
 using ige::asset::Texture;
+using ige::core::App;
+using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
+using ige::plugin::render::RenderPlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::window::WindowInfo;
 
@@ -348,12 +350,10 @@ static void draw_mesh(
 
     gl::Error::audit("before draw elements");
 
-    glEnable(GL_DEPTH_TEST);
     if (double_sided) {
         glDisable(GL_CULL_FACE);
     } else {
         glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
     }
     glDrawElements(
         topology, static_cast<GLsizei>(renderer.mesh->index_buffer().size()),
@@ -362,9 +362,9 @@ static void draw_mesh(
     gl::Error::audit("draw elements");
 }
 
-namespace ige::plugin::render::backend {
+namespace systems {
 
-void render_meshes(World& world)
+static void render_meshes(World& world)
 {
     auto& cache = world.get_or_emplace<RenderCache>();
 
@@ -380,14 +380,16 @@ void render_meshes(World& world)
         return;
     }
 
-    auto& camera = std::get<1>(cameras[0]);
-    auto& camera_xform = std::get<2>(cameras[0]);
+    auto& [camera_entity, camera, camera_xform] = cameras[0];
 
     mat4 projection = glm::perspective(
         glm::radians(camera.fov),
         float(wininfo->width) / float(wininfo->height), camera.near,
         camera.far);
     mat4 view = camera_xform.world_to_local();
+
+    glEnable(GL_DEPTH_TEST);
+    glCullFace(GL_BACK);
 
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
@@ -397,14 +399,15 @@ void render_meshes(World& world)
     }
 }
 
-void clear_buffers(World&)
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void clear_cache(World& world)
+static void clear_cache(World& world)
 {
     world.remove<RenderCache>();
 }
 
+}
+
+void SceneRenderer::plug(App::Builder& builder) const
+{
+    builder.add_system(System::from(systems::render_meshes));
+    builder.add_cleanup_system(System::from(systems::clear_cache));
 }

@@ -93,5 +93,5 @@ static void update_scripts(World& world)
 
 void ScriptPlugin::plug(App::Builder& builder) const
 {
-    builder.add_system(System(systems::update_scripts));
+    builder.add_system(System::from(systems::update_scripts));
 }

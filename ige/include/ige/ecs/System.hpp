@@ -3,17 +3,17 @@
 
 #include "World.hpp"
 #include <functional>
+#include <memory>
 
 namespace ige::ecs {
 
 class System {
 public:
-    System(std::function<void(World&)> run) noexcept;
+    static std::unique_ptr<System> from(std::function<void(World&)>);
 
-    void operator()(World&);
+    virtual ~System() = default;
 
-private:
-    std::function<void(World&)> m_run;
+    virtual void run(World&) = 0;
 };
 
 }

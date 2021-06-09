@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-using ige::gl::Error;
+using gl::Error;
 
 const std::unordered_map<GLenum, std::string> ERROR_MAP = {
     { GL_NO_ERROR, "GL_NO_ERROR" },

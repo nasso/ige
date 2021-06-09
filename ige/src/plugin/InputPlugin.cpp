@@ -36,5 +36,5 @@ void InputPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<InputManager>();
     builder.emplace<EventChannel<InputEvent>>();
-    builder.add_system(System(update_input_manager));
+    builder.add_system(System::from(update_input_manager));
 }

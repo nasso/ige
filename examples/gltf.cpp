@@ -115,7 +115,7 @@ int main()
             .add_plugin(TransformPlugin {})
             .add_plugin(WindowPlugin {})
             .add_plugin(RenderPlugin {})
-            .add_system(System(rotation_system))
+            .add_system(System::from(rotation_system))
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;
     } catch (const std::exception& e) {

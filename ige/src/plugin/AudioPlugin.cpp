@@ -37,7 +37,7 @@ static void update_positions_system(World& world)
 void AudioPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<AudioEngine>();
-    builder.add_system(System(update_positions_system));
+    builder.add_system(System::from(update_positions_system));
     builder.add_cleanup_system(
-        System([](World& world) { world.remove<AudioEngine>(); }));
+        System::from([](World& world) { world.remove<AudioEngine>(); }));
 }

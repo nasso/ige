@@ -6,7 +6,7 @@
 #include <span>
 #include <vector>
 
-namespace ige::gl {
+namespace gl {
 
 class Buffer {
 private:

@@ -9,7 +9,7 @@
 #include <glm/vec4.hpp>
 #include <span>
 
-namespace ige::gl {
+namespace gl {
 
 class VertexArray {
 public:

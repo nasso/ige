@@ -558,6 +558,6 @@ static void despawn_gltf_scenes(World& world)
 
 void GltfPlugin::plug(App::Builder& builder) const
 {
-    builder.add_system(System(systems::spawn_gltf_scenes));
-    builder.add_system(System(systems::despawn_gltf_scenes));
+    builder.add_system(System::from(systems::spawn_gltf_scenes));
+    builder.add_system(System::from(systems::despawn_gltf_scenes));
 }

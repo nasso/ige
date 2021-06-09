@@ -137,10 +137,10 @@ void constraints_update(World& wld)
 
 void PhysicsPlugin::plug(App::Builder& builder) const
 {
-    builder.add_startup_system(System(setup_physics_system));
-    builder.add_system(System(physics_entities_update));
-    builder.add_system(System(physics_world_simulate));
-    builder.add_system(System(collisions_update));
-    builder.add_system(System(constraints_update));
-    builder.add_cleanup_system(System(clean_physics_system));
+    builder.add_startup_system(System::from(setup_physics_system));
+    builder.add_system(System::from(physics_entities_update));
+    builder.add_system(System::from(physics_world_simulate));
+    builder.add_system(System::from(collisions_update));
+    builder.add_system(System::from(constraints_update));
+    builder.add_cleanup_system(System::from(clean_physics_system));
 }

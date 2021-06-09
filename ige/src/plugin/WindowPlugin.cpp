@@ -288,10 +288,10 @@ static void poll_events_system(World&)
 void WindowPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<EventChannel<WindowEvent>>();
-    builder.add_startup_system(System(init_glfw_system));
-    builder.add_startup_system(System(create_window_system));
-    builder.add_cleanup_system(System(destroy_window_system));
-    builder.add_cleanup_system(System(terminate_glfw_system));
-    builder.add_system(System(update_window_system));
-    builder.add_system(System(poll_events_system));
+    builder.add_startup_system(System::from(init_glfw_system));
+    builder.add_startup_system(System::from(create_window_system));
+    builder.add_cleanup_system(System::from(destroy_window_system));
+    builder.add_cleanup_system(System::from(terminate_glfw_system));
+    builder.add_system(System::from(update_window_system));
+    builder.add_system(System::from(poll_events_system));
 }
