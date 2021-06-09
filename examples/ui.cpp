@@ -5,6 +5,7 @@
 #include <optional>
 
 using glm::vec3;
+using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
@@ -13,6 +14,7 @@ using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
 using ige::plugin::input::InputPlugin;
+using ige::plugin::render::ImageRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RectRenderer;
 using ige::plugin::render::RenderPlugin;
@@ -55,20 +57,24 @@ class RootState : public State {
             RectTransform {}
                 .set_anchors({ 0.0f, 0.0f }, { 1.0f, 0.0f })
                 .set_bounds({ 0.0f, 0.0f }, { 0.0f, 50.0f }),
-            RectRenderer {}.set_background_rgb(0xFFFFFF));
+            RectRenderer {}.set_fill_rgb(0xFFFFFF));
+
+        auto btn_img = Texture::make_new("assets/button_frame.png");
 
         app.world().create_entity(
             Parent { bottom_pane },
             RectTransform {}
                 .set_anchors({ 0.0f, 0.5f })
                 .set_bounds({ 5.0f, -20.0f }, { 45.0f, 20.0f }),
-            RectRenderer {}.set_background_rgb(0xFF0000));
+            ImageRenderer { btn_img, ImageRenderer::Mode::SLICED }
+                // apply a yellowish tint
+                .set_tint_rgb(0xfce37e));
 
         app.world().create_entity(
             RectTransform {}
                 .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
                 .set_bounds({ 100.0f, -50.0f }, { -100.0f, -10.0f }),
-            RectRenderer {}.set_background_rgb(0x00FF00));
+            ImageRenderer { btn_img, ImageRenderer::Mode::TILED });
     }
 
     void on_update(App& app) override
