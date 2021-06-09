@@ -104,7 +104,7 @@ void BulletWorld::get_collisions(World& wld, PhysicsWorld& phys_world)
             }
         }
 
-        if (entity1 || entity2) {
+        if (entity1 && entity2) {
             phys_world.add_collision(entity1.value(), entity2.value());
         }
     }
