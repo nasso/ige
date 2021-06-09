@@ -113,9 +113,9 @@ static void render_ui(World& wld)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     cache.quad_vao.bind();
+    cache.rect_program.use();
 
     for (auto [ent, rect, xform] : wld.query<RectRenderer, RectTransform>()) {
-        cache.rect_program.use();
         cache.rect_program.uniform("u_FillColor", rect.fill);
         cache.rect_program.uniform(
             "u_Bounds",
@@ -127,12 +127,23 @@ static void render_ui(World& wld)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
+    cache.image_program.use();
+
     for (auto [ent, img, xform] : wld.query<ImageRenderer, RectTransform>()) {
         if (img.texture == nullptr) {
             continue;
         }
 
-        cache.image_program.use();
+        vec2 img_size = xform.abs_bounds_max() - xform.abs_bounds_min();
+        vec2 tex_size {
+            static_cast<float>(img.texture->width()),
+            static_cast<float>(img.texture->height()),
+        };
+
+        if (img_size.x <= 0.0f || img_size.y <= 0.0f) {
+            continue;
+        }
+
         cache.image_program.uniform("u_Texture", cache[img.texture]);
         cache.image_program.uniform("u_Tint", img.tint);
         cache.image_program.uniform(
@@ -141,6 +152,40 @@ static void render_ui(World& wld)
                 xform.abs_bounds_min() / winsize * 2.0f - 1.0f,
                 xform.abs_bounds_max() / winsize * 2.0f - 1.0f,
             });
+
+        vec2 repeat_count(1.0f);
+        vec4 tex_borders(0.0f, 0.0f, 1.0f, 1.0f);
+        vec4 borders_pos(0.0f, 0.0f, 1.0f, 1.0f);
+
+        if (img.mode == ImageRenderer::Mode::TILED) {
+            // size of the center rect on the texture
+            vec2 tex_center_part_size = vec2 {
+                tex_size.x - img.borders.x - img.borders.z,
+                tex_size.y - img.borders.y - img.borders.w,
+            };
+
+            // size of the center rect on screen
+            vec2 scr_center_part_size = vec2 {
+                img_size.x - img.borders.x - img.borders.z,
+                img_size.y - img.borders.y - img.borders.w,
+            };
+
+            repeat_count = scr_center_part_size / tex_center_part_size;
+        }
+
+        if (img.mode != ImageRenderer::Mode::STRETCHED) {
+            borders_pos = img.borders / vec4(img_size, img_size);
+            borders_pos.z = 1.0f - borders_pos.z;
+            borders_pos.w = 1.0f - borders_pos.w;
+
+            tex_borders = img.borders / vec4(tex_size, tex_size);
+            tex_borders.z = 1.0f - tex_borders.z;
+            tex_borders.w = 1.0f - tex_borders.w;
+        }
+
+        cache.image_program.uniform("u_RepeatCount", repeat_count);
+        cache.image_program.uniform("u_TextureBorders", tex_borders);
+        cache.image_program.uniform("u_Borders", borders_pos);
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
