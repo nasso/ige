@@ -91,6 +91,6 @@ static void compute_world_transform(World& world)
 
 void TransformPlugin::plug(App::Builder& builder) const
 {
-    builder.add_system(System(systems::compute_children_sets));
-    builder.add_system(System(systems::compute_world_transform));
+    builder.add_system(System::from(systems::compute_children_sets));
+    builder.add_system(System::from(systems::compute_world_transform));
 }

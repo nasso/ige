@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace ige::gl {
+namespace gl {
 
 class Program {
 public:

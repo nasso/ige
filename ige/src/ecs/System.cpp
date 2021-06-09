@@ -1,18 +1,28 @@
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include <functional>
+#include <memory>
 
-namespace ige {
-namespace ecs {
+using ige::ecs::System;
+using ige::ecs::World;
 
-    System::System(std::function<void(World&)> run) noexcept
+class FunctionSystem : public System {
+public:
+    FunctionSystem(std::function<void(World&)> run) noexcept
         : m_run(run)
     {
     }
 
-    void System::operator()(World& wld)
+    void run(World& world) override
     {
-        m_run(wld);
+        m_run(world);
     }
 
-}
+private:
+    std::function<void(World&)> m_run;
+};
+
+std::unique_ptr<System> System::from(std::function<void(World&)> fn)
+{
+    return std::make_unique<FunctionSystem>(fn);
 }

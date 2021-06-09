@@ -2,7 +2,7 @@
 #include "glad/gl.h"
 #include <utility>
 
-using ige::gl::Texture;
+using gl::Texture;
 
 Texture::Texture()
 {

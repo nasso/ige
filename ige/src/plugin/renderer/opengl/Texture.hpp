@@ -3,7 +3,7 @@
 
 #include "glad/gl.h"
 
-namespace ige::gl {
+namespace gl {
 
 class Texture {
 private:

@@ -5,7 +5,7 @@
 #include <string_view>
 #include <vector>
 
-using ige::gl::Shader;
+using gl::Shader;
 
 Shader::Shader(Shader::ShaderType type, std::string_view source)
 {

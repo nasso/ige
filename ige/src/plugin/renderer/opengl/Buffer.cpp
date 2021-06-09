@@ -2,7 +2,7 @@
 #include "glad/gl.h"
 #include <utility>
 
-using ige::gl::Buffer;
+using gl::Buffer;
 
 Buffer::Buffer(GLenum target)
     : m_target(target)

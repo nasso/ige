@@ -4,11 +4,11 @@
 #include <cstddef>
 #include <utility>
 
+using gl::Buffer;
+using gl::VertexArray;
 using glm::vec2;
 using glm::vec3;
 using glm::vec4;
-using ige::gl::Buffer;
-using ige::gl::VertexArray;
 
 VertexArray::VertexArray()
 {

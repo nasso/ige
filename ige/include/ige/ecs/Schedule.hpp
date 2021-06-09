@@ -4,37 +4,34 @@
 #include "System.hpp"
 #include "World.hpp"
 #include <concepts>
+#include <memory>
+#include <utility>
 #include <vector>
 
 namespace ige::ecs {
 
 class Schedule {
-private:
-    std::vector<System> m_systems;
-
-    Schedule(std::vector<System>);
-
 public:
     class Builder {
-    private:
-        std::vector<System> m_systems;
-
     public:
-        template <typename F>
-        requires std::constructible_from<System, F> Builder& add_system(F&& sys)
-        {
-            m_systems.emplace_back(std::forward<F>(sys));
+        Builder& add_system(std::unique_ptr<System> system) &;
+        Builder add_system(std::unique_ptr<System> system) &&;
 
-            return *this;
-        }
+        Schedule build();
 
-        Schedule build() const;
+    private:
+        std::vector<std::unique_ptr<System>> m_systems;
     };
 
     Schedule() = default;
 
     void run_forward(World&);
     void run_reverse(World&);
+
+private:
+    std::vector<std::unique_ptr<System>> m_systems;
+
+    Schedule(std::vector<std::unique_ptr<System>>);
 };
 
 }

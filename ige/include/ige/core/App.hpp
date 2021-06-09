@@ -8,6 +8,7 @@
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include <concepts>
+#include <memory>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -41,9 +42,13 @@ public:
 
     public:
         App::Builder& add_plugin(const Plugin&);
-        App::Builder& add_startup_system(ecs::System);
-        App::Builder& add_system(ecs::System);
-        App::Builder& add_cleanup_system(ecs::System);
+
+        App::Builder& add_startup_system(std::unique_ptr<ecs::System>) &;
+        App::Builder add_startup_system(std::unique_ptr<ecs::System>) &&;
+        App::Builder& add_system(std::unique_ptr<ecs::System>) &;
+        App::Builder add_system(std::unique_ptr<ecs::System>) &&;
+        App::Builder& add_cleanup_system(std::unique_ptr<ecs::System>) &;
+        App::Builder add_cleanup_system(std::unique_ptr<ecs::System>) &&;
 
         template <ecs::Resource R>
         App::Builder& insert(R res)

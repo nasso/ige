@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace ige::gl {
+namespace gl {
 
 class Error : public std::runtime_error {
 private:

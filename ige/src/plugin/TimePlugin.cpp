@@ -112,5 +112,5 @@ static void update_global_time(World& world)
 void TimePlugin::plug(App::Builder& builder) const
 {
     builder.emplace<Time>();
-    builder.add_system(System(systems::update_global_time));
+    builder.add_system(System::from(systems::update_global_time));
 }
