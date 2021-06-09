@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 uniform mat4 u_ProjViewModel;
 uniform mat3 u_NormalMatrix;

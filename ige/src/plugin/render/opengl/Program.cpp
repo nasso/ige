@@ -28,16 +28,53 @@ Program::LinkError::LinkError(const std::string& info_log)
 {
 }
 
-Program::Program(const Shader& vs, const Shader& fs)
+Program::Program()
 {
     m_id = glCreateProgram();
+}
 
-    glAttachShader(m_id, vs.id());
-    glAttachShader(m_id, fs.id());
+Program::Program(const Shader& vs, const Shader& fs)
+    : Program()
+{
+    link(vs, fs);
+}
+
+Program::Program(Program&& other)
+{
+    *this = std::move(other);
+}
+
+Program& Program::operator=(Program&& other)
+{
+    if (m_id) {
+        glDeleteProgram(m_id);
+    }
+
+    m_id = other.m_id;
+    other.m_id = 0;
+    return *this;
+}
+
+Program::~Program()
+{
+    if (m_id) {
+        glDeleteProgram(m_id);
+    }
+}
+
+void Program::attach(const Shader& shader)
+{
+    glAttachShader(m_id, shader.id());
+}
+
+void Program::detach(const Shader& shader)
+{
+    glDetachShader(m_id, shader.id());
+}
+
+void Program::link()
+{
     glLinkProgram(m_id);
-
-    glDetachShader(m_id, vs.id());
-    glDetachShader(m_id, fs.id());
 
     GLint result = 0;
 
@@ -62,27 +99,21 @@ Program::Program(const Shader& vs, const Shader& fs)
     }
 }
 
-Program::Program(Program&& other)
+void Program::link(const Shader& vs, const Shader& fs)
 {
-    *this = std::move(other);
-}
+    attach(vs);
+    attach(fs);
 
-Program& Program::operator=(Program&& other)
-{
-    if (m_id) {
-        glDeleteProgram(m_id);
+    try {
+        link();
+    } catch (...) {
+        detach(vs);
+        detach(fs);
+        throw;
     }
 
-    m_id = other.m_id;
-    other.m_id = 0;
-    return *this;
-}
-
-Program::~Program()
-{
-    if (m_id) {
-        glDeleteProgram(m_id);
-    }
+    detach(vs);
+    detach(fs);
 }
 
 void Program::use() const

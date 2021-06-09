@@ -17,16 +17,6 @@ RectTransform RectTransform::set_bounds(vec2 min, vec2 max) &&
     return std::move(set_bounds(min, max));
 }
 
-RectTransform& RectTransform::set_rect(vec2 size) &
-{
-    return set_bounds(-size / 2.0f, size / 2.0f);
-}
-
-RectTransform RectTransform::set_rect(vec2 size) &&
-{
-    return std::move(set_rect(size));
-}
-
 RectTransform& RectTransform::set_anchors(vec2 min, vec2 max) &
 {
     anchors_min = min;
@@ -47,4 +37,27 @@ RectTransform& RectTransform::set_anchors(vec2 all) &
 RectTransform RectTransform::set_anchors(vec2 all) &&
 {
     return std::move(set_anchors(all));
+}
+
+void RectTransform::force_update(
+    glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max)
+{
+    const auto parent_size = parent_abs_bounds_max - parent_abs_bounds_min;
+    const auto anchors_min_abs
+        = parent_abs_bounds_min + parent_size * anchors_min;
+    const auto anchors_max_abs
+        = parent_abs_bounds_min + parent_size * anchors_max;
+
+    m_abs_bounds_min = anchors_min_abs + bounds_min;
+    m_abs_bounds_max = anchors_max_abs + bounds_max;
+}
+
+glm::vec2 RectTransform::abs_bounds_min() const
+{
+    return m_abs_bounds_min;
+}
+
+glm::vec2 RectTransform::abs_bounds_max() const
+{
+    return m_abs_bounds_max;
 }

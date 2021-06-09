@@ -48,17 +48,27 @@ class RootState : public State {
             Transform {},
             GltfScene { "assets/test_box.glb", GltfFormat::BINARY });
 
-        auto canvas = app.world().create_entity(
+        // a rect transform without a parent will act like if its parent was the
+        // entire window surface (its anchors will be proportional to the window
+        // size)
+        auto bottom_pane = app.world().create_entity(
             RectTransform {}
-                .set_bounds({ 0.0f, 0.0f }, { 0.0f, 0.0f })
-                .set_anchors({ 0.0f, 0.0f }, { 1.0f, 1.0f }));
+                .set_anchors({ 0.0f, 0.0f }, { 1.0f, 0.0f })
+                .set_bounds({ 0.0f, 0.0f }, { 0.0f, 50.0f }),
+            RectRenderer {}.set_background_rgb(0xFFFFFF));
 
         app.world().create_entity(
-            Parent { canvas },
+            Parent { bottom_pane },
             RectTransform {}
-                .set_rect({ 200.0f, 50.0f })
-                .set_anchors({ 0.0f, 0.0f }),
-            RectRenderer {}.set_background_rgb(0x0000FF));
+                .set_anchors({ 0.0f, 0.5f })
+                .set_bounds({ 5.0f, -20.0f }, { 45.0f, 20.0f }),
+            RectRenderer {}.set_background_rgb(0xFF0000));
+
+        app.world().create_entity(
+            RectTransform {}
+                .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
+                .set_bounds({ 100.0f, -50.0f }, { -100.0f, -10.0f }),
+            RectRenderer {}.set_background_rgb(0x00FF00));
     }
 
     void on_update(App& app) override
