@@ -65,7 +65,7 @@ class RootState : public State {
             Parent { bottom_pane },
             RectTransform {}
                 .set_anchors({ 0.0f, 0.5f })
-                .set_bounds({ 5.0f, -20.0f }, { 45.0f, 20.0f }),
+                .set_bounds({ 5.0f, -20.0f }, { 100.0f, 20.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::SLICED }
                 // apply a yellowish tint
                 .set_tint_rgb(0xfce37e));
@@ -73,7 +73,7 @@ class RootState : public State {
         app.world().create_entity(
             RectTransform {}
                 .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
-                .set_bounds({ 100.0f, -50.0f }, { -100.0f, -10.0f }),
+                .set_bounds({ 100.0f, -100.0f }, { -100.0f, -10.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::TILED });
     }
 

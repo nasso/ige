@@ -48,12 +48,12 @@ struct RectRenderer {
 
 struct ImageRenderer {
     enum class Mode {
-        STRETCH,
+        STRETCHED,
         SLICED,
         TILED,
     };
 
-    ImageRenderer(asset::Texture::Handle texture, Mode mode = Mode::STRETCH);
+    ImageRenderer(asset::Texture::Handle texture, Mode mode = Mode::STRETCHED);
 
     ImageRenderer& set_tint_rgba(glm::vec4 rgba) &;
     ImageRenderer set_tint_rgba(glm::vec4 rgba) &&;
@@ -68,13 +68,13 @@ struct ImageRenderer {
     ImageRenderer& set_mode(Mode mode) &;
     ImageRenderer set_mode(Mode mode) &&;
 
-    ImageRenderer& set_borders(glm::vec4 top_right_bottom_left) &;
-    ImageRenderer set_borders(glm::vec4 top_right_bottom_left) &&;
+    ImageRenderer& set_borders(glm::vec4 left_top_right_bottom) &;
+    ImageRenderer set_borders(glm::vec4 left_top_right_bottom) &&;
 
     asset::Texture::Handle texture;
     glm::vec4 borders { 1.0f / 3.0f };
     glm::vec4 tint { 1.0f };
-    Mode mode = Mode::STRETCH;
+    Mode mode = Mode::STRETCHED;
 };
 
 class RenderPlugin : public core::App::Plugin {

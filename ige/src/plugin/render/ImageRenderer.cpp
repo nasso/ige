@@ -1,9 +1,11 @@
 #include "ige/asset/Texture.hpp"
 #include "ige/plugin/RenderPlugin.hpp"
+#include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <utility>
 
+using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 using ige::asset::Texture;
@@ -13,6 +15,12 @@ ImageRenderer::ImageRenderer(Texture::Handle texture, Mode mode)
     : texture(texture)
     , mode(mode)
 {
+    vec2 tex_size {
+        static_cast<float>(texture->width()),
+        static_cast<float>(texture->height()),
+    };
+
+    borders = { tex_size / 3.0f, tex_size / 3.0f };
 }
 
 ImageRenderer& ImageRenderer::set_tint_rgba(vec4 rgba) &
@@ -72,13 +80,13 @@ ImageRenderer ImageRenderer::set_mode(Mode value) &&
     return std::move(set_mode(value));
 }
 
-ImageRenderer& ImageRenderer::set_borders(vec4 top_right_bottom_left) &
+ImageRenderer& ImageRenderer::set_borders(vec4 left_top_right_bottom) &
 {
-    this->borders = top_right_bottom_left;
+    this->borders = left_top_right_bottom;
     return *this;
 }
 
-ImageRenderer ImageRenderer::set_borders(vec4 top_right_bottom_left) &&
+ImageRenderer ImageRenderer::set_borders(vec4 left_top_right_bottom) &&
 {
-    return std::move(set_borders(top_right_bottom_left));
+    return std::move(set_borders(left_top_right_bottom));
 }
