@@ -4,16 +4,20 @@
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/physics/GhostObject.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
+#include "physics/bullet3/BulletGhostObject.hpp"
 #include "physics/bullet3/BulletRigidBody.hpp"
 #include "physics/bullet3/BulletWorld.hpp"
 #include <chrono>
 
+using ige::bt::BulletGhostObject;
 using ige::bt::BulletRigidBody;
 using ige::bt::BulletWorld;
 using ige::core::App;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::physics::GhostObject;
 using ige::plugin::physics::PhysicsPlugin;
 using ige::plugin::physics::PhysicsWorld;
 using ige::plugin::physics::RigidBody;
@@ -51,7 +55,16 @@ static void physics_entities_update(World& wld)
         if (rigidbody) {
             rigidbody->update(xform, body);
         } else {
-            bullet_world->new_entity(wld, entity, body, xform);
+            bullet_world->new_rigidbody(wld, entity, body, xform);
+        }
+    }
+    for (auto [entity, body, xform] : wld.query<GhostObject, Transform>()) {
+        auto object = wld.get_component<BulletGhostObject>(entity);
+
+        if (object) {
+            object->update(xform, body);
+        } else {
+            bullet_world->new_ghost_object(wld, entity, body, xform);
         }
     }
 }

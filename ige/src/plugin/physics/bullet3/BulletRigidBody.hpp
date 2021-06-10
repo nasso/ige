@@ -31,6 +31,7 @@ public:
 
     bool operator==(const BulletRigidBody& rhs);
     bool operator==(const btRigidBody* rhs);
+    bool operator==(const btCollisionObject* rhs);
 
 private:
     void set_rigibody_shape(const plugin::physics::Collider& collider);
