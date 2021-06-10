@@ -4,6 +4,7 @@
 #include "ige/core/App.hpp"
 #include "physics/Collider.hpp"
 #include "physics/Constraint.hpp"
+#include "physics/GhostObject.hpp"
 #include "physics/PhysicsWorld.hpp"
 #include "physics/RigidBody.hpp"
 

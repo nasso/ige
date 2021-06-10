@@ -26,6 +26,7 @@ using ige::plugin::input::KeyboardKey;
 using ige::plugin::physics::Collider;
 using ige::plugin::physics::ColliderType;
 using ige::plugin::physics::Constraint;
+using ige::plugin::physics::GhostObject;
 using ige::plugin::physics::PhysicsPlugin;
 using ige::plugin::physics::PhysicsWorld;
 using ige::plugin::physics::RigidBody;
@@ -48,6 +49,7 @@ class RootState : public State {
     std::optional<EntityId> m_ground_id2;
     std::optional<EntityId> m_ball_id1;
     std::optional<EntityId> m_ball_id2;
+    std::optional<EntityId> m_ghost_box;
 
     void on_start(App& app) override
     {
@@ -117,6 +119,18 @@ class RootState : public State {
         constraint.linear_lower_limit.y = -10;
         constraint.linear_upper_limit.y = 10;
         physics_world->add_constraint(constraint);
+
+        auto ghost_box_mesg = Mesh::make_cube(1.0f);
+        auto ghost_box_material = Material::make_default();
+        ghost_box_material->set(
+            "base_color_factor", vec4 { 1.0f, 0.35f, 0.75f, 1.0f });
+        Collider ghost_box_collider;
+        ghost_box_collider.type = ColliderType::BOX;
+        ghost_box_collider.box.extents = { 1.0f, 1.0f, 1.0f };
+        m_ghost_box = app.world().create_entity(
+            GhostObject { ghost_box_collider },
+            MeshRenderer { ground_mesh, ground_material },
+            Transform::from_pos(vec3(0, 10, -7)));
     }
 
     void on_update(App& app) override
@@ -135,6 +149,12 @@ class RootState : public State {
                 std::cout << "Ball is on the ground" << std::endl;
             } else {
                 std::cout << "Ball is not on the ground" << std::endl;
+            }
+
+            if (physics_world->collide(*m_ghost_box, *m_ball_id2)) {
+                std::cout << "Ball is in the box WTF" << std::endl;
+            } else {
+                // std::cout << "Ball is out of the box" << std::endl;
             }
         }
 

@@ -186,6 +186,11 @@ bool BulletRigidBody::operator==(const BulletRigidBody& rhs)
     return rhs.m_rigidbody == m_rigidbody;
 }
 
+bool BulletRigidBody::operator==(const btCollisionObject* rhs)
+{
+    return static_cast<const btRigidBody*>(rhs) == m_rigidbody.get();
+}
+
 bool BulletRigidBody::operator==(const btRigidBody* rhs)
 {
     return rhs == m_rigidbody.get();
