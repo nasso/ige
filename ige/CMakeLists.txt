@@ -66,15 +66,22 @@ endif()
 
 # Libnyquist - Audio File Parsing
 FetchContent_Declare(libnyquist
-    URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip)
+    URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip
+    URL_HASH SHA1=79dd54ade62aee64140bad4aaffa9a5e2672203c
+)
 FetchContent_MakeAvailable(libnyquist)
 
 # OpenAL - Open Audio Library
 FetchContent_Declare(OpenAL
     URL https://github.com/kcat/openal-soft/archive/refs/tags/1.21.1.zip
+    URL_HASH SHA1=1442363faf47a5a7cd6287513068ecd6c70e747e
 )
-FetchContent_MakeAvailable(OpenAL)
-
+if(NOT OpenAL_POPULATED)
+    FetchContent_Populate(OpenAL)
+    set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${OpenAL_SOURCE_DIR} ${OpenAL_BINARY_DIR})
+endif()
 
 # source files
 set(sources ${sources}
@@ -182,6 +189,7 @@ set(sources ${sources}
 # compile options
 set(compile_flags
     _CRT_SECURE_NO_WARNINGS
+    AL_LIBTYPE_STATIC
     GLM_FORCE_SILENT_WARNINGS
     IGE_OPENGL
 )
@@ -221,4 +229,3 @@ target_link_libraries(ige
     OpenAL
     libnyquist
 )
-
