@@ -7,6 +7,7 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/Resources.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/UiPlugin.hpp"
 #include <concepts>
 #include <memory>
 #include <unordered_map>
@@ -139,6 +140,19 @@ public:
         Scripts scripts;
         (scripts.add(std::forward<Bs>(bhvrs)), ...);
         return scripts;
+    }
+
+    template <typename E, Behaviour B>
+    static ui::EventTarget::Callback<E> event(void (B::*method)(const E&))
+    {
+        return [=](ecs::World& world, const ecs::EntityId& entity,
+                   const E& event) {
+            if (auto scripts = world.get_component<Scripts>(entity)) {
+                if (auto behaviour = scripts->get<B>()) {
+                    (behaviour->*method)(event);
+                }
+            }
+        };
     }
 
     template <Behaviour B>

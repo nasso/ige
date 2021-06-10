@@ -114,7 +114,7 @@ static void trigger_events(World& world)
                     MouseLeave evt;
                     evt.absolute_pos = mouse_pos;
                     evt.pos = mouse_pos - min;
-                    target.trigger<MouseLeave>(ent, evt);
+                    target.trigger<MouseLeave>(world, ent, evt);
 
                     world.remove_component<MouseMovement>(ent);
                 }
@@ -141,7 +141,7 @@ static void trigger_events(World& world)
                     evt.absolute_pos = mouse_pos;
                     evt.pos = mouse_pos - min;
 
-                    target.trigger<MouseDown>(ent, evt);
+                    target.trigger<MouseDown>(world, ent, evt);
 
                     movement.down = true;
                 } else {
@@ -150,7 +150,7 @@ static void trigger_events(World& world)
                     evt.absolute_pos = mouse_pos;
                     evt.pos = mouse_pos - min;
 
-                    target.trigger<MouseUp>(ent, evt);
+                    target.trigger<MouseUp>(world, ent, evt);
 
                     if (movement.down) {
                         MouseClick click_evt;
@@ -158,7 +158,7 @@ static void trigger_events(World& world)
                         click_evt.absolute_pos = evt.absolute_pos;
                         click_evt.pos = evt.pos;
 
-                        target.trigger<MouseClick>(ent, click_evt);
+                        target.trigger<MouseClick>(world, ent, click_evt);
                     }
                 }
             } break;
@@ -168,7 +168,7 @@ static void trigger_events(World& world)
                     evt.absolute_pos = mouse_pos;
                     evt.pos = mouse_pos - min;
 
-                    target.trigger<MouseEnter>(ent, evt);
+                    target.trigger<MouseEnter>(world, ent, evt);
                     movement.entered = true;
                 }
 
@@ -176,7 +176,7 @@ static void trigger_events(World& world)
                 evt.absolute_pos = mouse_pos;
                 evt.pos = mouse_pos - min;
 
-                target.trigger<MouseMove>(ent, evt);
+                target.trigger<MouseMove>(world, ent, evt);
             } break;
             case MouseEventType::SCROLL: {
                 MouseScroll evt;
@@ -185,7 +185,7 @@ static void trigger_events(World& world)
                 evt.absolute_pos = mouse_pos;
                 evt.pos = mouse_pos - min;
 
-                target.trigger<MouseScroll>(ent, evt);
+                target.trigger<MouseScroll>(world, ent, evt);
             } break;
             }
         }

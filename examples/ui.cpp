@@ -19,6 +19,7 @@ using ige::plugin::render::ImageRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RectRenderer;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
 using ige::plugin::time::TimePlugin;
@@ -29,10 +30,25 @@ using ige::plugin::transform::TransformPlugin;
 using ige::plugin::ui::EventTarget;
 using ige::plugin::ui::UiPlugin;
 using ige::plugin::ui::event::MouseClick;
+using ige::plugin::ui::event::MouseEnter;
+using ige::plugin::ui::event::MouseLeave;
 using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
+
+class ExampleButton : public CppBehaviour {
+public:
+    void on_enter(const MouseEnter& e)
+    {
+        std::cout << "Mouse enter: " << e.pos.x << ", " << e.pos.y << std::endl;
+    }
+
+    void on_leave(const MouseLeave& e)
+    {
+        std::cout << "Mouse leave: " << e.pos.x << ", " << e.pos.y << std::endl;
+    }
+};
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
@@ -65,7 +81,7 @@ class RootState : public State {
 
         auto btn_img = Texture::make_new("assets/button_frame.png");
 
-        auto button_callback = [](const EntityId&, const MouseClick&) {
+        auto button_callback = [](World&, const EntityId&, const MouseClick&) {
             std::cout << "Button was clicked!" << std::endl;
         };
 
@@ -85,7 +101,11 @@ class RootState : public State {
             RectTransform {}
                 .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
                 .set_bounds({ 100.0f, -100.0f }, { -100.0f, -10.0f }),
-            ImageRenderer { btn_img, ImageRenderer::Mode::TILED });
+            ImageRenderer { btn_img, ImageRenderer::Mode::TILED },
+            Scripts::from(ExampleButton {}),
+            EventTarget {}
+                .on(Scripts::event(&ExampleButton::on_enter))
+                .on(Scripts::event(&ExampleButton::on_leave)));
     }
 
     void on_update(App& app) override
