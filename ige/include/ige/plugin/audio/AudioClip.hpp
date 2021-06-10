@@ -5,7 +5,7 @@
 #include <AL/alc.h>
 #include <libnyquist/Decoders.h>
 
-#include "ige/plugin/AudioPlugin/AudioBuffer.hpp"
+#include "ige/plugin/audio/AudioBuffer.hpp"
 
 namespace ige {
 namespace plugin {

@@ -5,9 +5,9 @@
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
-#include "ige/plugin/AudioPlugin/AudioSource.hpp"
-#include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
+#include "ige/plugin/audio/AudioSource.hpp"
+#include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 
 namespace ige {
 namespace plugin {

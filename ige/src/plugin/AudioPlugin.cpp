@@ -1,6 +1,6 @@
-#include "ige/plugin/AudioPlugin/AudioPlugin.hpp"
+#include "ige/plugin/AudioPlugin.hpp"
 #include "ige.hpp"
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
 
 using ige::core::App;
 using ige::ecs::System;

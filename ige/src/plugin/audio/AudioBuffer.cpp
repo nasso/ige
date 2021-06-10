@@ -2,8 +2,8 @@
 #include <AL/alc.h>
 #include <vector>
 
-#include "ige/plugin/AudioPlugin/AudioBuffer.hpp"
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
+#include "ige/plugin/audio/AudioBuffer.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
 
 namespace ige {
 namespace plugin {

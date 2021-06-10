@@ -4,7 +4,6 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 
 namespace ige {
 namespace plugin {

@@ -1,5 +1,5 @@
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
-#include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
+#include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <string.h>

@@ -1,11 +1,11 @@
 #ifndef AUDIOPLUGIN_HPP_
 #define AUDIOPLUGIN_HPP_
 
-#include "ige.hpp"
-#include "ige/plugin/AudioPlugin/AudioClip.hpp"
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
-#include "ige/plugin/AudioPlugin/AudioListener.hpp"
-#include "ige/plugin/AudioPlugin/AudioSource.hpp"
+#include "audio/AudioClip.hpp"
+#include "audio/AudioEngine.hpp"
+#include "audio/AudioListener.hpp"
+#include "audio/AudioSource.hpp"
+#include "ige/core/App.hpp"
 
 namespace ige {
 namespace plugin {

@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "ige/plugin/AudioPlugin/AudioClip.hpp"
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
-#include "ige/plugin/AudioPlugin/exceptions/AudioPluginException.hpp"
+#include "ige/plugin/audio/AudioClip.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
+#include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 
 namespace ige {
 namespace plugin {

@@ -1,14 +1,12 @@
 #ifndef AUDIOSOURCE_HPP_
 #define AUDIOSOURCE_HPP_
 
+#include "ige/plugin/audio/AudioClip.hpp"
+#include "ige/plugin/audio/AudioEngine.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
 #include <optional>
-
-#include "ige/plugin/AudioPlugin/AudioClip.hpp"
-#include "ige/plugin/AudioPlugin/AudioEngine.hpp"
 
 namespace ige {
 namespace plugin {

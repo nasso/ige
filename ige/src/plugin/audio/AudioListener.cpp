@@ -1,7 +1,7 @@
 #include <glm/vec3.hpp>
 ; // TODO: https://bit.ly/3hhMJ58
 
-#include "ige/plugin/AudioPlugin/AudioListener.hpp"
+#include "ige/plugin/audio/AudioListener.hpp"
 
 namespace ige {
 namespace plugin {
