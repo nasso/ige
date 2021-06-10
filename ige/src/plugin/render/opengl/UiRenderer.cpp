@@ -28,6 +28,7 @@ using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::render::ImageRenderer;
 using ige::plugin::render::RectRenderer;
+using ige::plugin::render::Visibility;
 using ige::plugin::transform::RectTransform;
 using ige::plugin::window::WindowInfo;
 
@@ -118,7 +119,19 @@ static void render_ui(World& wld)
     cache.rect_program.use();
 
     for (auto [ent, rect, xform] : wld.query<RectRenderer, RectTransform>()) {
-        cache.rect_program.uniform("u_FillColor", rect.fill);
+        auto vis = wld.get_component<Visibility>(ent);
+
+        if (vis && (!vis->global_visible() || vis->global_opacity() == 0.0f)) {
+            continue;
+        }
+
+        vec4 fill = rect.fill;
+
+        if (vis) {
+            fill.a *= vis->global_opacity();
+        }
+
+        cache.rect_program.uniform("u_FillColor", fill);
         cache.rect_program.uniform(
             "u_Bounds",
             vec4 {
@@ -133,6 +146,12 @@ static void render_ui(World& wld)
     cache.image_program.use();
 
     for (auto [ent, img, xform] : wld.query<ImageRenderer, RectTransform>()) {
+        auto vis = wld.get_component<Visibility>(ent);
+
+        if (vis && (!vis->global_visible() || vis->global_opacity() == 0.0f)) {
+            continue;
+        }
+
         if (img.texture == nullptr) {
             continue;
         }
@@ -147,8 +166,14 @@ static void render_ui(World& wld)
             continue;
         }
 
+        vec4 tint = img.tint;
+
+        if (vis) {
+            tint.a *= vis->global_opacity();
+        }
+
         cache.image_program.uniform("u_Texture", cache[img.texture]);
-        cache.image_program.uniform("u_Tint", img.tint);
+        cache.image_program.uniform("u_Tint", tint);
         cache.image_program.uniform(
             "u_Bounds",
             vec4 {

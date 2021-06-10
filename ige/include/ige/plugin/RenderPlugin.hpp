@@ -27,6 +27,25 @@ struct PerspectiveCamera {
     }
 };
 
+class Visibility {
+public:
+    bool visible = true;
+    float opacity = 1.0f;
+
+    Visibility(bool visible = true);
+    Visibility(float opacity);
+    Visibility(bool visible, float opacity = 1.0f);
+
+    bool global_visible() const;
+    float global_opacity() const;
+
+    void force_global_update(bool parent_visible, float parent_opacity);
+
+private:
+    bool m_global_visible = true;
+    float m_global_opacity = 1.0f;
+};
+
 struct MeshRenderer {
     asset::Mesh::Handle mesh;
     asset::Material::Handle material;
