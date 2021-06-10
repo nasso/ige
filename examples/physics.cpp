@@ -152,9 +152,7 @@ class RootState : public State {
             }
 
             if (physics_world->collide(*m_ghost_box, *m_ball_id2)) {
-                std::cout << "Ball is in the box WTF" << std::endl;
-            } else {
-                // std::cout << "Ball is out of the box" << std::endl;
+                std::cout << "Ball is in the box" << std::endl;
             }
         }
 
