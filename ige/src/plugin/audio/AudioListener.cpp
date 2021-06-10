@@ -1,49 +1,35 @@
-#include <glm/vec3.hpp>
-; // TODO: https://bit.ly/3hhMJ58
-
 #include "ige/plugin/audio/AudioListener.hpp"
+#include <AL/al.h>
+#include <glm/vec3.hpp>
 
-namespace ige {
-namespace plugin {
-    namespace audio {
+using glm::vec3;
+using ige::plugin::audio::AudioListener;
 
-        AudioListener::AudioListener()
-            : AudioListener(glm::vec3(0.0f, 0.0f, 0.0f))
-        {
-        }
-
-        AudioListener::AudioListener(glm::vec3 pos)
-        {
-            set_position(pos);
-            alListenerf(AL_GAIN, 0.5f);
-        }
-
-        AudioListener::~AudioListener()
-        {
-        }
-
-        glm::vec3 AudioListener::position() const
-        {
-            return value3f(AL_POSITION);
-        }
-
-        void AudioListener::set_position(glm::vec3 pos)
-        {
-            set_value3f(AL_POSITION, pos);
-        }
-
-        glm::vec3 AudioListener::value3f(ALenum param) const
-        {
-            glm::vec3 ret;
-
-            alGetListener3f(param, &ret.x, &ret.y, &ret.z);
-            return ret;
-        }
-
-        void AudioListener::set_value3f(ALenum param, glm::vec3 value)
-        {
-            alListener3f(param, value.x, value.y, value.z);
-        }
-    }
+AudioListener::AudioListener(vec3 pos)
+{
+    set_position(pos);
+    alListenerf(AL_GAIN, 0.5f);
 }
+
+vec3 AudioListener::position() const
+{
+    return value3f(AL_POSITION);
+}
+
+void AudioListener::set_position(vec3 pos)
+{
+    set_value3f(AL_POSITION, pos);
+}
+
+vec3 AudioListener::value3f(ALenum param) const
+{
+    vec3 ret;
+
+    alGetListener3f(param, &ret.x, &ret.y, &ret.z);
+    return ret;
+}
+
+void AudioListener::set_value3f(ALenum param, vec3 value)
+{
+    alListener3f(param, value.x, value.y, value.z);
 }

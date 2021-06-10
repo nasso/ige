@@ -7,17 +7,13 @@
 #include "audio/AudioSource.hpp"
 #include "ige/core/App.hpp"
 
-namespace ige {
-namespace plugin {
-    namespace audio {
+namespace ige::plugin::audio {
 
-        class AudioPlugin : public core::App::Plugin {
-        public:
-            void plug(core::App::Builder&) const override;
-        };
+class AudioPlugin : public core::App::Plugin {
+public:
+    void plug(core::App::Builder&) const override;
+};
 
-    }
-}
 }
 
 #endif /* !AUDIOPLUGIN_HPP_ */

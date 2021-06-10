@@ -7,33 +7,28 @@
 
 #include "ige/plugin/audio/AudioBuffer.hpp"
 
-namespace ige {
-namespace plugin {
-    namespace audio {
+namespace ige::plugin::audio {
 
-        class AudioClip {
-        public:
-            AudioClip(const std::string& path);
-            AudioClip(const AudioClip& other) = delete;
-            AudioClip(AudioClip&&);
-            ~AudioClip();
+class AudioClip {
+public:
+    AudioClip(const std::string& path);
+    AudioClip(const AudioClip& other) = delete;
+    AudioClip(AudioClip&&);
+    ~AudioClip();
 
-            std::vector<float>& get_samples();
-            AudioBuffer& get_audio_buffer();
+    std::vector<float>& get_samples();
+    AudioBuffer& get_audio_buffer();
 
-            AudioClip& operator=(AudioClip&& other);
+    AudioClip& operator=(AudioClip&& other);
 
-        protected:
-        private:
-            nqr::AudioData m_audio_data;
-            AudioBuffer m_buffer;
-            bool m_moved;
+private:
+    nqr::AudioData m_audio_data;
+    AudioBuffer m_buffer;
+    bool m_moved;
 
-            ALenum find_sample_mode(const nqr::AudioData&);
-        };
+    ALenum find_sample_mode(const nqr::AudioData&);
+};
 
-    }
-}
 }
 
 #endif /* !AUDIOCLIP_HPP_ */
