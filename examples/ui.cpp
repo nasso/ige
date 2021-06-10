@@ -19,6 +19,7 @@ using ige::plugin::render::ImageRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RectRenderer;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::render::Visibility;
 using ige::plugin::script::CppBehaviour;
 using ige::plugin::script::ScriptPlugin;
 using ige::plugin::script::Scripts;
@@ -76,13 +77,20 @@ class RootState : public State {
         // entire window surface (its anchors will be proportional to the window
         // size)
         auto bottom_pane = app.world().create_entity(
+            Visibility { 0.8f },
             RectTransform {}
                 .set_anchors({ 0.0f, 0.0f }, { 1.0f, 0.0f })
                 .set_bounds({ 0.0f, 0.0f }, { 0.0f, 50.0f }),
             RectRenderer {}.set_fill_rgb(0xFFFFFF));
 
-        auto button_callback = [](World&, const EntityId&, const MouseClick&) {
+        auto on_btn_click = [=](World& w, const EntityId&, const MouseClick&) {
             std::cout << "Button was clicked!" << std::endl;
+
+            auto vis = w.get_component<Visibility>(bottom_pane);
+
+            if (vis) {
+                vis->visible = !vis->visible;
+            }
         };
 
         app.world().create_entity(
@@ -94,14 +102,13 @@ class RootState : public State {
                 // apply a yellowish tint
                 .set_tint_rgb(0xfce37e),
             EventTarget {} //
-                .on<MouseClick>(button_callback) // add a callback for clicks
+                .on<MouseClick>(on_btn_click) // add a callback for clicks
         );
 
         app.world().create_entity(
-            Parent { bottom_pane },
             RectTransform {}
-                .set_anchors({ 0.0f, 0.0f }, { 1.0f, 0.0f })
-                .set_bounds({ 100.0f, 10.0f }, { -100.0f, 100.0f }),
+                .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
+                .set_bounds({ 100.0f, -100.0f }, { -100.0f, -10.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::TILED },
             Scripts::from(ExampleButton {}),
             EventTarget {}
