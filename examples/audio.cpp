@@ -1,8 +1,8 @@
 #include "ige.hpp"
 #include <chrono>
+#include <cstdio>
 #include <iostream>
 #include <optional>
-#include <stdio.h>
 #include <thread>
 
 using ige::asset::Material;

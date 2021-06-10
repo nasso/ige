@@ -84,7 +84,7 @@ if(NOT OpenAL_POPULATED)
     FetchContent_Populate(OpenAL)
     set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
-    add_subdirectory(${OpenAL_SOURCE_DIR} ${OpenAL_BINARY_DIR})
+    add_subdirectory(${openal_SOURCE_DIR} ${openal_BINARY_DIR})
 endif()
 
 # source files
