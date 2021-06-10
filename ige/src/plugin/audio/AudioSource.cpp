@@ -16,19 +16,19 @@ AudioSource::AudioSource()
 AudioSource::AudioSource(AudioSource&& source)
 {
     source.m_moved = true;
-    this->m_source = source.m_source;
+    m_source = source.m_source;
 }
 
 AudioSource& AudioSource::operator=(AudioSource&& source)
 {
     source.m_moved = true;
-    this->m_source = source.m_source;
+    m_source = source.m_source;
     return *this;
 }
 
 AudioSource::~AudioSource()
 {
-    if (!this->m_moved)
+    if (!m_moved)
         alDeleteSources(1, &m_source);
 }
 
@@ -44,37 +44,36 @@ void AudioSource::load_clip(std::shared_ptr<AudioClip> clip)
 {
     AudioEngine::get_native_exception();
     m_clip = clip;
-    alSourcei(this->m_source, AL_LOOPING, 0);
+    alSourcei(m_source, AL_LOOPING, 0);
     AudioEngine::get_native_exception();
-    alSourcef(this->m_source, AL_GAIN, 1.0f);
+    alSourcef(m_source, AL_GAIN, 1.0f);
     AudioEngine::get_native_exception();
-    alSourcef(this->m_source, AL_ROLLOFF_FACTOR, 1.0f);
+    alSourcef(m_source, AL_ROLLOFF_FACTOR, 1.0f);
     AudioEngine::get_native_exception();
     alSourcei(
-        this->m_source, AL_BUFFER,
-        clip->get_audio_buffer().get_internal_handle());
+        m_source, AL_BUFFER, clip->get_audio_buffer().get_internal_handle());
     AudioEngine::get_native_exception();
-    alSourcei(this->m_source, AL_MAX_DISTANCE, 500);
+    alSourcei(m_source, AL_MAX_DISTANCE, 500);
     AudioEngine::get_native_exception();
-    alSourcei(this->m_source, AL_REFERENCE_DISTANCE, 250);
+    alSourcei(m_source, AL_REFERENCE_DISTANCE, 250);
     AudioEngine::get_native_exception();
 }
 
 void AudioSource::play()
 {
-    alSourcePlay(this->m_source);
+    alSourcePlay(m_source);
     AudioEngine::get_native_exception();
 }
 
 void AudioSource::pause()
 {
-    alSourcePause(this->m_source);
+    alSourcePause(m_source);
     AudioEngine::get_native_exception();
 }
 
 void AudioSource::restart()
 {
-    alSourceRewind(this->m_source);
+    alSourceRewind(m_source);
     AudioEngine::get_native_exception();
 }
 

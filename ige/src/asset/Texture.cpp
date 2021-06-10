@@ -116,7 +116,7 @@ void Texture::set_wrap_t(WrappingMode value)
 }
 
 void Texture::set_data(
-    Format format, std::size_t width, size_t height,
+    Format format, std::size_t width, std::size_t height,
     std::vector<std::byte> pixels)
 {
     m_format = format;

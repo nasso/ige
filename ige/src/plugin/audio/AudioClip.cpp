@@ -40,25 +40,22 @@ AudioClip::AudioClip(const std::string& path)
     nqr::NyquistIO loader;
 
     alGetError();
-    loader.Load(&this->m_audio_data, path);
+    loader.Load(&m_audio_data, path);
     std::cerr << "[Audio Plugin] Loaded sound file:\n"
-              << "Duration      : " << this->m_audio_data.lengthSeconds
+              << "Duration      : " << m_audio_data.lengthSeconds
               << " seconds.\n"
-              << "Sample Rate   : " << this->m_audio_data.sampleRate << "Hz\n"
-              << "Channel Count : " << this->m_audio_data.channelCount << "\n"
-              << "Frame Size    : " << this->m_audio_data.frameSize
-              << std::endl;
-    auto sample_mode = this->find_sample_mode(this->m_audio_data);
+              << "Sample Rate   : " << m_audio_data.sampleRate << "Hz\n"
+              << "Channel Count : " << m_audio_data.channelCount << "\n"
+              << "Frame Size    : " << m_audio_data.frameSize << std::endl;
+    auto sample_mode = find_sample_mode(m_audio_data);
     if (sample_mode == AL_FORMAT_MONO8 || sample_mode == AL_FORMAT_STEREO8) {
-        auto alvec = to_al_vector8(this->m_audio_data.samples);
+        auto alvec = to_al_vector8(m_audio_data.samples);
 
-        this->m_buffer.set_data(
-            sample_mode, alvec, this->m_audio_data.sampleRate);
+        m_buffer.set_data(sample_mode, alvec, m_audio_data.sampleRate);
     } else {
-        auto alvec = to_al_vector16(this->m_audio_data.samples);
+        auto alvec = to_al_vector16(m_audio_data.samples);
 
-        this->m_buffer.set_data(
-            sample_mode, alvec, this->m_audio_data.sampleRate);
+        m_buffer.set_data(sample_mode, alvec, m_audio_data.sampleRate);
     }
     AudioEngine::get_native_exception();
 }
@@ -66,8 +63,8 @@ AudioClip::AudioClip(const std::string& path)
 AudioClip::AudioClip(AudioClip&& source)
 {
     source.m_moved = true;
-    this->m_audio_data = source.m_audio_data;
-    this->m_buffer = std::move(source.m_buffer);
+    m_audio_data = source.m_audio_data;
+    m_buffer = std::move(source.m_buffer);
 }
 
 AudioClip::~AudioClip()
@@ -77,8 +74,8 @@ AudioClip::~AudioClip()
 AudioClip& AudioClip::operator=(AudioClip&& source)
 {
     source.m_moved = true;
-    this->m_buffer = std::move(source.m_buffer);
-    this->m_audio_data = source.m_audio_data;
+    m_buffer = std::move(source.m_buffer);
+    m_audio_data = source.m_audio_data;
     return *this;
 }
 
@@ -102,7 +99,7 @@ ALenum AudioClip::find_sample_mode(const nqr::AudioData& data)
 
 std::vector<float>& AudioClip::get_samples()
 {
-    return this->m_audio_data.samples;
+    return m_audio_data.samples;
 }
 
 AudioBuffer& AudioClip::get_audio_buffer()

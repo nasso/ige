@@ -1,11 +1,10 @@
 #ifndef AUDIOCLIP_HPP_
 #define AUDIOCLIP_HPP_
 
+#include "ige/plugin/audio/AudioBuffer.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <libnyquist/Decoders.h>
-
-#include "ige/plugin/audio/AudioBuffer.hpp"
 
 namespace ige::plugin::audio {
 

@@ -3,6 +3,7 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <cstddef>
 #include <vector>
 
 namespace ige::plugin::audio {
@@ -15,11 +16,13 @@ public:
     ~AudioBuffer();
 
     template <typename T>
-    void set_data(ALenum format, const std::vector<T>& data, size_t sample_rate)
+    void
+    set_data(ALenum format, const std::vector<T>& data, std::size_t sample_rate)
     {
         alBufferData(
-            this->m_buffer, format, data.data(),
-            (ALsizei)(data.size() * sizeof(T)), sample_rate);
+            m_buffer, format, data.data(),
+            static_cast<ALsizei>(data.size() * sizeof(T)),
+            static_cast<ALsizei>(sample_rate));
     }
 
     unsigned int get_internal_handle() const;

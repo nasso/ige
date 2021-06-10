@@ -74,7 +74,7 @@ public:
     void set_wrap_t(WrappingMode);
 
     void set_data(
-        Format format, std::size_t width, size_t height,
+        Format format, std::size_t width, std::size_t height,
         std::vector<std::byte> pixels);
     void load(std::span<const std::byte>);
     void load(const std::filesystem::path&);
