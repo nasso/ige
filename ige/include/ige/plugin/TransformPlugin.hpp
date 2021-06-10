@@ -111,7 +111,8 @@ public:
     RectTransform set_anchors(glm::vec2 all) &&;
 
     void force_update(
-        glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max);
+        glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max,
+        float abs_depth);
 
     /// @brief Get the absolute position of the lower left corner.
     glm::vec2 abs_bounds_min() const;
@@ -119,9 +120,12 @@ public:
     /// @brief Get the absolute position of the top right corner.
     glm::vec2 abs_bounds_max() const;
 
+    float abs_depth() const;
+
 private:
     glm::vec2 m_abs_bounds_min { 0.0f };
     glm::vec2 m_abs_bounds_max { 0.0f };
+    float m_abs_depth = 0.0f;
 };
 
 class TransformPlugin : public core::App::Plugin {

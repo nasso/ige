@@ -47,16 +47,16 @@ static void update_transform_tree(
 
 static void update_transform_tree(
     World& world, EntityId entity, RectTransform& rect,
-    vec2 parent_abs_bounds_min, vec2 parent_abs_bounds_max)
+    vec2 parent_abs_bounds_min, vec2 parent_abs_bounds_max, float depth = 0.0f)
 {
-    rect.force_update(parent_abs_bounds_min, parent_abs_bounds_max);
+    rect.force_update(parent_abs_bounds_min, parent_abs_bounds_max, depth);
 
     if (auto children = world.get_component<Children>(entity)) {
         for (auto child : children->entities) {
             if (auto child_rect = world.get_component<RectTransform>(child)) {
                 update_transform_tree(
                     world, child, *child_rect, rect.abs_bounds_min(),
-                    rect.abs_bounds_max());
+                    rect.abs_bounds_max(), depth - 0.1f);
             }
         }
     }

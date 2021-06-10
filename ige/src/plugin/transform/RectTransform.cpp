@@ -40,7 +40,8 @@ RectTransform RectTransform::set_anchors(vec2 all) &&
 }
 
 void RectTransform::force_update(
-    glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max)
+    glm::vec2 parent_abs_bounds_min, glm::vec2 parent_abs_bounds_max,
+    float abs_depth)
 {
     const auto parent_size = parent_abs_bounds_max - parent_abs_bounds_min;
     const auto anchors_min_abs
@@ -50,6 +51,7 @@ void RectTransform::force_update(
 
     m_abs_bounds_min = anchors_min_abs + bounds_min;
     m_abs_bounds_max = anchors_max_abs + bounds_max;
+    m_abs_depth = abs_depth;
 }
 
 glm::vec2 RectTransform::abs_bounds_min() const
@@ -60,4 +62,9 @@ glm::vec2 RectTransform::abs_bounds_min() const
 glm::vec2 RectTransform::abs_bounds_max() const
 {
     return m_abs_bounds_max;
+}
+
+float RectTransform::abs_depth() const
+{
+    return m_abs_depth;
 }
