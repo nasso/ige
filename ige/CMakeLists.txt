@@ -66,10 +66,14 @@ endif()
 
 # Libnyquist - Audio File Parsing
 FetchContent_Declare(libnyquist
-    URL https://github.com/ddiakopoulos/libnyquist/archive/refs/heads/master.zip
-    URL_HASH SHA1=79dd54ade62aee64140bad4aaffa9a5e2672203c
+    GIT_REPOSITORY https://github.com/nasso/libnyquist.git
+    GIT_PROGRESS ON
 )
-FetchContent_MakeAvailable(libnyquist)
+if(NOT libnyquist_POPULATED)
+    FetchContent_Populate(libnyquist)
+    set(LIBNYQUIST_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${libnyquist_SOURCE_DIR} ${libnyquist_BINARY_DIR})
+endif()
 
 # OpenAL - Open Audio Library
 FetchContent_Declare(OpenAL
