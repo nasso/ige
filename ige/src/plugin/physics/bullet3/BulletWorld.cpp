@@ -1,13 +1,16 @@
 #include "BulletWorld.hpp"
+#include "BulletGhostObject.hpp"
 #include "BulletRigidBody.hpp"
 #include "ige/ecs.hpp"
 #include "ige/plugin.hpp"
 #include <optional>
 
+using ige::bt::BulletGhostObject;
 using ige::bt::BulletWorld;
 using ige::ecs::EntityId;
 using ige::ecs::World;
 using ige::plugin::physics::Constraint;
+using ige::plugin::physics::GhostObject;
 using ige::plugin::physics::PhysicsWorld;
 using ige::plugin::physics::RigidBody;
 using ige::plugin::transform::Transform;
@@ -33,12 +36,20 @@ void BulletWorld::clean_world()
     }
 }
 
-void BulletWorld::new_entity(
+void BulletWorld::new_rigidbody(
     World& wld, const EntityId& entity, const RigidBody& rigidbody,
     const Transform& transform)
 {
     wld.emplace_component<BulletRigidBody>(
         entity, rigidbody, transform, m_world);
+}
+
+void BulletWorld::new_ghost_object(
+    World& wld, const EntityId& entity, const GhostObject& object,
+    const Transform& transform)
+{
+    wld.emplace_component<BulletGhostObject>(
+        entity, object, transform, m_world);
 }
 
 void BulletWorld::new_constraint(World& wld, const Constraint& constraint)
@@ -85,6 +96,7 @@ void BulletWorld::simulate(float time_step)
 void BulletWorld::get_collisions(World& wld, PhysicsWorld& phys_world)
 {
     auto rigidbodies = wld.query<BulletRigidBody>();
+    auto ghost_objects = wld.query<BulletGhostObject>();
 
     for (auto [fst_body, snd_body] : m_collisions) {
         std::optional<EntityId> entity1;
@@ -96,6 +108,20 @@ void BulletWorld::get_collisions(World& wld, PhysicsWorld& phys_world)
             }
 
             if (body == snd_body) {
+                entity2 = entity;
+            }
+
+            if (entity1 && entity2) {
+                break;
+            }
+        }
+
+        for (const auto& [entity, object] : ghost_objects) {
+            if (object == fst_body) {
+                entity1 = entity;
+            }
+
+            if (object == snd_body) {
                 entity2 = entity;
             }
 
@@ -121,8 +147,8 @@ void BulletWorld::tick_update(btDynamicsWorld* dynamicsWorld, btScalar)
         auto& manifold = *dispatcher.getManifoldByIndexInternal(manifold_idx);
 
         self->m_collisions.push_back({
-            static_cast<const btRigidBody*>(manifold.getBody0()),
-            static_cast<const btRigidBody*>(manifold.getBody1()),
+            manifold.getBody0(),
+            manifold.getBody1(),
         });
     }
 }

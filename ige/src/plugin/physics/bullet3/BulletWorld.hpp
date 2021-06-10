@@ -5,6 +5,7 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/physics/GhostObject.hpp"
 #include "ige/plugin/physics/PhysicsWorld.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
 #include <memory>
@@ -19,9 +20,13 @@ public:
     BulletWorld(btVector3 gravity = { 0, -10, 0 });
 
     void clean_world();
-    void new_entity(
+    void new_rigidbody(
         ecs::World& wld, const ecs::EntityId& entity,
         const plugin::physics::RigidBody& rigidbody,
+        const plugin::transform::Transform& transform);
+    void new_ghost_object(
+        ecs::World& wld, const ecs::EntityId& entity,
+        const plugin::physics::GhostObject& object,
         const plugin::transform::Transform& transform);
 
     void simulate(float time_step);
@@ -39,7 +44,8 @@ private:
     std::unique_ptr<btBroadphaseInterface> m_broadphase;
     btSequentialImpulseConstraintSolver m_solver;
     std::shared_ptr<btDiscreteDynamicsWorld> m_world;
-    std::vector<std::pair<const btRigidBody*, const btRigidBody*>> m_collisions;
+    std::vector<std::pair<const btCollisionObject*, const btCollisionObject*>>
+        m_collisions;
     std::unordered_set<std::unique_ptr<btTypedConstraint>> m_constraints;
 };
 
