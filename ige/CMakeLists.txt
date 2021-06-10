@@ -133,6 +133,7 @@ set(sources ${sources}
     "include/ige/plugin/ScriptPlugin.hpp"
     "include/ige/plugin/TimePlugin.hpp"
     "include/ige/plugin/TransformPlugin.hpp"
+    "include/ige/plugin/UiPlugin.hpp"
     "include/ige/plugin/WindowPlugin.hpp"
 
     "src/asset/Material.cpp"
@@ -196,6 +197,7 @@ set(sources ${sources}
     "src/plugin/transform/RectTransform.cpp"
     "src/plugin/transform/Transform.cpp"
     "src/plugin/TransformPlugin.cpp"
+    "src/plugin/UiPlugin.cpp"
     "src/plugin/WindowPlugin.cpp"
 )
 

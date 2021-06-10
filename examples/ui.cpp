@@ -9,6 +9,7 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
+using ige::ecs::EntityId;
 using ige::ecs::World;
 using ige::plugin::gltf::GltfFormat;
 using ige::plugin::gltf::GltfPlugin;
@@ -25,6 +26,9 @@ using ige::plugin::transform::Parent;
 using ige::plugin::transform::RectTransform;
 using ige::plugin::transform::Transform;
 using ige::plugin::transform::TransformPlugin;
+using ige::plugin::ui::EventTarget;
+using ige::plugin::ui::UiPlugin;
+using ige::plugin::ui::event::MouseClick;
 using ige::plugin::window::WindowEvent;
 using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
@@ -61,6 +65,10 @@ class RootState : public State {
 
         auto btn_img = Texture::make_new("assets/button_frame.png");
 
+        auto button_callback = [](const EntityId&, const MouseClick&) {
+            std::cout << "Button was clicked!" << std::endl;
+        };
+
         app.world().create_entity(
             Parent { bottom_pane },
             RectTransform {}
@@ -68,7 +76,10 @@ class RootState : public State {
                 .set_bounds({ 5.0f, -20.0f }, { 100.0f, 20.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::SLICED }
                 // apply a yellowish tint
-                .set_tint_rgb(0xfce37e));
+                .set_tint_rgb(0xfce37e),
+            EventTarget {} //
+                .on<MouseClick>(button_callback) // add a callback for clicks
+        );
 
         app.world().create_entity(
             RectTransform {}
@@ -100,6 +111,7 @@ int main()
         .add_plugin(ScriptPlugin {})
         .add_plugin(TransformPlugin {})
         .add_plugin(RenderPlugin {})
+        .add_plugin(UiPlugin {})
         .run<RootState>();
 
     std::cout << "Bye bye!" << std::endl;
