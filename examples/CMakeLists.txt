@@ -13,6 +13,12 @@ macro(package_add_example EXAMPLE_NAME)
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
     )
+    add_custom_command(
+        TARGET ${EXAMPLE_NAME}
+        POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:OpenAL>
+            $<TARGET_FILE_DIR:${EXAMPLE_NAME}>
+    )
 endmacro()
 
 macro(package_add_example_data EXAMPLE_NAME DATA_DIR)
