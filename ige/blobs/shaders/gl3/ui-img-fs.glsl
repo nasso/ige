@@ -38,5 +38,9 @@ void main()
 
     vec4 base_color = u_Tint * texture(u_Texture, uv);
 
+    if (base_color.a <= 0.001) {
+        discard;
+    }
+
     o_Color = base_color;
 }

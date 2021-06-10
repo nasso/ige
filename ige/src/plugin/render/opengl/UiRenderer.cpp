@@ -107,10 +107,12 @@ static void render_ui(World& wld)
 
     auto& cache = wld.get_or_emplace<UiRenderCache>();
 
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     cache.quad_vao.bind();
     cache.rect_program.use();
@@ -123,6 +125,7 @@ static void render_ui(World& wld)
                 xform.abs_bounds_min() / winsize * 2.0f - 1.0f,
                 xform.abs_bounds_max() / winsize * 2.0f - 1.0f,
             });
+        cache.rect_program.uniform("u_Depth", xform.abs_depth());
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
@@ -152,6 +155,7 @@ static void render_ui(World& wld)
                 xform.abs_bounds_min() / winsize * 2.0f - 1.0f,
                 xform.abs_bounds_max() / winsize * 2.0f - 1.0f,
             });
+        cache.image_program.uniform("u_Depth", xform.abs_depth());
 
         vec2 repeat_count(1.0f);
         vec4 tex_borders(0.0f, 0.0f, 1.0f, 1.0f);

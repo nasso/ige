@@ -70,6 +70,8 @@ class RootState : public State {
             Transform {},
             GltfScene { "assets/test_box.glb", GltfFormat::BINARY });
 
+        auto btn_img = Texture::make_new("assets/button_frame.png");
+
         // a rect transform without a parent will act like if its parent was the
         // entire window surface (its anchors will be proportional to the window
         // size)
@@ -79,8 +81,6 @@ class RootState : public State {
                 .set_bounds({ 0.0f, 0.0f }, { 0.0f, 50.0f }),
             RectRenderer {}.set_fill_rgb(0xFFFFFF));
 
-        auto btn_img = Texture::make_new("assets/button_frame.png");
-
         auto button_callback = [](World&, const EntityId&, const MouseClick&) {
             std::cout << "Button was clicked!" << std::endl;
         };
@@ -89,7 +89,7 @@ class RootState : public State {
             Parent { bottom_pane },
             RectTransform {}
                 .set_anchors({ 0.0f, 0.5f })
-                .set_bounds({ 5.0f, -20.0f }, { 100.0f, 20.0f }),
+                .set_bounds({ 5.0f, -20.0f }, { 200.0f, 20.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::SLICED }
                 // apply a yellowish tint
                 .set_tint_rgb(0xfce37e),
@@ -98,9 +98,10 @@ class RootState : public State {
         );
 
         app.world().create_entity(
+            Parent { bottom_pane },
             RectTransform {}
-                .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
-                .set_bounds({ 100.0f, -100.0f }, { -100.0f, -10.0f }),
+                .set_anchors({ 0.0f, 0.0f }, { 1.0f, 0.0f })
+                .set_bounds({ 100.0f, 10.0f }, { -100.0f, 100.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::TILED },
             Scripts::from(ExampleButton {}),
             EventTarget {}
