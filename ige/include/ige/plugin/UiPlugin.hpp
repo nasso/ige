@@ -51,7 +51,8 @@ namespace event {
 class EventTarget {
 public:
     template <typename T>
-    using Callback = std::function<void(const ecs::EntityId&, const T&)>;
+    using Callback
+        = std::function<void(ecs::World&, const ecs::EntityId&, const T&)>;
 
     template <typename T>
     EventTarget& on(Callback<T>&& callback) &
@@ -67,9 +68,9 @@ public:
     }
 
     template <typename T>
-    void trigger(const ecs::EntityId& entity, const T& event)
+    void trigger(ecs::World& world, const ecs::EntityId& entity, const T& event)
     {
-        trigger_callbacks<T>(entity, event);
+        trigger_callbacks<T>(world, entity, event);
     }
 
 private:
@@ -85,11 +86,12 @@ private:
     }
 
     template <typename T>
-    void trigger_callbacks(const ecs::EntityId& entity, const T& event)
+    void trigger_callbacks(
+        ecs::World& world, const ecs::EntityId& entity, const T& event)
     {
         if (auto callbacks = m_callbacks.get<CallbackVector<T>>()) {
             for (auto& callback : *callbacks) {
-                callback(entity, event);
+                callback(world, entity, event);
             }
         }
     }
