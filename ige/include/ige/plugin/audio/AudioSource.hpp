@@ -2,11 +2,10 @@
 #define AUDIOSOURCE_HPP_
 
 #include "ige/plugin/audio/AudioClip.hpp"
-#include "ige/plugin/audio/AudioEngine.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <glm/vec3.hpp>
-#include <optional>
+#include <memory>
 
 namespace ige::plugin::audio {
 
@@ -14,6 +13,7 @@ class AudioSource {
 public:
     AudioSource();
     AudioSource(AudioSource&&);
+    AudioSource& operator=(AudioSource&&);
     AudioSource(const AudioSource& other) = delete;
     ~AudioSource();
 
@@ -33,8 +33,6 @@ public:
 
     void set_reference_distance(float distance);
     float reference_distance() const;
-
-    AudioSource& operator=(AudioSource&&);
 
 private:
     ALuint m_source;

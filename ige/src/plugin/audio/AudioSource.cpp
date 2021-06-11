@@ -1,10 +1,10 @@
 #include "ige/plugin/audio/AudioSource.hpp"
-#include "ige/plugin/audio/AudioEngine.hpp"
+#include "AudioEngine.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <glm/vec3.hpp>
-#include <optional>
+#include <utility>
 
 using ige::plugin::audio::AudioSource;
 
@@ -14,22 +14,34 @@ AudioSource::AudioSource()
 }
 
 AudioSource::AudioSource(AudioSource&& source)
+    : m_source(source.m_source)
+    , m_clip(std::move(source.m_clip))
 {
     source.m_moved = true;
-    m_source = source.m_source;
+    source.m_clip = nullptr;
 }
 
 AudioSource& AudioSource::operator=(AudioSource&& source)
 {
-    source.m_moved = true;
+    if (!m_moved) {
+        alDeleteSources(1, &m_source);
+    }
+
     m_source = source.m_source;
+    m_clip = std::move(source.m_clip);
+    m_moved = false;
+
+    source.m_moved = true;
+    source.m_clip = nullptr;
+
     return *this;
 }
 
 AudioSource::~AudioSource()
 {
-    if (!m_moved)
+    if (!m_moved) {
         alDeleteSources(1, &m_source);
+    }
 }
 
 bool AudioSource::is_playing()
@@ -37,7 +49,7 @@ bool AudioSource::is_playing()
     ALint is_playing;
 
     alGetSourcei(m_source, AL_SOURCE_STATE, &is_playing);
-    return (is_playing == AL_PLAYING);
+    return is_playing == AL_PLAYING;
 }
 
 void AudioSource::load_clip(std::shared_ptr<AudioClip> clip)

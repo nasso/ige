@@ -1,4 +1,4 @@
-#include "ige/plugin/audio/AudioEngine.hpp"
+#include "AudioEngine.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-using ige::plugin::audio::AudioEngine;
+using ige::plugin::audio::AudioPluginException;
 
 AudioEngine::AudioEngine()
     : AudioEngine(nullptr)

@@ -1,12 +1,11 @@
 #include "ige/plugin/AudioPlugin.hpp"
+#include "audio/AudioEngine.hpp"
 #include "ige.hpp"
-#include "ige/plugin/audio/AudioEngine.hpp"
 
 using glm::vec3;
 using ige::core::App;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::audio::AudioEngine;
 using ige::plugin::audio::AudioListener;
 using ige::plugin::audio::AudioPlugin;
 using ige::plugin::audio::AudioSource;

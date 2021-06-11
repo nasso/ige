@@ -1,19 +1,16 @@
-#ifndef KAL_HPP_
-#define KAL_HPP_
+#ifndef AUDIO_ENGINE_HPP_
+#define AUDIO_ENGINE_HPP_
 
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <string>
 #include <vector>
 
-namespace ige::plugin::audio {
-
 class AudioEngine {
 public:
     AudioEngine();
     AudioEngine(const std::string&);
     AudioEngine(const char*);
-
     ~AudioEngine();
 
     std::vector<std::string> get_available_devices();
@@ -24,6 +21,4 @@ private:
     ALCcontext* m_context = nullptr;
 };
 
-}
-
-#endif /* !KAL_HPP_ */
+#endif /* !AUDIO_ENGINE_HPP_ */

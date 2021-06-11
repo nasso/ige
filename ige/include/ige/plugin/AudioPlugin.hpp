@@ -2,7 +2,6 @@
 #define AUDIOPLUGIN_HPP_
 
 #include "audio/AudioClip.hpp"
-#include "audio/AudioEngine.hpp"
 #include "audio/AudioListener.hpp"
 #include "audio/AudioSource.hpp"
 #include "ige/core/App.hpp"

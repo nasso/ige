@@ -13,7 +13,6 @@ public:
     AudioClip(const std::string& path);
     AudioClip(const AudioClip& other) = delete;
     AudioClip(AudioClip&&);
-    ~AudioClip();
 
     std::vector<float>& get_samples();
     AudioBuffer& get_audio_buffer();

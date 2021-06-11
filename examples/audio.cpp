@@ -14,7 +14,6 @@ using ige::core::State;
 using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::plugin::audio::AudioClip;
-using ige::plugin::audio::AudioEngine;
 using ige::plugin::audio::AudioListener;
 using ige::plugin::audio::AudioPlugin;
 using ige::plugin::audio::AudioSource;
