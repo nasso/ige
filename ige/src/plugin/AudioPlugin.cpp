@@ -38,4 +38,6 @@ void AudioPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<AudioEngine>();
     builder.add_system(System(update_positions_system));
+    builder.add_cleanup_system(
+        System([](World& world) { world.remove<AudioEngine>(); }));
 }
