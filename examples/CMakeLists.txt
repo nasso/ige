@@ -2,16 +2,22 @@ cmake_minimum_required(VERSION 3.17)
 
 project(ige_examples)
 
-add_subdirectory(common)
+add_subdirectory(example_framework)
 
 macro(package_add_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${ARGN})
-    target_link_libraries(${EXAMPLE_NAME} ige common)
+    target_link_libraries(${EXAMPLE_NAME} ige example_framework)
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
             CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
             CXX_EXTENSIONS OFF
+    )
+    add_custom_command(
+        TARGET ${EXAMPLE_NAME}
+        POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:OpenAL>
+            $<TARGET_FILE_DIR:${EXAMPLE_NAME}>
     )
 endmacro()
 
@@ -27,6 +33,7 @@ endmacro()
 package_add_example(cubes cubes.cpp)
 package_add_example(inputs inputs.cpp)
 package_add_example(mouse mouse.cpp)
+package_add_example(audio audio.cpp)
 package_add_example(hierarchy hierarchy.cpp)
 package_add_example(gltf gltf.cpp)
 package_add_example_data(gltf assets)

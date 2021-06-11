@@ -64,6 +64,29 @@ if(NOT bullet3_POPULATED)
     add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
 endif()
 
+# Libnyquist - Audio File Parsing
+FetchContent_Declare(libnyquist
+    GIT_REPOSITORY https://github.com/nasso/libnyquist.git
+    GIT_PROGRESS ON
+)
+if(NOT libnyquist_POPULATED)
+    FetchContent_Populate(libnyquist)
+    set(LIBNYQUIST_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${libnyquist_SOURCE_DIR} ${libnyquist_BINARY_DIR})
+endif()
+
+# OpenAL - Open Audio Library
+FetchContent_Declare(OpenAL
+    URL https://github.com/kcat/openal-soft/archive/refs/tags/1.21.1.zip
+    URL_HASH SHA1=1442363faf47a5a7cd6287513068ecd6c70e747e
+)
+if(NOT OpenAL_POPULATED)
+    FetchContent_Populate(OpenAL)
+    set(ALSOFT_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(ALSOFT_UTILS OFF CACHE BOOL "" FORCE)
+    add_subdirectory(${openal_SOURCE_DIR} ${openal_BINARY_DIR})
+endif()
+
 # source files
 set(sources ${sources}
     "include/ige.hpp"
@@ -88,6 +111,12 @@ set(sources ${sources}
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
     "include/ige/plugin.hpp"
+    "include/ige/plugin/audio/AudioBuffer.hpp"
+    "include/ige/plugin/audio/AudioClip.hpp"
+    "include/ige/plugin/audio/AudioListener.hpp"
+    "include/ige/plugin/audio/AudioSource.hpp"
+    "include/ige/plugin/audio/exceptions/AudioPluginException.hpp"
+    "include/ige/plugin/AudioPlugin.hpp"
     "include/ige/plugin/GltfPlugin.hpp"
     "include/ige/plugin/input/Controller.hpp"
     "include/ige/plugin/input/InputManager.hpp"
@@ -117,6 +146,13 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/plugin/audio/AudioBuffer.cpp"
+    "src/plugin/audio/AudioClip.cpp"
+    "src/plugin/audio/AudioEngine.cpp"
+    "src/plugin/audio/AudioEngine.hpp"
+    "src/plugin/audio/AudioListener.cpp"
+    "src/plugin/audio/AudioSource.cpp"
+    "src/plugin/AudioPlugin.cpp"
     "src/plugin/GltfPlugin.cpp"
     "src/plugin/input/InputManager.cpp"
     "src/plugin/input/Keyboard.cpp"
@@ -157,9 +193,12 @@ set(sources ${sources}
 # compile options
 set(compile_flags
     _CRT_SECURE_NO_WARNINGS
+    AL_LIBTYPE_STATIC
     GLM_FORCE_SILENT_WARNINGS
     IGE_OPENGL
 )
+
+set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
 
 # static library
 add_library(ige STATIC ${sources})
@@ -191,4 +230,6 @@ target_link_libraries(ige
     BulletDynamics
     BulletCollision
     LinearMath
+    OpenAL
+    libnyquist
 )
