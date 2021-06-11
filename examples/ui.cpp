@@ -107,8 +107,8 @@ class RootState : public State {
 
         app.world().create_entity(
             RectTransform {}
-                .set_anchors({ 0.0f, 1.0f }, { 1.0f, 1.0f })
-                .set_bounds({ 100.0f, -100.0f }, { -100.0f, -10.0f }),
+                .set_anchors({ 0.5f, 0.5f }, { 0.5f, 0.5f })
+                .set_bounds({ -100.0f, -100.0f }, { 100.0f, 100.0f }),
             ImageRenderer { btn_img, ImageRenderer::Mode::TILED },
             Scripts::from(ExampleButton {}),
             EventTarget {}

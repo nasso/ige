@@ -230,5 +230,5 @@ static void clear_cache(World& wld)
 void UiRenderer::plug(App::Builder& builder) const
 {
     builder.add_system(System::from(systems::render_ui));
-    builder.add_system(System::from(systems::clear_cache));
+    builder.add_cleanup_system(System::from(systems::clear_cache));
 }
