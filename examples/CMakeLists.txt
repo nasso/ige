@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.17)
 
 project(ige_examples)
 
-add_subdirectory(example_framework)
+add_subdirectory(framework)
 
 macro(package_add_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${ARGN})
-    target_link_libraries(${EXAMPLE_NAME} ige example_framework)
+    target_link_libraries(${EXAMPLE_NAME} ige framework)
     set_target_properties(${EXAMPLE_NAME}
         PROPERTIES
             CXX_STANDARD 20
