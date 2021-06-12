@@ -165,6 +165,16 @@ public:
     }
 
     template <Behaviour B>
+    void remove()
+    {
+        auto iter = m_bhvrs.find(core::type_id<B>());
+
+        if (iter != m_bhvrs.end()) {
+            m_bhvrs.erase(iter);
+        }
+    }
+
+    template <Behaviour B>
     B* get()
     {
         auto iter = m_bhvrs.find(core::type_id<B>());
