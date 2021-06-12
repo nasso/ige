@@ -9,6 +9,8 @@ add_subdirectory(stb)
 # GLAD - OpenGL & Vulkan loader
 add_subdirectory(glad)
 
+set(FETCHCONTENT_QUIET FALSE)
+
 # GLFW - Windowing library
 FetchContent_Declare(glfw
     URL https://github.com/glfw/glfw/releases/download/3.3.4/glfw-3.3.4.zip
@@ -34,6 +36,8 @@ FetchContent_MakeAvailable(glm)
 FetchContent_Declare(json
     GIT_REPOSITORY https://github.com/ArthurSonzogni/nlohmann_json_cmake_fetchcontent
     GIT_TAG v3.9.1
+    GIT_PROGRESS TRUE
+    USES_TERMINAL_DOWNLOAD TRUE
 )
 FetchContent_MakeAvailable(json)
 
@@ -51,23 +55,26 @@ endif()
 
 # Bullet3 - Physics engine
 FetchContent_Declare(bullet3
-    GIT_REPOSITORY https://github.com/bulletphysics/bullet3.git
-    GIT_TAG 3.17
+    GIT_REPOSITORY https://github.com/nasso/bullet3.git
+    GIT_PROGRESS TRUE
+    USES_TERMINAL_DOWNLOAD TRUE
 )
 FetchContent_GetProperties(bullet3)
 if(NOT bullet3_POPULATED)
     FetchContent_Populate(bullet3)
     set(OpenGL_GL_PREFERENCE "GLVND" CACHE STRING "" FORCE)
-    set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
-    set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
-    set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+    set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+    set(BULLET_BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+    set(BULLET_BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+    set(BULLET_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
     add_subdirectory(${bullet3_SOURCE_DIR} ${bullet3_BINARY_DIR})
 endif()
 
 # Libnyquist - Audio File Parsing
 FetchContent_Declare(libnyquist
     GIT_REPOSITORY https://github.com/nasso/libnyquist.git
-    GIT_PROGRESS ON
+    GIT_PROGRESS TRUE
+    USES_TERMINAL_DOWNLOAD TRUE
 )
 if(NOT libnyquist_POPULATED)
     FetchContent_Populate(libnyquist)
