@@ -1,5 +1,9 @@
 #include "BulletRigidBody.hpp"
-#include "ige.hpp"
+#include "ige/ecs/Entity.hpp"
+#include "ige/ecs/World.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/physics/Collider.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/mat4x4.hpp>

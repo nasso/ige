@@ -1,6 +1,12 @@
 #include "ige/plugin/AudioPlugin.hpp"
 #include "audio/AudioEngine.hpp"
-#include "ige.hpp"
+#include "ige/core/App.hpp"
+#include "ige/ecs/System.hpp"
+#include "ige/ecs/World.hpp"
+#include "ige/plugin/AudioPlugin.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/audio/AudioListener.hpp"
+#include "ige/plugin/audio/AudioSource.hpp"
 
 using glm::vec3;
 using ige::core::App;

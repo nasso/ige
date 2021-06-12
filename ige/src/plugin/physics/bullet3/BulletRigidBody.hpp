@@ -3,7 +3,11 @@
 
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
-#include "ige.hpp"
+#include "ige/ecs/Entity.hpp"
+#include "ige/ecs/World.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/physics/Collider.hpp"
+#include "ige/plugin/physics/RigidBody.hpp"
 #include <memory>
 
 namespace ige::bt {

@@ -4,10 +4,13 @@
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
-#include "ige.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/physics/Collider.hpp"
+#include "ige/plugin/physics/GhostObject.hpp"
 #include <memory>
 
 namespace ige::bt {
+
 class BulletGhostObject {
 public:
     BulletGhostObject(
@@ -35,6 +38,7 @@ private:
     std::weak_ptr<btDynamicsWorld> m_world;
     bool m_moved = false;
 };
+
 }
 
 #endif /* AEBE5777_3041_432D_8A6B_F977321EC36E */
