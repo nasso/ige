@@ -95,6 +95,16 @@ void AudioSource::stop()
     AudioEngine::get_native_exception();
 }
 
+void AudioSource::set_looping(bool loop)
+{
+    set_propertyi(AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
+}
+
+bool AudioSource::looping() const
+{
+    return get_propertyi(AL_LOOPING) == AL_TRUE;
+}
+
 void AudioSource::set_position(glm::vec3 vec)
 {
     set_property3f(AL_POSITION, vec);
@@ -149,4 +159,17 @@ float AudioSource::get_propertyf(ALenum alProp) const
 void AudioSource::set_propertyf(ALenum alProp, float value)
 {
     alSourcef(m_source, alProp, value);
+}
+
+int AudioSource::get_propertyi(ALenum alProp) const
+{
+    int ret;
+
+    alGetSourcei(m_source, alProp, &ret);
+    return ret;
+}
+
+void AudioSource::set_propertyi(ALenum alProp, int value)
+{
+    alSourcei(m_source, alProp, value);
 }
