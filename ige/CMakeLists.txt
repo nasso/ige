@@ -158,6 +158,8 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/plugin/animation/Animator.cpp"
+    "src/plugin/animation/SkeletonPose.cpp"
     "src/plugin/AnimationPlugin.cpp"
     "src/plugin/audio/AudioBuffer.cpp"
     "src/plugin/audio/AudioClip.cpp"

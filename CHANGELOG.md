@@ -14,6 +14,7 @@ and this project adheres to
 - Basic audio plugin.
 - Basic UI plugin.
 - `GhostObject` for detecting 3D collisions without any physical response.
+- Skeletal animation support.
 
 ### Fixed
 

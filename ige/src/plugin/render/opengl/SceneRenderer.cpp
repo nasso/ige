@@ -222,9 +222,8 @@ public:
 };
 
 static void draw_mesh(
-    World& world, const EntityId& entity, RenderCache& cache,
-    const MeshRenderer& renderer, const mat4& projection, const mat4& view,
-    const Transform& xform)
+    World& world, RenderCache& cache, const MeshRenderer& renderer,
+    const mat4& projection, const mat4& view, const Transform& xform)
 {
     const mat4 model = xform.local_to_world();
     const mat4 pvm = projection * view * model;
@@ -266,8 +265,9 @@ static void draw_mesh(
             const mat4 inv_model = xform.world_to_local();
 
             for (std::size_t j = 0; j < joint_count; j++) {
-                joint_matrices[j] = inv_model;
-                joint_matrices[j] *= pose->global_pose[j];
+                // TODO: figure out why this is a lie
+                // joint_matrices[j] = inv_model;
+                joint_matrices[j] = pose->global_pose[j];
                 joint_matrices[j] *= skeleton.joints[j].inv_bind_matrix;
             }
 
@@ -359,8 +359,7 @@ static void render_meshes(World& world)
 
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
-
-        draw_mesh(world, entity, cache, renderer, projection, view, xform);
+        draw_mesh(world, cache, renderer, projection, view, xform);
     }
 }
 

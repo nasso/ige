@@ -18,7 +18,6 @@ using ige::core::State;
 using ige::ecs::Schedule;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::animation::AnimationPlayer;
 using ige::plugin::animation::AnimationPlugin;
 using ige::plugin::animation::Animator;
 using ige::plugin::gltf::GltfFormat;
@@ -43,6 +42,8 @@ using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
 class ExampleScript : public CppBehaviour {
+    std::size_t cur_track = 0;
+
 public:
     void update() override
     {
@@ -50,25 +51,86 @@ public:
         auto scene = get_component<GltfScene>();
         auto animator = get_component<Animator>();
 
-        if (animator && !animator->player) {
-            animator->player.emplace();
-        }
+        if (animator && !animator->empty()) {
+            // set_current() lets us select a single animation track to play.
+            // note that calling set_current() won't pause or restart any track!
+            // it only sets the weight of every other track to 0.
+            animator->set_current(cur_track);
 
-        if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_LEFT)) {
-            animator->player->current_time = AnimationPlayer::Duration::zero();
-        }
+            auto& track = animator->track(cur_track);
 
-        if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_UP)) {
-            animator->player->index++;
-            animator->player->index %= animator->animations.size();
-        }
+            // spacebar: play/pause
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_SPACE)) {
+                if (animator->playback_rate == 0.0f) {
+                    animator->playback_rate = 1.0f;
+                    std::cout << "Resuming at normal speed..." << std::endl;
+                } else {
+                    animator->playback_rate = 0.0f;
+                    std::cout << "Paused animator." << std::endl;
+                }
+            }
 
-        if (input->keyboard().is_pressed(KeyboardKey::KEY_SPACE)) {
-            animator->player->paused = !animator->player->paused;
-        }
+            // l: toggle loop
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_L)) {
+                track.loop = !track.loop;
 
-        if (input->keyboard().is_pressed(KeyboardKey::KEY_L)) {
-            animator->player->loop = !animator->player->loop;
+                if (track.loop) {
+                    std::cout << "Looping track #" << cur_track << "."
+                              << std::endl;
+                } else {
+                    std::cout << "Track #" << cur_track << " stopped looping."
+                              << std::endl;
+                }
+            }
+
+            // arrow left: previous animation track
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_LEFT)) {
+                // if we're at the beginning, go to the previous track
+                if (track.current_time.count() == 0) {
+                    if (cur_track == 0) {
+                        cur_track = animator->track_count() - 1;
+                    } else {
+                        cur_track--;
+                    }
+
+                    std::cout << "Now playing #" << cur_track << "."
+                              << std::endl;
+                } else {
+                    // when we're in the middle of an animation, rewind it back
+                    // to its beginning
+                    track.rewind();
+                    std::cout << "Rewinded track #" << cur_track << "."
+                              << std::endl;
+                }
+            }
+
+            // arrow right: next animation track
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_RIGHT)) {
+                cur_track++;
+                cur_track %= animator->track_count();
+                std::cout << "Now playing #" << cur_track << "." << std::endl;
+            }
+
+            // arrow up: play faster!!!
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_UP)) {
+                animator->playback_rate *= 1.1f;
+
+                if (animator->playback_rate >= 200.0f) {
+                    std::cout << "We've gone into plaid." << std::endl;
+                } else if (animator->playback_rate >= 20.0f) {
+                    std::cout << "Ludicrous speed!" << std::endl;
+                } else if (animator->playback_rate >= 5.0f) {
+                    std::cout << "Light speed!" << std::endl;
+                } else {
+                    std::cout << "Playing faster..." << std::endl;
+                }
+            }
+
+            // arrow down: play... slower...
+            if (input->keyboard().is_pressed(KeyboardKey::KEY_ARROW_DOWN)) {
+                animator->playback_rate *= 0.9f;
+                std::cout << "Slowing down..." << std::endl;
+            }
         }
     }
 };

@@ -55,7 +55,7 @@ using ige::core::App;
 using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
-using ige::plugin::animation::Animation;
+using ige::plugin::animation::AnimationTrack;
 using ige::plugin::animation::Animator;
 using ige::plugin::animation::SkeletonPose;
 using ige::plugin::gltf::GltfFormat;
@@ -404,8 +404,8 @@ static Mesh build_primitive(
 
         Mesh::Attribute attribute;
 
-        // perf: we could avoid creating a new buffer for each accessor
-        //       it could drastically reduce memory usage for interleaved data
+        // TODO(perf): we could avoid creating a new buffer for each accessor
+        // it could drastically reduce memory usage for interleaved data
         attribute.buffer = builder.add_buffer(accessor.view().span());
         attribute.stride = accessor.view().stride();
         attribute.offset = accessor.offset();
@@ -1036,14 +1036,15 @@ private:
 
             auto& animator = world.get_or_emplace_component<Animator>(parent);
 
-            animator.animations.reserve(
-                animator.animations.size() + cache.animations().size());
             for (const auto& anim : cache.animations()) {
-                animator.animations.push_back(Animation {
-                    m_skeletons.at(anim.skeleton_index),
-                    anim.clip,
-                    anim.clip->name,
-                });
+                const auto& anim_target = m_skeletons.at(anim.skeleton_index);
+                const auto& name = anim.clip->name;
+
+                std::size_t id = animator.add_track(anim_target, anim.clip);
+
+                if (!name.empty()) {
+                    animator.set_track_name(id, name);
+                }
             }
         } catch (const std::exception& e) {
             std::cerr << "[ERROR] Couldn't load " << scene.uri() << ": "
