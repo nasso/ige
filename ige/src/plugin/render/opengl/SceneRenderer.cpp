@@ -245,7 +245,7 @@ static void render_meshes(World& world)
     auto wininfo = world.get<WindowInfo>();
     auto cameras = world.query<PerspectiveCamera, Transform>();
 
-    if (cameras.empty()) {
+    if (cameras.empty() || wininfo->width == 0 || wininfo->height == 0) {
         return;
     }
 

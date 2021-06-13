@@ -13,7 +13,11 @@ and this project adheres to
 - A changelog.
 - Basic audio plugin.
 - Basic UI plugin.
-- `GhostObject` for detecting 3D collisions without any physical response
+- `GhostObject` for detecting 3D collisions without any physical response.
+
+### Fixed
+
+- Fixed a crash when the window is minimised.
 
 ## [v0.1.0] - 2021-06-11
 
