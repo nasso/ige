@@ -24,6 +24,7 @@ public:
     {
         m_pressed.clear();
         m_released.clear();
+        m_down.clear();
     }
 
     void set_state(T key, InputRegistryState state)
@@ -53,6 +54,21 @@ public:
     bool is_released(const T& key) const
     {
         return m_released.contains(key);
+    }
+
+    std::vector<T> get_all_down() const
+    {
+        return m_down;
+    }
+
+    std::vector<T> get_all_pressed() const
+    {
+        return m_pressed;
+    }
+
+    std::vector<T> get_all_released() const
+    {
+        return m_released;
     }
 };
 
