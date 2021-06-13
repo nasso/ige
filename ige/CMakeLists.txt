@@ -98,8 +98,10 @@ endif()
 set(sources ${sources}
     "include/ige.hpp"
     "include/ige/asset.hpp"
+    "include/ige/asset/AnimationClip.hpp"
     "include/ige/asset/Material.hpp"
     "include/ige/asset/Mesh.hpp"
+    "include/ige/asset/Skeleton.hpp"
     "include/ige/asset/Texture.hpp"
     "include/ige/core.hpp"
     "include/ige/core/Any.hpp"
@@ -118,6 +120,7 @@ set(sources ${sources}
     "include/ige/ecs/VecStorage.hpp"
     "include/ige/ecs/World.hpp"
     "include/ige/plugin.hpp"
+    "include/ige/plugin/AnimationPlugin.hpp"
     "include/ige/plugin/audio/AudioBuffer.hpp"
     "include/ige/plugin/audio/AudioClip.hpp"
     "include/ige/plugin/audio/AudioListener.hpp"
@@ -143,6 +146,7 @@ set(sources ${sources}
     "include/ige/plugin/UiPlugin.hpp"
     "include/ige/plugin/WindowPlugin.hpp"
 
+    "src/asset/AnimationClip.cpp"
     "src/asset/Material.cpp"
     "src/asset/Mesh.cpp"
     "src/asset/Texture.cpp"
@@ -154,6 +158,9 @@ set(sources ${sources}
     "src/ecs/Schedule.cpp"
     "src/ecs/System.cpp"
     "src/ecs/World.cpp"
+    "src/plugin/animation/Animator.cpp"
+    "src/plugin/animation/SkeletonPose.cpp"
+    "src/plugin/AnimationPlugin.cpp"
     "src/plugin/audio/AudioBuffer.cpp"
     "src/plugin/audio/AudioClip.cpp"
     "src/plugin/audio/AudioEngine.cpp"
@@ -234,7 +241,7 @@ set_target_properties(ige
 target_compile_options(ige
     PRIVATE
         $<$<CXX_COMPILER_ID:Clang,AppleClang,GNU>:-Wall -Wextra>
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4127>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /wd4127 /wd4201>
 )
 target_compile_definitions(ige PUBLIC ${compile_flags})
 target_link_libraries(ige

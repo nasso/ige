@@ -1,3 +1,4 @@
+#include "TrackballCamera.hpp"
 #include "ige.hpp"
 #include <exception>
 #include <fstream>
@@ -27,6 +28,8 @@ using ige::plugin::input::KeyboardKey;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
+using ige::plugin::script::ScriptPlugin;
+using ige::plugin::script::Scripts;
 using ige::plugin::time::Time;
 using ige::plugin::time::TimePlugin;
 using ige::plugin::transform::Transform;
@@ -63,7 +66,7 @@ class RootState : public State {
         entity_to_edit = app.world().create_entity(
             Transform::from_pos(vec3(-2.0f, 0.0f, 0.0f)),
             Rotation {
-                vec3(0.0f, 20.0f, 0.0f),
+                vec3(20.0f, 0.0f, 0.0f),
             },
             GltfScene {
                 "assets/BoxTextured.glb",
@@ -71,9 +74,19 @@ class RootState : public State {
             });
 
         entity_to_remove = app.world().create_entity(
-            Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.2f),
+            Transform::from_pos(vec3(0.0f, 0.0f, 0.0f)),
             Rotation {
                 vec3(0.0f, 20.0f, 0.0f),
+            },
+            GltfScene {
+                "assets/BoxInterleaved.glb",
+                GltfFormat::BINARY,
+            });
+
+        app.world().create_entity(
+            Transform::from_pos(vec3(2.0f, 0.0f, 0.0f)).set_scale(0.1f),
+            Rotation {
+                vec3(0.0f, 0.0f, 20.0f),
             },
             GltfScene {
                 "assets/OrientationTest.glb",
@@ -82,8 +95,8 @@ class RootState : public State {
 
         // create camera
         app.world().create_entity(
-            Transform::from_pos(vec3(0.0f, 2.0f, 4.0f)).look_at(vec3(0.0f)),
-            PerspectiveCamera(90.0f));
+            PerspectiveCamera(90.0f),
+            Scripts::from(TrackballCamera { 5.0f, 0.0f }));
     }
 
     void on_update(App& app) override
@@ -115,6 +128,8 @@ int main()
             .add_plugin(TransformPlugin {})
             .add_plugin(WindowPlugin {})
             .add_plugin(RenderPlugin {})
+            .add_plugin(InputPlugin {})
+            .add_plugin(ScriptPlugin {})
             .add_system(System::from(rotation_system))
             .run<RootState>();
         std::cout << "Bye bye!" << std::endl;

@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <iostream>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -131,10 +132,22 @@ GLuint Program::uniform(const std::string& name)
     return glGetUniformLocation(m_id, name.c_str());
 }
 
-void Program::uniform(const std::string& name, bool value)
+void Program::uniform(const std::string& name, int value)
 {
     use();
-    glUniform1i(uniform(name), value ? 1 : 0);
+    glUniform1i(uniform(name), value);
+}
+
+void Program::uniform(const std::string& name, std::span<const int> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
+    use();
+    glUniform1iv(
+        uniform(name), static_cast<GLsizei>(values.size()),
+        reinterpret_cast<const GLint*>(values.data()));
 }
 
 void Program::uniform(const std::string& name, float value)
@@ -143,10 +156,33 @@ void Program::uniform(const std::string& name, float value)
     glUniform1f(uniform(name), value);
 }
 
+void Program::uniform(const std::string& name, std::span<const float> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
+    use();
+    glUniform1fv(
+        uniform(name), static_cast<GLsizei>(values.size()), values.data());
+}
+
 void Program::uniform(const std::string& name, const vec2& value)
 {
     use();
     glUniform2f(uniform(name), value.x, value.y);
+}
+
+void Program::uniform(const std::string& name, std::span<const vec2> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
+    use();
+    glUniform2fv(
+        uniform(name), static_cast<GLsizei>(values.size()),
+        reinterpret_cast<const GLfloat*>(values.data()));
 }
 
 void Program::uniform(const std::string& name, const vec3& value)
@@ -155,28 +191,85 @@ void Program::uniform(const std::string& name, const vec3& value)
     glUniform3f(uniform(name), value.x, value.y, value.z);
 }
 
+void Program::uniform(const std::string& name, std::span<const vec3> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
+    use();
+    glUniform3fv(
+        uniform(name), static_cast<GLsizei>(values.size()),
+        reinterpret_cast<const GLfloat*>(values.data()));
+}
+
 void Program::uniform(const std::string& name, const vec4& value)
 {
     use();
     glUniform4f(uniform(name), value.x, value.y, value.z, value.w);
 }
 
+void Program::uniform(const std::string& name, std::span<const vec4> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
+    use();
+    glUniform4fv(
+        uniform(name), static_cast<GLsizei>(values.size()),
+        reinterpret_cast<const GLfloat*>(values.data()));
+}
+
 void Program::uniform(const std::string& name, const mat2& value)
 {
+    uniform(name, std::span(&value, 1));
+}
+
+void Program::uniform(const std::string& name, std::span<const mat2> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
     use();
-    glUniformMatrix2fv(uniform(name), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix2fv(
+        uniform(name), static_cast<GLsizei>(values.size()), GL_FALSE,
+        reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
 void Program::uniform(const std::string& name, const mat3& value)
 {
+    uniform(name, std::span(&value, 1));
+}
+
+void Program::uniform(const std::string& name, std::span<const mat3> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
     use();
-    glUniformMatrix3fv(uniform(name), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix3fv(
+        uniform(name), static_cast<GLsizei>(values.size()), GL_FALSE,
+        reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
 void Program::uniform(const std::string& name, const mat4& value)
 {
+    uniform(name, std::span(&value, 1));
+}
+
+void Program::uniform(const std::string& name, std::span<const mat4> values)
+{
+    if (values.empty()) {
+        return;
+    }
+
     use();
-    glUniformMatrix4fv(uniform(name), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix4fv(
+        uniform(name), static_cast<GLsizei>(values.size()), GL_FALSE,
+        reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
 void Program::uniform(const std::string& name, const Texture& tex)

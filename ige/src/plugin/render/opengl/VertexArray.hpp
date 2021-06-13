@@ -15,6 +15,11 @@ namespace gl {
 class VertexArray {
 public:
     enum class Type : GLenum {
+        BYTE = GL_BYTE,
+        UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
+        SHORT = GL_SHORT,
+        UNSIGNED_SHORT = GL_UNSIGNED_SHORT,
+        UNSIGNED_INT = GL_UNSIGNED_INT,
         FLOAT = GL_FLOAT,
     };
 
@@ -31,7 +36,7 @@ public:
 
     void attrib(
         GLuint idx, GLint size, Type type, const gl::Buffer& vbo,
-        GLsizei stride = 0, GLsizei offset = 0);
+        GLsizei stride = 0, GLsizei offset = 0, bool cast_to_float = false);
     void attrib(GLuint idx, std::span<const float> data);
     void attrib(GLuint idx, std::span<const glm::vec2> data);
     void attrib(GLuint idx, std::span<const glm::vec3> data);

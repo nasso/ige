@@ -57,14 +57,21 @@ GLuint VertexArray::id() const
 
 void VertexArray::attrib(
     GLuint idx, GLint size, VertexArray::Type type, const Buffer& vbo,
-    GLsizei stride, GLsizei offset)
+    GLsizei stride, GLsizei offset, bool cast_to_float)
 {
     bind();
     glEnableVertexAttribArray(idx);
     vbo.bind();
-    glVertexAttribPointer(
-        idx, size, static_cast<GLenum>(type), GL_FALSE, stride,
-        reinterpret_cast<const GLvoid*>(static_cast<GLsizeiptr>(offset)));
+
+    if (type == VertexArray::Type::FLOAT || cast_to_float) {
+        glVertexAttribPointer(
+            idx, size, static_cast<GLenum>(type), GL_FALSE, stride,
+            reinterpret_cast<const GLvoid*>(static_cast<GLsizeiptr>(offset)));
+    } else {
+        glVertexAttribIPointer(
+            idx, size, static_cast<GLenum>(type), stride,
+            reinterpret_cast<const GLvoid*>(static_cast<GLsizeiptr>(offset)));
+    }
 }
 
 void VertexArray::attrib(GLuint idx, std::span<const float> data)

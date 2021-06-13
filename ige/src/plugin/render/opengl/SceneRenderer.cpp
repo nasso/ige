@@ -8,12 +8,16 @@
 #include "WeakPtrMap.hpp"
 #include "blobs/shaders/gl3/main-fs.glsl.h"
 #include "blobs/shaders/gl3/main-vs.glsl.h"
+#include "blobs/shaders/gl3/skinning-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
+#include "ige/asset/Skeleton.hpp"
 #include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
+#include "ige/ecs/Entity.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/AnimationPlugin.hpp"
 #include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
@@ -33,15 +37,20 @@ using glm::mat4;
 using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
+using ige::asset::Skeleton;
 using ige::asset::Texture;
 using ige::core::App;
+using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::animation::SkeletonPose;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::window::WindowInfo;
+
+const std::size_t MAX_JOINTS = 64;
 
 class MeshCache {
 private:
@@ -52,6 +61,16 @@ private:
     static gl::VertexArray::Type convert(Mesh::DataType type)
     {
         switch (type) {
+        case Mesh::DataType::BYTE:
+            return gl::VertexArray::Type::BYTE;
+        case Mesh::DataType::UNSIGNED_BYTE:
+            return gl::VertexArray::Type::UNSIGNED_BYTE;
+        case Mesh::DataType::SHORT:
+            return gl::VertexArray::Type::SHORT;
+        case Mesh::DataType::UNSIGNED_SHORT:
+            return gl::VertexArray::Type::UNSIGNED_SHORT;
+        case Mesh::DataType::UNSIGNED_INT:
+            return gl::VertexArray::Type::UNSIGNED_INT;
         case Mesh::DataType::FLOAT:
             return gl::VertexArray::Type::FLOAT;
         default:
@@ -61,6 +80,7 @@ private:
 
 public:
     gl::VertexArray vertex_array;
+    bool has_skin = false;
     std::optional<gl::Buffer> index_buffer;
     std::vector<gl::Buffer> vertex_buffers;
 
@@ -77,7 +97,6 @@ public:
 
         const auto pos = mesh.attr_position();
         const auto norm = mesh.attr_normal();
-        const auto uv = mesh.attr_tex_coords();
 
         vertex_array.attrib(
             0, 3, convert(pos.type), vertex_buffers[pos.buffer],
@@ -87,12 +106,31 @@ public:
             static_cast<GLsizei>(norm.stride),
             static_cast<GLsizei>(norm.offset));
 
-        if (!uv.empty()) {
-            const auto& uvs = uv[0];
+        if (const auto uvs = mesh.attr_tex_coords()) {
             vertex_array.attrib(
-                2, 2, convert(uvs.type), vertex_buffers[uvs.buffer],
-                static_cast<GLsizei>(uvs.stride),
-                static_cast<GLsizei>(uvs.offset));
+                2, 2, convert(uvs->type), vertex_buffers[uvs->buffer],
+                static_cast<GLsizei>(uvs->stride),
+                static_cast<GLsizei>(uvs->offset));
+        }
+
+        {
+            const auto joints = mesh.attr_joints();
+            const auto weights = mesh.attr_weights();
+
+            has_skin = joints && weights;
+
+            if (has_skin) {
+                vertex_array.attrib(
+                    3, 4, convert(joints->type), vertex_buffers[joints->buffer],
+                    static_cast<GLsizei>(joints->stride),
+                    static_cast<GLsizei>(joints->offset));
+
+                vertex_array.attrib(
+                    4, 4, convert(weights->type),
+                    vertex_buffers[weights->buffer],
+                    static_cast<GLsizei>(weights->stride),
+                    static_cast<GLsizei>(weights->offset));
+            }
         }
 
         index_buffer.emplace(GL_ELEMENT_ARRAY_BUFFER);
@@ -119,21 +157,36 @@ class RenderCache {
 private:
     WeakPtrMap<Mesh, MeshCache> m_meshes;
     WeakPtrMap<Texture, TextureCache> m_textures;
+    bool m_valid = false;
 
 public:
     std::optional<gl::Program> main_program;
+    std::optional<gl::Program> skinning_program;
 
     RenderCache() noexcept
     {
         try {
             std::cerr << "Compiling shaders..." << std::endl;
-            gl::Shader vs(gl::Shader::VERTEX, BLOBS_SHADERS_GL3_MAIN_VS_GLSL);
-            gl::Shader fs(gl::Shader::FRAGMENT, BLOBS_SHADERS_GL3_MAIN_FS_GLSL);
+            gl::Shader main_vs {
+                gl::Shader::VERTEX,
+                BLOBS_SHADERS_GL3_MAIN_VS_GLSL,
+            };
 
-            std::cerr << "Linking program..." << std::endl;
-            main_program.emplace(std::move(vs), std::move(fs));
+            gl::Shader skinning_vs {
+                gl::Shader::VERTEX,
+                BLOBS_SHADERS_GL3_SKINNING_VS_GLSL,
+            };
 
-            gl::Error::audit("load_main_program");
+            gl::Shader main_fs {
+                gl::Shader::FRAGMENT,
+                BLOBS_SHADERS_GL3_MAIN_FS_GLSL,
+            };
+
+            std::cerr << "Linking programs..." << std::endl;
+            main_program.emplace(main_vs, main_fs);
+            skinning_program.emplace(skinning_vs, main_fs);
+
+            m_valid = !gl::Error::audit("load_main_program");
         } catch (const std::exception& e) {
             std::cerr << e.what() << std::endl;
         }
@@ -141,7 +194,7 @@ public:
 
     bool is_valid() const
     {
-        return main_program.has_value();
+        return m_valid;
     }
 
     const MeshCache& get(std::shared_ptr<Mesh> mesh)
@@ -169,36 +222,80 @@ public:
 };
 
 static void draw_mesh(
-    RenderCache& cache, const MeshRenderer& renderer, const mat4& projection,
-    const mat4& view, const mat4& model)
+    World& world, RenderCache& cache, const MeshRenderer& renderer,
+    const mat4& projection, const mat4& view, const Transform& xform)
 {
-    mat4 pvm = projection * view * model;
+    const mat4 model = xform.local_to_world();
+    const mat4 pvm = projection * view * model;
 
     mat3 normal_matrix = glm::transpose(glm::inverse(mat3(model)));
     bool double_sided = false;
 
     const MeshCache& mesh = cache.get(renderer.mesh);
 
-    cache.main_program->use();
-    cache.main_program->uniform("u_ProjViewModel", pvm);
-    cache.main_program->uniform("u_NormalMatrix", normal_matrix);
+    auto& program = [&]() -> gl::Program& {
+        if (mesh.has_skin) {
+            return *cache.skinning_program;
+        } else {
+            return *cache.main_program;
+        }
+    }();
+
+    program.use();
+    program.uniform("u_ProjViewModel", pvm);
+    program.uniform("u_NormalMatrix", normal_matrix);
+
+    if (mesh.has_skin && renderer.skeleton_pose) {
+        auto pose = world.get_component<SkeletonPose>(*renderer.skeleton_pose);
+
+        if (!pose) {
+            std::cerr << "[WARN] Missing SkeletonPose" << std::endl;
+        } else {
+            const auto& skeleton = *pose->skeleton;
+            std::size_t joint_count = skeleton.joints.size();
+            joint_count = std::min(MAX_JOINTS, joint_count);
+            mat4 joint_matrices[64];
+
+            // compute joint matrices:
+            // jointMatrix[j] =
+            //        inverse(globalTransform)
+            //      * globalJointTransform[j]
+            //      * inverseBindMatrix[j];
+
+            const mat4 inv_model = xform.world_to_local();
+
+            for (std::size_t j = 0; j < joint_count; j++) {
+                // TODO: figure out why this is a lie
+                // joint_matrices[j] = inv_model;
+                joint_matrices[j] = pose->global_pose[j];
+                joint_matrices[j] *= skeleton.joints[j].inv_bind_matrix;
+            }
+
+            program.uniform(
+                "u_JointMatrix",
+                std::span {
+                    &joint_matrices[0],
+                    &joint_matrices[joint_count],
+                });
+        }
+    }
 
     if (renderer.material) {
         double_sided = renderer.material->double_sided();
 
-        cache.main_program->uniform(
+        program.uniform(
             "u_BaseColorFactor",
             renderer.material->get_or("base_color_factor", vec4 { 1.0f }));
 
         auto base_texture = renderer.material->get("base_color_texture");
         if (base_texture
             && base_texture->type == Material::ParameterType::TEXTURE) {
-            cache.main_program->uniform(
+            program.uniform(
                 "u_BaseColorTexture",
                 cache.get(base_texture->texture).gl_texture);
-            cache.main_program->uniform("u_HasBaseColorTexture", true);
+            program.uniform("u_HasBaseColorTexture", true);
         } else {
-            cache.main_program->uniform("u_HasBaseColorTexture", false);
+            program.uniform("u_HasBaseColorTexture", false);
         }
     }
 
@@ -262,9 +359,7 @@ static void render_meshes(World& world)
 
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
-        mat4 model = xform.local_to_world();
-
-        draw_mesh(cache, renderer, projection, view, model);
+        draw_mesh(world, cache, renderer, projection, view, xform);
     }
 }
 

@@ -67,8 +67,8 @@ static void compute_children_sets(World& world)
     auto all_parents = world.query<Children>();
     auto all_children = world.query<Parent>();
 
-    // TODO: for better performance, we might want to add some logic to check
-    // whether the parent changed since the last update. a smarter
+    // TODO(perf): for better performance, we might want to add some logic to
+    // check whether the parent changed since the last update. a smarter
     // implementation would only mutate the children set according to these
     // changes
 

@@ -4,13 +4,14 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "glad/gl.h"
-#include <cmath>
+#include <concepts>
 #include <glm/mat2x2.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <span>
 #include <stdexcept>
 #include <string>
 
@@ -40,15 +41,25 @@ public:
     GLuint id() const;
 
     GLuint uniform(const std::string& name);
-    void uniform(const std::string& name, bool);
+
+    void uniform(const std::string& name, int);
+    void uniform(const std::string& name, std::span<const int>);
     void uniform(const std::string& name, float);
+    void uniform(const std::string& name, std::span<const float>);
     void uniform(const std::string& name, const glm::vec2&);
+    void uniform(const std::string& name, std::span<const glm::vec2>);
     void uniform(const std::string& name, const glm::vec3&);
+    void uniform(const std::string& name, std::span<const glm::vec3>);
     void uniform(const std::string& name, const glm::vec4&);
+    void uniform(const std::string& name, std::span<const glm::vec4>);
     void uniform(const std::string& name, const glm::mat2&);
+    void uniform(const std::string& name, std::span<const glm::mat2>);
     void uniform(const std::string& name, const glm::mat3&);
+    void uniform(const std::string& name, std::span<const glm::mat3>);
     void uniform(const std::string& name, const glm::mat4&);
+    void uniform(const std::string& name, std::span<const glm::mat4>);
     void uniform(const std::string& name, const Texture&);
+    void uniform(const std::string& name, std::span<const Texture>);
 
 private:
     GLuint m_id = 0;

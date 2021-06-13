@@ -9,4 +9,5 @@ add_blobs(blobs
     "shaders/gl3/ui-rect-vs.glsl"
     "shaders/gl3/ui-img-fs.glsl"
     "shaders/gl3/ui-img-vs.glsl"
+    "shaders/gl3/skinning-vs.glsl"
 )

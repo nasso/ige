@@ -11,8 +11,7 @@
 
 namespace ige::asset {
 
-class Mesh {
-public:
+struct Mesh {
     using Handle = std::shared_ptr<Mesh>;
     using Buffer = std::vector<std::byte>;
 
@@ -22,7 +21,12 @@ public:
     };
 
     enum class DataType {
-        FLOAT,
+        BYTE = 5120,
+        UNSIGNED_BYTE = 5121,
+        SHORT = 5122,
+        UNSIGNED_SHORT = 5123,
+        UNSIGNED_INT = 5125,
+        FLOAT = 5126,
     };
 
     struct Attribute {
@@ -32,49 +36,44 @@ public:
         DataType type = DataType::FLOAT;
     };
 
-private:
-    std::vector<Buffer> m_buffers;
-    std::vector<std::uint32_t> m_index_buffer;
-    Attribute m_attr_position;
-    Attribute m_attr_normal;
-    std::vector<Attribute> m_attr_uvs;
-    Topology m_topology;
-
-    Mesh() = default;
-
-public:
     class Builder;
 
     static Mesh cube(float size);
     static Handle make_cube(float size);
 
-    Mesh(Mesh&&) = default;
-    Mesh& operator=(Mesh&&) = default;
-    Mesh(const Mesh&) = delete;
-    Mesh& operator=(const Mesh&) = delete;
-
     std::span<const Buffer> buffers() const;
     std::span<const std::uint32_t> index_buffer() const;
     Attribute attr_position() const;
     Attribute attr_normal() const;
-    std::span<const Attribute> attr_tex_coords() const;
+    std::optional<Attribute> attr_tex_coords() const;
+    std::optional<Attribute> attr_joints() const;
+    std::optional<Attribute> attr_weights() const;
     Topology topology() const;
+
+private:
+    std::vector<Buffer> m_buffers;
+    std::vector<std::uint32_t> m_index_buffer;
+    Attribute m_attr_position;
+    Attribute m_attr_normal;
+    std::optional<Attribute> m_attr_uvs;
+    std::optional<Attribute> m_attr_joints;
+    std::optional<Attribute> m_attr_weights;
+    Topology m_topology;
 };
 
 class Mesh::Builder {
 private:
     std::vector<Buffer> m_buffers;
     std::vector<std::uint32_t> m_index_buffer;
-    std::optional<Attribute> m_attr_position;
-    std::optional<Attribute> m_attr_normal;
-    std::vector<Attribute> m_attr_uvs;
+    std::optional<Attribute> m_attr_position = std::nullopt;
+    std::optional<Attribute> m_attr_normal = std::nullopt;
+    std::optional<Attribute> m_attr_uvs = std::nullopt;
+    std::optional<Attribute> m_attr_joints = std::nullopt;
+    std::optional<Attribute> m_attr_weights = std::nullopt;
     Topology m_topology = Topology::TRIANGLES;
 
 public:
     Mesh build();
-
-    Mesh::Builder& set_topology(Mesh::Topology);
-    Mesh::Topology topology() const;
 
     template <typename T>
     std::size_t add_buffer(std::span<const T> slice)
@@ -84,18 +83,22 @@ public:
         return m_buffers.size() - 1;
     }
 
-    std::span<const Buffer> buffers() const;
-
+    Mesh::Builder& set_topology(Mesh::Topology);
     Mesh::Builder& set_index_buffer(std::span<const std::uint32_t>);
-    std::span<const std::uint32_t> index_buffer() const;
-
     Mesh::Builder& attr_position(Mesh::Attribute);
     Mesh::Builder& attr_normal(Mesh::Attribute);
+    Mesh::Builder& attr_joints(Mesh::Attribute);
+    Mesh::Builder& attr_weights(Mesh::Attribute);
     Mesh::Builder& attr_tex_coords(Mesh::Attribute);
 
+    std::span<const Buffer> buffers() const;
     std::optional<Attribute> attr_position() const;
     std::optional<Attribute> attr_normal() const;
-    std::span<const Attribute> attr_tex_coords() const;
+    std::optional<Attribute> attr_tex_coords() const;
+    std::optional<Attribute> attr_joints() const;
+    std::optional<Attribute> attr_weights() const;
+    std::span<const std::uint32_t> index_buffer() const;
+    Mesh::Topology topology() const;
 };
 
 }
