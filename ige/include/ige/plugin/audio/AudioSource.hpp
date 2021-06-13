@@ -22,6 +22,7 @@ public:
     void play();
     void pause();
     void restart();
+    void stop();
 
     bool is_playing();
 

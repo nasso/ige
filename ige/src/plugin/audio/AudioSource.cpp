@@ -89,6 +89,12 @@ void AudioSource::restart()
     AudioEngine::get_native_exception();
 }
 
+void AudioSource::stop()
+{
+    alSourceStop(m_source);
+    AudioEngine::get_native_exception();
+}
+
 void AudioSource::set_position(glm::vec3 vec)
 {
     set_property3f(AL_POSITION, vec);
