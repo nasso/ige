@@ -1,5 +1,4 @@
 #include "ige/asset/Mesh.hpp"
-#include "ige/asset/Skeleton.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -9,7 +8,6 @@
 #include <utility>
 
 using ige::asset::Mesh;
-using ige::asset::Skeleton;
 
 Mesh Mesh::cube(float s)
 {
@@ -157,9 +155,6 @@ Mesh Mesh::Builder::build()
     mesh.m_attr_weights = m_attr_weights;
     m_attr_weights.reset();
 
-    mesh.m_skeleton = std::move(m_skeleton);
-    m_skeleton = nullptr;
-
     return mesh;
 }
 
@@ -172,12 +167,6 @@ Mesh::Builder& Mesh::Builder::set_topology(Mesh::Topology v)
 Mesh::Topology Mesh::Builder::topology() const
 {
     return m_topology;
-}
-
-Mesh::Builder& Mesh::Builder::set_skeleton(Skeleton::Handle skeleton)
-{
-    m_skeleton = skeleton;
-    return *this;
 }
 
 Mesh::Builder&
@@ -250,9 +239,4 @@ std::optional<Mesh::Attribute> Mesh::Builder::attr_joints() const
 std::optional<Mesh::Attribute> Mesh::Builder::attr_weights() const
 {
     return m_attr_weights;
-}
-
-Skeleton::Handle Mesh::skeleton() const
-{
-    return m_skeleton;
 }

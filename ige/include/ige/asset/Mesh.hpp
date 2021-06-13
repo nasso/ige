@@ -1,7 +1,6 @@
 #ifndef AC864DC3_F356_4B1D_9667_F631D9DB3AEB
 #define AC864DC3_F356_4B1D_9667_F631D9DB3AEB
 
-#include "Skeleton.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -50,7 +49,6 @@ struct Mesh {
     std::optional<Attribute> attr_joints() const;
     std::optional<Attribute> attr_weights() const;
     Topology topology() const;
-    Skeleton::Handle skeleton() const;
 
 private:
     std::vector<Buffer> m_buffers;
@@ -61,7 +59,6 @@ private:
     std::optional<Attribute> m_attr_joints;
     std::optional<Attribute> m_attr_weights;
     Topology m_topology;
-    Skeleton::Handle m_skeleton;
 };
 
 class Mesh::Builder {
@@ -74,7 +71,6 @@ private:
     std::optional<Attribute> m_attr_joints = std::nullopt;
     std::optional<Attribute> m_attr_weights = std::nullopt;
     Topology m_topology = Topology::TRIANGLES;
-    Skeleton::Handle m_skeleton = nullptr;
 
 public:
     Mesh build();
@@ -88,7 +84,6 @@ public:
     }
 
     Mesh::Builder& set_topology(Mesh::Topology);
-    Mesh::Builder& set_skeleton(Skeleton::Handle);
     Mesh::Builder& set_index_buffer(std::span<const std::uint32_t>);
     Mesh::Builder& attr_position(Mesh::Attribute);
     Mesh::Builder& attr_normal(Mesh::Attribute);
