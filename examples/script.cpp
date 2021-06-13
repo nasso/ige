@@ -16,6 +16,7 @@ using ige::asset::Texture;
 using ige::core::App;
 using ige::core::EventChannel;
 using ige::core::State;
+using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::World;
 using ige::plugin::input::InputManager;
@@ -57,6 +58,16 @@ public:
         if (timer >= 1.0f) {
             world().remove_entity(entity());
         }
+    }
+};
+
+class TickCounter : public CppBehaviour {
+public:
+    int counter = 0;
+
+    void tick() override
+    {
+        counter++;
     }
 };
 
@@ -139,6 +150,7 @@ public:
 
 class RootState : public State {
     std::optional<EventChannel<WindowEvent>::Subscription> m_win_events;
+    std::optional<EntityId> m_id;
 
     void on_start(App& app) override
     {
@@ -166,6 +178,8 @@ class RootState : public State {
         app.world().create_entity(
             PerspectiveCamera { 70.0f },
             Scripts::from(TrackballCamera { 10.0f }));
+
+        m_id = app.world().create_entity(Scripts::from(TickCounter {}));
     }
 
     void on_update(App& app) override
@@ -173,6 +187,18 @@ class RootState : public State {
         while (const auto& event = m_win_events->next_event()) {
             if (event->kind == WindowEventKind::WindowClose) {
                 app.quit();
+            }
+        }
+
+        auto scripts = app.world().get_component<Scripts>(*m_id);
+
+        if (scripts) {
+            auto counter = scripts->get<TickCounter>();
+
+            if (counter && counter->counter == 60) {
+                scripts->remove<TickCounter>();
+            } else if (counter) {
+                std::cout << counter->counter << std::endl;
             }
         }
     }
