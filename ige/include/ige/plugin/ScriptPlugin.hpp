@@ -167,11 +167,7 @@ public:
     template <Behaviour B>
     void remove()
     {
-        auto iter = m_bhvrs.find(core::type_id<B>());
-
-        if (iter != m_bhvrs.end()) {
-            m_bhvrs.erase(iter);
-        }
+        m_bhvrs.erase(core::type_id<B>());
     }
 
     template <Behaviour B>
