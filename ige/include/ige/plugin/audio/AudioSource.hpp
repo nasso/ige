@@ -28,6 +28,10 @@ public:
 
     void set_looping(bool loop);
     bool looping() const;
+
+    void set_volume(float volume);
+    float volume() const;
+
     void set_position(glm::vec3 vec);
     glm::vec3 position() const;
 

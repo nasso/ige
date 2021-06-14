@@ -105,6 +105,16 @@ bool AudioSource::looping() const
     return get_propertyi(AL_LOOPING) == AL_TRUE;
 }
 
+void AudioSource::set_volume(float volume)
+{
+    set_propertyf(AL_GAIN, volume);
+}
+
+float AudioSource::volume() const
+{
+    return get_propertyf(AL_GAIN);
+}
+
 void AudioSource::set_position(glm::vec3 vec)
 {
     set_property3f(AL_POSITION, vec);
