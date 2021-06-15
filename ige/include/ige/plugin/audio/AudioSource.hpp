@@ -26,7 +26,7 @@ public:
 
     bool is_playing();
 
-    void set_looping(bool loop);
+    void set_looping(bool loop = true);
     bool looping() const;
 
     void set_volume(float volume);
