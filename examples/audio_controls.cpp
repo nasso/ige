@@ -70,6 +70,8 @@ public:
 
             if (volume - 0.1f >= 0.0f)
                 source->set_volume(source->volume() - 0.1f);
+        } else if (command == "/exit") {
+            app.quit();
         } else {
             std::cout << "Unknown command." << std::endl;
         }
@@ -81,7 +83,7 @@ int main()
     std::cout << "[Audio Controls Example] This is just a console based audio "
                  "player\n"
                  "\n"
-                 "Press [Enter] when you're ready"
+                 "Press [Enter] when you're ready, use /exit to leave"
               << std::endl;
 
     {
