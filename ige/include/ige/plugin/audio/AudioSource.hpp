@@ -22,8 +22,15 @@ public:
     void play();
     void pause();
     void restart();
+    void stop();
 
     bool is_playing();
+
+    void set_looping(bool loop = true);
+    bool looping() const;
+
+    void set_volume(float volume);
+    float volume() const;
 
     void set_position(glm::vec3 vec);
     glm::vec3 position() const;
@@ -43,7 +50,10 @@ private:
     void set_property3f(ALenum alProp, glm::vec3 vec);
 
     float get_propertyf(ALenum alProp) const;
-    void set_propertyf(ALenum alProp, float vec);
+    void set_propertyf(ALenum alProp, float value);
+
+    int get_propertyi(ALenum alProp) const;
+    void set_propertyi(ALenum alProp, int value);
 };
 
 }
