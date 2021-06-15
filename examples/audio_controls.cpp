@@ -26,7 +26,8 @@ class RootState : public State {
 public:
     void on_start(App& app) override
     {
-        std::shared_ptr<AudioClip> clip(new AudioClip("./assets/piano2.wav"));
+        std::shared_ptr<AudioClip> clip
+            = std::make_shared<AudioClip>(AudioClip("./assets/piano2.wav"));
 
         // Warning: Only mono sound files support 3D Spatialization
         source_entity = app.world().create_entity(Transform {});
