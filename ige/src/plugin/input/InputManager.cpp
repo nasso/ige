@@ -64,7 +64,7 @@ Controller* InputManager::controller(const ControllerId& id)
     auto controller = m_controllers.find(id);
 
     if (controller == m_controllers.end()) {
-        return {};
+        return nullptr;
     }
     return &controller->second;
 }
@@ -74,7 +74,7 @@ const Controller* InputManager::controller(const ControllerId& id) const
     auto controller = m_controllers.find(id);
 
     if (controller == m_controllers.end()) {
-        return {};
+        return nullptr;
     }
     return &controller->second;
 }
