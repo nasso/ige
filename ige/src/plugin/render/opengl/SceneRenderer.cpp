@@ -1,14 +1,19 @@
 #include "SceneRenderer.hpp"
 #include "Buffer.hpp"
 #include "Error.hpp"
+#include "Framebuffer.hpp"
+#include "MeshCache.hpp"
 #include "Program.hpp"
+#include "Renderbuffer.hpp"
 #include "Shader.hpp"
 #include "TextureCache.hpp"
 #include "VertexArray.hpp"
 #include "WeakPtrMap.hpp"
-#include "blobs/shaders/gl3/main-fs.glsl.h"
-#include "blobs/shaders/gl3/main-vs.glsl.h"
-#include "blobs/shaders/gl3/skinning-vs.glsl.h"
+#include "blobs/shaders/gl/gbuffer-fs.glsl.h"
+#include "blobs/shaders/gl/gbuffer-skin-vs.glsl.h"
+#include "blobs/shaders/gl/gbuffer-vs.glsl.h"
+#include "blobs/shaders/gl/light-pass-fs.glsl.h"
+#include "blobs/shaders/gl/light-pass-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
@@ -22,9 +27,11 @@
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include <iostream>
 #include <memory>
@@ -34,6 +41,7 @@
 
 using glm::mat3;
 using glm::mat4;
+using glm::vec2;
 using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
@@ -50,146 +58,130 @@ using ige::plugin::render::RenderPlugin;
 using ige::plugin::transform::Transform;
 using ige::plugin::window::WindowInfo;
 
+using Fbo = gl::Framebuffer;
+
 const std::size_t MAX_JOINTS = 64;
 
-class MeshCache {
-private:
-    static std::size_t GID;
-
-    std::size_t m_id;
-
-    static gl::VertexArray::Type convert(Mesh::DataType type)
-    {
-        switch (type) {
-        case Mesh::DataType::BYTE:
-            return gl::VertexArray::Type::BYTE;
-        case Mesh::DataType::UNSIGNED_BYTE:
-            return gl::VertexArray::Type::UNSIGNED_BYTE;
-        case Mesh::DataType::SHORT:
-            return gl::VertexArray::Type::SHORT;
-        case Mesh::DataType::UNSIGNED_SHORT:
-            return gl::VertexArray::Type::UNSIGNED_SHORT;
-        case Mesh::DataType::UNSIGNED_INT:
-            return gl::VertexArray::Type::UNSIGNED_INT;
-        case Mesh::DataType::FLOAT:
-            return gl::VertexArray::Type::FLOAT;
-        default:
-            throw std::runtime_error("Unsupported data type");
-        }
-    }
-
-public:
-    gl::VertexArray vertex_array;
-    bool has_skin = false;
-    std::optional<gl::Buffer> index_buffer;
-    std::vector<gl::Buffer> vertex_buffers;
-
-    MeshCache(const Mesh& mesh)
-        : m_id(++GID)
-    {
-        auto mesh_data = mesh.buffers();
-        vertex_buffers.resize(mesh_data.size());
-        for (std::size_t i = 0; i < vertex_buffers.size(); i++) {
-            vertex_buffers[i].load<std::byte>(mesh_data[i]);
-        }
-
-        gl::Error::audit("mesh cache - buffers");
-
-        const auto pos = mesh.attr_position();
-        const auto norm = mesh.attr_normal();
-
-        vertex_array.attrib(
-            0, 3, convert(pos.type), vertex_buffers[pos.buffer],
-            static_cast<GLsizei>(pos.stride), static_cast<GLsizei>(pos.offset));
-        vertex_array.attrib(
-            1, 3, convert(norm.type), vertex_buffers[norm.buffer],
-            static_cast<GLsizei>(norm.stride),
-            static_cast<GLsizei>(norm.offset));
-
-        if (const auto uvs = mesh.attr_tex_coords()) {
-            vertex_array.attrib(
-                2, 2, convert(uvs->type), vertex_buffers[uvs->buffer],
-                static_cast<GLsizei>(uvs->stride),
-                static_cast<GLsizei>(uvs->offset));
-        }
-
-        {
-            const auto joints = mesh.attr_joints();
-            const auto weights = mesh.attr_weights();
-
-            has_skin = joints && weights;
-
-            if (has_skin) {
-                vertex_array.attrib(
-                    3, 4, convert(joints->type), vertex_buffers[joints->buffer],
-                    static_cast<GLsizei>(joints->stride),
-                    static_cast<GLsizei>(joints->offset));
-
-                vertex_array.attrib(
-                    4, 4, convert(weights->type),
-                    vertex_buffers[weights->buffer],
-                    static_cast<GLsizei>(weights->stride),
-                    static_cast<GLsizei>(weights->offset));
-            }
-        }
-
-        index_buffer.emplace(GL_ELEMENT_ARRAY_BUFFER);
-        index_buffer->load(mesh.index_buffer());
-        gl::Error::audit("mesh cache - index buffer");
-
-        gl::VertexArray::unbind();
-
-        gl::Error::audit("mesh cache - vertex array");
-
-        std::cerr << "Made mesh cache " << m_id << " - "
-                  << mesh.index_buffer().size() << " vertices" << std::endl;
-    }
-
-    ~MeshCache()
-    {
-        std::cerr << "Releasing mesh cache " << m_id << std::endl;
-    }
-};
-
-std::size_t MeshCache::GID = 0;
-
 class RenderCache {
-private:
-    WeakPtrMap<Mesh, MeshCache> m_meshes;
-    WeakPtrMap<Texture, TextureCache> m_textures;
-    bool m_valid = false;
-
 public:
-    std::optional<gl::Program> main_program;
-    std::optional<gl::Program> skinning_program;
+    std::optional<gl::Program> gbuffer_program;
+    std::optional<gl::Program> gbuffer_skin_program;
+    std::optional<gl::Program> light_pass_program;
+    gl::Framebuffer gbuffer;
+    gl::Renderbuffer gbuffer_depth_stencil;
+    gl::Texture gbuffer_albedo;
+    gl::Texture gbuffer_normal;
 
-    RenderCache() noexcept
+    gl::VertexArray quad_vao;
+
+    RenderCache(std::uint32_t width, std::uint32_t height) noexcept
     {
+        vec2 quad[4] = {
+            { 0.0f, 0.0f },
+            { 1.0f, 0.0f },
+            { 0.0f, 1.0f },
+            { 1.0f, 1.0f },
+        };
+
+        quad_vao.attrib(0, quad);
+
+        update_size(width, height);
+
         try {
             std::cerr << "Compiling shaders..." << std::endl;
-            gl::Shader main_vs {
+
+            gl::Shader gbuffer_vs {
                 gl::Shader::VERTEX,
-                BLOBS_SHADERS_GL3_MAIN_VS_GLSL,
+                BLOBS_SHADERS_GL_GBUFFER_VS_GLSL,
             };
 
-            gl::Shader skinning_vs {
+            gl::Shader gbuffer_skin_vs {
                 gl::Shader::VERTEX,
-                BLOBS_SHADERS_GL3_SKINNING_VS_GLSL,
+                BLOBS_SHADERS_GL_GBUFFER_SKIN_VS_GLSL,
             };
 
-            gl::Shader main_fs {
+            gl::Shader gbuffer_fs {
                 gl::Shader::FRAGMENT,
-                BLOBS_SHADERS_GL3_MAIN_FS_GLSL,
+                BLOBS_SHADERS_GL_GBUFFER_FS_GLSL,
+            };
+
+            gl::Shader light_pass_vs {
+                gl::Shader::VERTEX,
+                BLOBS_SHADERS_GL_LIGHT_PASS_VS_GLSL,
+            };
+
+            gl::Shader light_pass_fs {
+                gl::Shader::FRAGMENT,
+                BLOBS_SHADERS_GL_LIGHT_PASS_FS_GLSL,
             };
 
             std::cerr << "Linking programs..." << std::endl;
-            main_program.emplace(main_vs, main_fs);
-            skinning_program.emplace(skinning_vs, main_fs);
+            gbuffer_program.emplace(gbuffer_vs, gbuffer_fs);
+            gbuffer_skin_program.emplace(gbuffer_skin_vs, gbuffer_fs);
+            light_pass_program.emplace(light_pass_vs, light_pass_fs);
 
-            m_valid = !gl::Error::audit("load_main_program");
+            m_valid = !gl::Error::audit("shader program creation");
         } catch (const std::exception& e) {
             std::cerr << e.what() << std::endl;
         }
+
+        Fbo::bind(Fbo::Target::FRAMEBUFFER, gbuffer);
+        Fbo::attach(
+            Fbo::Target::FRAMEBUFFER, Fbo::Attachment::COLOR(0),
+            gbuffer_albedo);
+        m_valid = !gl::Error::audit("gbuffer attach albedo texture");
+        Fbo::attach(
+            Fbo::Target::FRAMEBUFFER, Fbo::Attachment::COLOR(1),
+            gbuffer_normal);
+        m_valid = !gl::Error::audit("gbuffer attach normal texture");
+        gl::Renderbuffer::bind(gbuffer_depth_stencil);
+        Fbo::attach(
+            Fbo::Target::FRAMEBUFFER, Fbo::Attachment::DEPTH_STENCIL,
+            gbuffer_depth_stencil);
+        m_valid = !gl::Error::audit("gbuffer attach depth render buffer");
+        Fbo::unbind(Fbo::Target::FRAMEBUFFER);
+
+        gl::Renderbuffer::unbind();
+
+        m_valid = !gl::Error::audit("gbuffer fbo creation");
+    }
+
+    void update_size(std::uint32_t width, std::uint32_t height)
+    {
+        if (m_width == width && m_height == height) {
+            return;
+        }
+
+        const auto TEXTURE_2D = gl::Texture::Target::TEXTURE_2D;
+
+        gl::Texture::bind(TEXTURE_2D, gbuffer_albedo);
+        gl::Texture::image_2d(
+            TEXTURE_2D, 0, gl::Texture::InternalFormat::RGBA8, width, height,
+            gl::Texture::Format::RGBA, gl::Texture::Type::UNSIGNED_BYTE,
+            nullptr);
+        gl::Texture::filter(
+            gl::Texture::Target::TEXTURE_2D, gl::Texture::MagFilter::NEAREST,
+            gl::Texture::MinFilter::NEAREST);
+
+        gl::Texture::bind(TEXTURE_2D, gbuffer_normal);
+        gl::Texture::image_2d(
+            TEXTURE_2D, 0, gl::Texture::InternalFormat::RG16F, width, height,
+            gl::Texture::Format::RG, gl::Texture::Type::FLOAT, nullptr);
+        gl::Texture::filter(
+            gl::Texture::Target::TEXTURE_2D, gl::Texture::MagFilter::NEAREST,
+            gl::Texture::MinFilter::NEAREST);
+
+        gl::Error::audit("gbuffer textures resize");
+
+        gl::Renderbuffer::bind(gbuffer_depth_stencil);
+        gl::Renderbuffer::storage(
+            gl::Renderbuffer::InternalFormat::DEPTH_STENCIL, width, height);
+        gl::Renderbuffer::unbind();
+
+        gl::Error::audit("gbuffer render buffer resize");
+
+        m_width = width;
+        m_height = height;
     }
 
     bool is_valid() const
@@ -219,33 +211,36 @@ public:
 
         return iter->second;
     }
+
+private:
+    WeakPtrMap<Mesh, MeshCache> m_meshes;
+    WeakPtrMap<Texture, TextureCache> m_textures;
+    bool m_valid = false;
+
+    std::uint32_t m_width = 0;
+    std::uint32_t m_height = 0;
 };
 
 static void draw_mesh(
     World& world, RenderCache& cache, const MeshRenderer& renderer,
     const mat4& projection, const mat4& view, const Transform& xform)
 {
-    const mat4 model = xform.local_to_world();
-    const mat4 pvm = projection * view * model;
+    const mat4 view_model = view * xform.local_to_world();
+    const mat4 pvm = projection * view_model;
 
-    mat3 normal_matrix = glm::transpose(glm::inverse(mat3(model)));
+    mat3 normal_matrix = glm::transpose(glm::inverse(mat3(view_model)));
     bool double_sided = false;
 
     const MeshCache& mesh = cache.get(renderer.mesh);
 
-    auto& program = [&]() -> gl::Program& {
-        if (mesh.has_skin) {
-            return *cache.skinning_program;
-        } else {
-            return *cache.main_program;
-        }
-    }();
+    auto& program = mesh.has_skin() ? *cache.gbuffer_skin_program
+                                    : *cache.gbuffer_program;
 
     program.use();
     program.uniform("u_ProjViewModel", pvm);
     program.uniform("u_NormalMatrix", normal_matrix);
 
-    if (mesh.has_skin && renderer.skeleton_pose) {
+    if (mesh.has_skin() && renderer.skeleton_pose) {
         auto pose = world.get_component<SkeletonPose>(*renderer.skeleton_pose);
 
         if (!pose) {
@@ -290,16 +285,17 @@ static void draw_mesh(
         auto base_texture = renderer.material->get("base_color_texture");
         if (base_texture
             && base_texture->type == Material::ParameterType::TEXTURE) {
-            program.uniform(
-                "u_BaseColorTexture",
+            gl::Texture::bind(
+                gl::Texture::Target::TEXTURE_2D,
                 cache.get(base_texture->texture).gl_texture);
+            program.uniform("u_BaseColorTexture", 0);
             program.uniform("u_HasBaseColorTexture", true);
         } else {
             program.uniform("u_HasBaseColorTexture", false);
         }
     }
 
-    mesh.vertex_array.bind();
+    mesh.vertex_array().bind();
     GLenum topology = GL_TRIANGLES;
 
     switch (renderer.mesh->topology()) {
@@ -309,12 +305,7 @@ static void draw_mesh(
     case Mesh::Topology::TRIANGLE_STRIP:
         topology = GL_TRIANGLE_STRIP;
         break;
-    default:
-        std::cerr << "Unknown mesh topology." << std::endl;
-        break;
     }
-
-    gl::Error::audit("before draw elements");
 
     if (double_sided) {
         glDisable(GL_CULL_FACE);
@@ -332,12 +323,6 @@ namespace systems {
 
 static void render_meshes(World& world)
 {
-    auto& cache = world.get_or_emplace<RenderCache>();
-
-    if (!cache.is_valid()) {
-        return;
-    }
-
     // TODO: gracefully handle the case where no WindowInfo is present
     auto wininfo = world.get<WindowInfo>();
     auto cameras = world.query<PerspectiveCamera, Transform>();
@@ -345,6 +330,17 @@ static void render_meshes(World& world)
     if (cameras.empty() || wininfo->width == 0 || wininfo->height == 0) {
         return;
     }
+
+    auto& cache
+        = world.get_or_emplace<RenderCache>(wininfo->width, wininfo->height);
+
+    if (!cache.is_valid()) {
+        return;
+    }
+
+    cache.update_size(wininfo->width, wininfo->height);
+
+    gl::Error::audit("render cache setup");
 
     auto& [camera_entity, camera, camera_xform] = cameras[0];
 
@@ -355,12 +351,41 @@ static void render_meshes(World& world)
     mat4 view = camera_xform.world_to_local();
 
     glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     glCullFace(GL_BACK);
+    Fbo::bind(Fbo::Target::FRAMEBUFFER, cache.gbuffer);
+
+    const GLenum color_attachments[]
+        = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+    glDrawBuffers(2, color_attachments);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    gl::Error::audit("gbuffer pipeline setup");
 
     auto meshes = world.query<MeshRenderer, Transform>();
     for (auto& [entity, renderer, xform] : meshes) {
         draw_mesh(world, cache, renderer, projection, view, xform);
     }
+
+    Fbo::unbind(Fbo::Target::FRAMEBUFFER);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+
+    gl::Error::audit("light pass");
+
+    cache.quad_vao.bind();
+    cache.light_pass_program->use();
+    glActiveTexture(GL_TEXTURE0);
+    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
+    cache.light_pass_program->uniform("u_GbufferAlbedo", 0);
+    glActiveTexture(GL_TEXTURE1);
+    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
+    cache.light_pass_program->uniform("u_GbufferNormal", 1);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 static void clear_cache(World& world)

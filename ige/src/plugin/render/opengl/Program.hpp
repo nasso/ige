@@ -58,8 +58,6 @@ public:
     void uniform(const std::string& name, std::span<const glm::mat3>);
     void uniform(const std::string& name, const glm::mat4&);
     void uniform(const std::string& name, std::span<const glm::mat4>);
-    void uniform(const std::string& name, const Texture&);
-    void uniform(const std::string& name, std::span<const Texture>);
 
 private:
     GLuint m_id = 0;

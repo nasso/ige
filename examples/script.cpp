@@ -22,6 +22,7 @@ using ige::ecs::World;
 using ige::plugin::input::InputManager;
 using ige::plugin::input::InputPlugin;
 using ige::plugin::input::KeyboardKey;
+using ige::plugin::render::Light;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
@@ -179,6 +180,10 @@ class RootState : public State {
             PerspectiveCamera { 70.0f },
             Scripts::from(TrackballCamera { 10.0f }));
 
+        app.world().create_entity(
+            Transform {}.set_rotation(vec3 { 0.0f, 0.0f, 0.0f }),
+            Light::directional(1.0f));
+
         m_id = app.world().create_entity(Scripts::from(TickCounter {}));
     }
 
@@ -196,9 +201,8 @@ class RootState : public State {
             auto counter = scripts->get<TickCounter>();
 
             if (counter && counter->counter == 60) {
+                std::cout << "Removing tick counter!" << std::endl;
                 scripts->remove<TickCounter>();
-            } else if (counter) {
-                std::cout << counter->counter << std::endl;
             }
         }
     }

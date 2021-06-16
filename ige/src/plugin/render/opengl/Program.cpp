@@ -271,10 +271,3 @@ void Program::uniform(const std::string& name, std::span<const mat4> values)
         uniform(name), static_cast<GLsizei>(values.size()), GL_FALSE,
         reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
-
-void Program::uniform(const std::string& name, const Texture& tex)
-{
-    use();
-    tex.bind();
-    glUniform1i(uniform(name), 0);
-}

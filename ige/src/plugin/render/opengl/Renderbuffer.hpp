@@ -1,16 +1,12 @@
-#ifndef ED0F4953_C3BE_4C2E_A2BA_C10B4A08B3C8
-#define ED0F4953_C3BE_4C2E_A2BA_C10B4A08B3C8
+#ifndef BCCD6853_650E_4F61_B76B_059AD5F044B4
+#define BCCD6853_650E_4F61_B76B_059AD5F044B4
 
 #include "glad/gl.h"
 
 namespace gl {
 
-class Texture {
+class Renderbuffer {
 public:
-    enum class Target : GLenum {
-        TEXTURE_2D = GL_TEXTURE_2D,
-    };
-
     enum class InternalFormat : GLenum {
         DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
         DEPTH_STENCIL = GL_DEPTH_STENCIL,
@@ -81,60 +77,18 @@ public:
         RGBA32UI = GL_RGBA32UI,
     };
 
-    enum class Format : GLenum {
-        RED = GL_RED,
-        RG = GL_RG,
-        RGB = GL_RGB,
-        BGR = GL_BGR,
-        RGBA = GL_RGBA,
-        BGRA = GL_BGRA,
-        DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
-        DEPTH_STENCIL = GL_DEPTH_STENCIL,
-    };
-
-    enum class Type : GLenum {
-        UNSIGNED_BYTE = GL_UNSIGNED_BYTE,
-        FLOAT = GL_FLOAT,
-    };
-
-    enum class MagFilter : GLenum {
-        NEAREST = GL_NEAREST,
-        LINEAR = GL_LINEAR,
-    };
-
-    enum class MinFilter : GLenum {
-        NEAREST = GL_NEAREST,
-        NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
-        NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
-        LINEAR = GL_LINEAR,
-        LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
-        LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
-    };
-
-    enum class Wrap : GLenum {
-        REPEAT = GL_REPEAT,
-        CLAMP_TO_EDGE = GL_CLAMP_TO_EDGE,
-        MIRRORED_REPEAT = GL_MIRRORED_REPEAT,
-    };
-
-    Texture();
-    Texture(const Texture&) = delete;
-    Texture& operator=(const Texture&) = delete;
-    Texture(Texture&& other);
-    Texture& operator=(Texture&& other);
-    ~Texture();
+    Renderbuffer();
+    Renderbuffer(const Renderbuffer&) = delete;
+    Renderbuffer& operator=(const Renderbuffer&) = delete;
+    Renderbuffer(Renderbuffer&& other);
+    Renderbuffer& operator=(Renderbuffer&& other);
+    ~Renderbuffer();
 
     GLuint id() const;
 
-    static void image_2d(
-        Target, GLint level, InternalFormat, GLsizei w, GLsizei h, Format, Type,
-        const void* data);
-    static void filter(Target, MagFilter, MinFilter);
-    static void wrap(Target, Wrap s, Wrap t);
-    static void gen_mipmaps(Target);
-
-    static void bind(Target, const Texture&);
-    static void unbind(Target);
+    static void bind(const Renderbuffer&);
+    static void storage(InternalFormat, GLsizei w, GLsizei h);
+    static void unbind();
 
 private:
     GLuint m_id = 0;
@@ -142,4 +96,4 @@ private:
 
 }
 
-#endif /* ED0F4953_C3BE_4C2E_A2BA_C10B4A08B3C8 */
+#endif /* BCCD6853_650E_4F61_B76B_059AD5F044B4 */
