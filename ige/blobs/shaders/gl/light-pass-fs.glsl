@@ -18,7 +18,7 @@ vec3 calculate_light_factor(vec3 normal)
     // 0.0 -> the light doesn't hit the surface (darkest)
     // 1.0 -> the light is perfectly aligned with the surface normal (brightest)
     // 0.0 .. 1.0 -> the light hits the surface with some angle
-    float cos_theta = max(dot(normalize(normal), sun_dir), 0.0);
+    float cos_theta = max(dot(normal, sun_dir), 0.0);
 
     return ambient_light + (sun_color * cos_theta);
 }
@@ -29,7 +29,7 @@ void main()
     vec3 normal = vec3(texture(u_GbufferNormal, v_TexCoords).xy, 0.0);
 
     // reconstruct normal z
-    normal.z = sqrt(1.0 - normal.x * normal.x - normal.y * normal.y);
+    normal.z = sqrt(1.0 - dot(normal.xy, normal.xy));
 
     vec3 diffuse = albedo.rgb * calculate_light_factor(normal);
 

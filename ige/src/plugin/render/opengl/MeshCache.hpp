@@ -13,13 +13,13 @@ public:
 
     bool has_skin() const;
     const gl::VertexArray& vertex_array() const;
-    const gl::Buffer* index_buffer() const;
+    const gl::Buffer& index_buffer() const;
     std::span<const gl::Buffer> vertex_buffers() const;
 
 private:
     bool m_has_skin = false;
     gl::VertexArray m_vertex_array;
-    std::optional<gl::Buffer> m_index_buffer;
+    gl::Buffer m_index_buffer;
     std::vector<gl::Buffer> m_vertex_buffers;
 };
 

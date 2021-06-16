@@ -34,7 +34,9 @@ MeshCache::MeshCache(const Mesh& mesh)
     auto mesh_data = mesh.buffers();
     m_vertex_buffers.resize(mesh_data.size());
     for (std::size_t i = 0; i < m_vertex_buffers.size(); i++) {
-        m_vertex_buffers[i].load<std::byte>(mesh_data[i]);
+        gl::Buffer::bind(gl::Buffer::Target::ARRAY_BUFFER, m_vertex_buffers[i]);
+        gl::Buffer::data<std::byte>(
+            gl::Buffer::Target::ARRAY_BUFFER, mesh_data[i]);
     }
 
     gl::Error::audit("mesh cache - buffers");
@@ -75,8 +77,9 @@ MeshCache::MeshCache(const Mesh& mesh)
         }
     }
 
-    m_index_buffer.emplace(GL_ELEMENT_ARRAY_BUFFER);
-    m_index_buffer->load(mesh.index_buffer());
+    gl::Buffer::bind(gl::Buffer::Target::ELEMENT_ARRAY_BUFFER, m_index_buffer);
+    gl::Buffer::data(
+        gl::Buffer::Target::ELEMENT_ARRAY_BUFFER, mesh.index_buffer());
     gl::Error::audit("mesh cache - index buffer");
 
     gl::VertexArray::unbind();
@@ -102,9 +105,9 @@ const gl::VertexArray& MeshCache::vertex_array() const
     return m_vertex_array;
 }
 
-const gl::Buffer* MeshCache::index_buffer() const
+const gl::Buffer& MeshCache::index_buffer() const
 {
-    return m_index_buffer ? &*m_index_buffer : nullptr;
+    return m_index_buffer;
 }
 
 std::span<const gl::Buffer> MeshCache::vertex_buffers() const

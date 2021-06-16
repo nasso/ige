@@ -62,11 +62,81 @@ using Fbo = gl::Framebuffer;
 
 const std::size_t MAX_JOINTS = 64;
 
+class GbufferProgram {
+public:
+    GbufferProgram()
+    {
+        std::cout << "[INFO] Compiling GbufferProgram..." << std::endl;
+
+        gl::Shader gbuffer_vs {
+            gl::Shader::VERTEX,
+            BLOBS_SHADERS_GL_GBUFFER_VS_GLSL,
+        };
+
+        gl::Shader gbuffer_skin_vs {
+            gl::Shader::VERTEX,
+            BLOBS_SHADERS_GL_GBUFFER_SKIN_VS_GLSL,
+        };
+
+        gl::Shader gbuffer_fs {
+            gl::Shader::FRAGMENT,
+            BLOBS_SHADERS_GL_GBUFFER_FS_GLSL,
+        };
+
+        std::cout << "[INFO] Linking GbufferProgram..." << std::endl;
+
+        m_static_program.link(gbuffer_vs, gbuffer_fs);
+        m_skinned_program.link(gbuffer_skin_vs, gbuffer_fs);
+
+        gl::Error::audit("gbuffer program setup");
+    }
+
+    gl::Program& get(bool skinned)
+    {
+        return skinned ? m_skinned_program : m_static_program;
+    }
+
+private:
+    gl::Program m_static_program;
+    gl::Program m_skinned_program;
+};
+
+class LightPassProgram {
+public:
+    LightPassProgram()
+    {
+        std::cout << "[INFO] Compiling LightPassProgram..." << std::endl;
+
+        gl::Shader light_pass_vs {
+            gl::Shader::VERTEX,
+            BLOBS_SHADERS_GL_LIGHT_PASS_VS_GLSL,
+        };
+
+        gl::Shader light_pass_fs {
+            gl::Shader::FRAGMENT,
+            BLOBS_SHADERS_GL_LIGHT_PASS_FS_GLSL,
+        };
+
+        std::cout << "[INFO] Linking LightPassProgram..." << std::endl;
+
+        m_main_program.link(light_pass_vs, light_pass_fs);
+
+        gl::Error::audit("light pass program setup");
+    }
+
+    gl::Program& get()
+    {
+        return m_main_program;
+    }
+
+private:
+    gl::Program m_main_program;
+};
+
 class RenderCache {
 public:
-    std::optional<gl::Program> gbuffer_program;
-    std::optional<gl::Program> gbuffer_skin_program;
-    std::optional<gl::Program> light_pass_program;
+    std::optional<GbufferProgram> gbuffer_program;
+    std::optional<LightPassProgram> light_pass_program;
     gl::Framebuffer gbuffer;
     gl::Renderbuffer gbuffer_depth_stencil;
     gl::Texture gbuffer_albedo;
@@ -87,63 +157,32 @@ public:
 
         update_size(width, height);
 
+        // compile shaders
         try {
-            std::cerr << "Compiling shaders..." << std::endl;
-
-            gl::Shader gbuffer_vs {
-                gl::Shader::VERTEX,
-                BLOBS_SHADERS_GL_GBUFFER_VS_GLSL,
-            };
-
-            gl::Shader gbuffer_skin_vs {
-                gl::Shader::VERTEX,
-                BLOBS_SHADERS_GL_GBUFFER_SKIN_VS_GLSL,
-            };
-
-            gl::Shader gbuffer_fs {
-                gl::Shader::FRAGMENT,
-                BLOBS_SHADERS_GL_GBUFFER_FS_GLSL,
-            };
-
-            gl::Shader light_pass_vs {
-                gl::Shader::VERTEX,
-                BLOBS_SHADERS_GL_LIGHT_PASS_VS_GLSL,
-            };
-
-            gl::Shader light_pass_fs {
-                gl::Shader::FRAGMENT,
-                BLOBS_SHADERS_GL_LIGHT_PASS_FS_GLSL,
-            };
-
-            std::cerr << "Linking programs..." << std::endl;
-            gbuffer_program.emplace(gbuffer_vs, gbuffer_fs);
-            gbuffer_skin_program.emplace(gbuffer_skin_vs, gbuffer_fs);
-            light_pass_program.emplace(light_pass_vs, light_pass_fs);
-
-            m_valid = !gl::Error::audit("shader program creation");
+            gbuffer_program.emplace();
+            light_pass_program.emplace();
         } catch (const std::exception& e) {
+            m_valid = false;
             std::cerr << e.what() << std::endl;
         }
 
+        // setup framebuffers
         Fbo::bind(Fbo::Target::FRAMEBUFFER, gbuffer);
         Fbo::attach(
             Fbo::Target::FRAMEBUFFER, Fbo::Attachment::COLOR(0),
             gbuffer_albedo);
-        m_valid = !gl::Error::audit("gbuffer attach albedo texture");
         Fbo::attach(
             Fbo::Target::FRAMEBUFFER, Fbo::Attachment::COLOR(1),
             gbuffer_normal);
-        m_valid = !gl::Error::audit("gbuffer attach normal texture");
         gl::Renderbuffer::bind(gbuffer_depth_stencil);
         Fbo::attach(
             Fbo::Target::FRAMEBUFFER, Fbo::Attachment::DEPTH_STENCIL,
             gbuffer_depth_stencil);
-        m_valid = !gl::Error::audit("gbuffer attach depth render buffer");
         Fbo::unbind(Fbo::Target::FRAMEBUFFER);
 
         gl::Renderbuffer::unbind();
 
-        m_valid = !gl::Error::audit("gbuffer fbo creation");
+        m_valid &= !gl::Error::audit("gbuffer fbo creation");
     }
 
     void update_size(std::uint32_t width, std::uint32_t height)
@@ -215,7 +254,7 @@ public:
 private:
     WeakPtrMap<Mesh, MeshCache> m_meshes;
     WeakPtrMap<Texture, TextureCache> m_textures;
-    bool m_valid = false;
+    bool m_valid = true;
 
     std::uint32_t m_width = 0;
     std::uint32_t m_height = 0;
@@ -233,8 +272,7 @@ static void draw_mesh(
 
     const MeshCache& mesh = cache.get(renderer.mesh);
 
-    auto& program = mesh.has_skin() ? *cache.gbuffer_skin_program
-                                    : *cache.gbuffer_program;
+    gl::Program& program = cache.gbuffer_program->get(mesh.has_skin());
 
     program.use();
     program.uniform("u_ProjViewModel", pvm);
@@ -375,17 +413,28 @@ static void render_meshes(World& world)
     glDisable(GL_CULL_FACE);
     glDisable(GL_BLEND);
 
-    gl::Error::audit("light pass");
+    {
+        gl::Program& program = cache.light_pass_program->get();
 
-    cache.quad_vao.bind();
-    cache.light_pass_program->use();
-    glActiveTexture(GL_TEXTURE0);
-    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
-    cache.light_pass_program->uniform("u_GbufferAlbedo", 0);
-    glActiveTexture(GL_TEXTURE1);
-    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
-    cache.light_pass_program->uniform("u_GbufferNormal", 1);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        program.use();
+
+        // bind albedo texture
+        glActiveTexture(GL_TEXTURE0);
+        gl::Texture::bind(
+            gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
+        program.uniform("u_GbufferAlbedo", 0);
+
+        // bind normal texture
+        glActiveTexture(GL_TEXTURE1);
+        gl::Texture::bind(
+            gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
+        program.uniform("u_GbufferNormal", 1);
+
+        cache.quad_vao.bind();
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    }
+
+    gl::Error::audit("light pass");
 }
 
 static void clear_cache(World& world)
