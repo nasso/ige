@@ -4,6 +4,9 @@
 
 using ige::core::EventChannel;
 using ige::ecs::World;
+using ige::plugin::input::Controller;
+using ige::plugin::input::ControllerEvent;
+using ige::plugin::input::ControllerEventType;
 using ige::plugin::input::InputEvent;
 using ige::plugin::input::InputManager;
 using ige::plugin::input::InputRegistryState;
@@ -31,10 +34,58 @@ const Mouse& InputManager::mouse() const
     return m_mouse;
 }
 
+Controller& InputManager::add_controller(const ControllerId& id)
+{
+    return m_controllers.emplace(id, id).first->second;
+}
+
+std::vector<Controller*> InputManager::controllers()
+{
+    std::vector<Controller*> res;
+
+    for (auto& [controller_id, controller] : m_controllers) {
+        res.push_back(&controller);
+    }
+    return res;
+}
+
+std::vector<const Controller*> InputManager::controllers() const
+{
+    std::vector<const Controller*> res;
+
+    for (auto& [controller_id, controller] : m_controllers) {
+        res.push_back(&controller);
+    }
+    return res;
+}
+
+Controller* InputManager::controller(const ControllerId& id)
+{
+    auto controller = m_controllers.find(id);
+
+    if (controller == m_controllers.end()) {
+        return {};
+    }
+    return &controller->second;
+}
+
+const Controller* InputManager::controller(const ControllerId& id) const
+{
+    auto controller = m_controllers.find(id);
+
+    if (controller == m_controllers.end()) {
+        return {};
+    }
+    return &controller->second;
+}
+
 void InputManager::reset()
 {
     m_keyboard.clear();
     m_mouse.clear();
+    for (auto& [controller_id, controller] : m_controllers) {
+        controller.clear();
+    }
 }
 
 void InputManager::push_event(const InputEvent& event)

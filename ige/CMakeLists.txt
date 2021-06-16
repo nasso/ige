@@ -169,6 +169,7 @@ set(sources ${sources}
     "src/plugin/audio/AudioSource.cpp"
     "src/plugin/AudioPlugin.cpp"
     "src/plugin/GltfPlugin.cpp"
+    "src/plugin/input/Controller.cpp"
     "src/plugin/input/InputManager.cpp"
     "src/plugin/input/Keyboard.cpp"
     "src/plugin/input/Mouse.cpp"
