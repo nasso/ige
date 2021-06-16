@@ -38,26 +38,43 @@ using ige::plugin::window::WindowEventKind;
 using ige::plugin::window::WindowPlugin;
 using ige::plugin::window::WindowSettings;
 
-class RemoveInOneSec : public CppBehaviour {
-public:
-    float timer = 0.0f;
+constexpr float lerp(float a, float b, float t) noexcept
+{
+    return a + t * (b - a);
+}
 
-    RemoveInOneSec()
-    {
-        std::cout << "RemoveInOneSec()" << std::endl;
-    }
+class FadeOutLight : public CppBehaviour {
+public:
+    Time::Duration start_time;
 
     void on_start() override
     {
-        std::cout << "start" << std::endl;
+        start_time = get_resource<Time>()->now();
     }
 
     void tick() override
     {
-        timer += get_resource<Time>()->tick_seconds();
+        const auto now = get_resource<Time>()->now();
+        const auto elapsed = now - start_time;
 
-        if (timer >= 1.0f) {
+        using namespace std::chrono_literals;
+
+        if (elapsed >= 1s) {
             world().remove_entity(entity());
+        } else {
+            using std::chrono::duration;
+            using std::chrono::duration_cast;
+
+            const auto seconds = duration_cast<duration<float>>(elapsed);
+            const float progress = seconds / 1s;
+
+            if (auto light = get_component<Light>()) {
+                light->intensity = lerp(0.5f, 0.0f, progress);
+            }
+
+            if (auto xform = get_component<Transform>()) {
+                xform->set_scale(lerp(1.0f, 0.0f, progress));
+            }
         }
     }
 };
@@ -144,7 +161,8 @@ public:
             world().create_entity(
                 Transform::from_pos({ pos.x, pos.y + 1.0f, pos.z }),
                 MeshRenderer { m_mesh, m_mat },
-                Scripts::from(RemoveInOneSec {}));
+                Light::point(0.5f, vec3 { 0.8f, 1.0f, 0.4f }),
+                Scripts::from(FadeOutLight {}));
         }
     }
 };
@@ -180,9 +198,13 @@ class RootState : public State {
             PerspectiveCamera { 70.0f },
             Scripts::from(TrackballCamera { 10.0f }));
 
+        // ambient light
+        app.world().create_entity(Light::ambient(0.1f));
+
+        // sun
         app.world().create_entity(
-            Transform {}.set_rotation(vec3 { 0.0f, 0.0f, 0.0f }),
-            Light::directional(1.0f));
+            Transform {}.set_rotation(vec3 { 45.0f, 45.0f, 0.0f }),
+            Light::directional(0.5f));
 
         m_id = app.world().create_entity(Scripts::from(TickCounter {}));
     }

@@ -30,6 +30,7 @@ struct PerspectiveCamera {
 };
 
 enum class LightType {
+    AMBIENT,
     POINT,
     DIRECTIONAL,
 };
@@ -39,6 +40,7 @@ struct Light {
     glm::vec3 color { 1.0f };
     float intensity = 1.0f;
 
+    static Light ambient(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
     static Light point(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
     static Light
     directional(float intensity, glm::vec3 color = glm::vec3 { 1.0f });

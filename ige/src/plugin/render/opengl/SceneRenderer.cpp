@@ -32,6 +32,7 @@
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <iostream>
 #include <memory>
@@ -42,6 +43,7 @@
 using glm::mat3;
 using glm::mat4;
 using glm::vec2;
+using glm::vec3;
 using glm::vec4;
 using ige::asset::Material;
 using ige::asset::Mesh;
@@ -52,6 +54,8 @@ using ige::ecs::EntityId;
 using ige::ecs::System;
 using ige::ecs::World;
 using ige::plugin::animation::SkeletonPose;
+using ige::plugin::render::Light;
+using ige::plugin::render::LightType;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
@@ -382,15 +386,14 @@ static void render_meshes(World& world)
 
     auto& [camera_entity, camera, camera_xform] = cameras[0];
 
-    mat4 projection = glm::perspective(
+    const mat4 projection = glm::perspective(
         glm::radians(camera.fov),
         float(wininfo->width) / float(wininfo->height), camera.near,
         camera.far);
-    mat4 view = camera_xform.world_to_local();
+    const mat4 inv_proj = glm::inverse(projection);
+    const mat4 view = camera_xform.world_to_local();
 
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-    glCullFace(GL_BACK);
+    // gbuffer pass:
     Fbo::bind(Fbo::Target::FRAMEBUFFER, cache.gbuffer);
 
     const GLenum color_attachments[]
@@ -398,6 +401,9 @@ static void render_meshes(World& world)
 
     glDrawBuffers(2, color_attachments);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glCullFace(GL_BACK);
 
     gl::Error::audit("gbuffer pipeline setup");
 
@@ -406,31 +412,66 @@ static void render_meshes(World& world)
         draw_mesh(world, cache, renderer, projection, view, xform);
     }
 
+    // light pass:
     Fbo::unbind(Fbo::Target::FRAMEBUFFER);
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
 
-    {
-        gl::Program& program = cache.light_pass_program->get();
+    cache.quad_vao.bind();
 
-        program.use();
+    gl::Program& program = cache.light_pass_program->get();
 
-        // bind albedo texture
-        glActiveTexture(GL_TEXTURE0);
-        gl::Texture::bind(
-            gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
-        program.uniform("u_GbufferAlbedo", 0);
+    program.use();
 
-        // bind normal texture
-        glActiveTexture(GL_TEXTURE1);
-        gl::Texture::bind(
-            gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
-        program.uniform("u_GbufferNormal", 1);
+    // bind albedo texture
+    glActiveTexture(GL_TEXTURE0);
+    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
+    program.uniform("u_GbufferAlbedo", 0);
 
-        cache.quad_vao.bind();
+    // bind normal texture
+    glActiveTexture(GL_TEXTURE1);
+    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
+    program.uniform("u_GbufferNormal", 1);
+
+    for (auto [entity, light] : world.query<Light>()) {
+        vec3 color = glm::clamp(light.color, vec3(0.0f), vec3(1.0f));
+
+        program.uniform("u_LightDiffuse", color * light.intensity);
+
+        switch (light.type) {
+        case LightType::AMBIENT:
+            program.uniform("u_LightType", 0);
+            break;
+        case LightType::POINT: {
+            vec3 pos(0.0f);
+
+            if (auto xform = world.get_component<Transform>(entity)) {
+                pos = xform->world_translation();
+            }
+
+            program.uniform("u_LightType", 1);
+            program.uniform("u_LightPosition", pos);
+        } break;
+        case LightType::DIRECTIONAL: {
+            vec3 dir(0.0f, -1.0f, 0.0f);
+
+            if (auto xform = world.get_component<Transform>(entity)) {
+                dir = view * xform->local_to_world() * vec4(dir, 0.0f);
+            } else {
+                dir = view * vec4(dir, 0.0f);
+            }
+
+            dir = glm::normalize(dir);
+
+            program.uniform("u_LightType", 2);
+            program.uniform("u_LightPosition", dir);
+        } break;
+        }
+
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
