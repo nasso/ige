@@ -198,7 +198,7 @@ public:
     }
 
 private:
-    static nlohmann::json serilalize_button(const Button& button)
+    static nlohmann::json serialize_button(const Button& button)
     {
         nlohmann::json json;
 
@@ -273,8 +273,8 @@ private:
 
         if (std::holds_alternative<BindingAxisEmulated>(axis)) {
             auto a = std::get<BindingAxisEmulated>(axis);
-            json["pos"] = serilalize_button(a.neg);
-            json["neg"] = serilalize_button(a.pos);
+            json["pos"] = serialize_button(a.neg);
+            json["neg"] = serialize_button(a.pos);
         } else if (std::holds_alternative<BindingAxisController>(axis)) {
             auto a = std::get<BindingAxisController>(axis);
             json["controller_id"] = a.controller_id;
@@ -327,11 +327,11 @@ private:
         nlohmann::json json;
 
         if (std::holds_alternative<Button>(action)) {
-            json = serilalize_button(std::get<Button>(action));
+            json = serialize_button(std::get<Button>(action));
         } else if (std::holds_alternative<std::vector<Button>>(action)) {
             json = nlohmann::json::array();
             for (const auto& button : std::get<std::vector<Button>>(action)) {
-                json.push_back(serilalize_button(button));
+                json.push_back(serialize_button(button));
             }
         }
         return json;
