@@ -18,6 +18,9 @@ using ige::core::App;
 using ige::core::EventChannel;
 using ige::ecs::System;
 using ige::ecs::World;
+using ige::plugin::input::ControllerAxis;
+using ige::plugin::input::ControllerButton;
+using ige::plugin::input::ControllerEventType;
 using ige::plugin::input::InputEvent;
 using ige::plugin::input::InputEventType;
 using ige::plugin::input::InputManager;
@@ -105,6 +108,33 @@ const std::unordered_map<int, KeyboardKey> GLFW_TO_KEYBOARD_KEYS = {
     { GLFW_KEY_X, KeyboardKey::KEY_X },
     { GLFW_KEY_Y, KeyboardKey::KEY_Y },
     { GLFW_KEY_Z, KeyboardKey::KEY_Z },
+};
+
+const std::unordered_map<int, ControllerButton> GLFW_TO_CONTROLLER_BUTTONS = {
+    { GLFW_GAMEPAD_BUTTON_A, ControllerButton::A },
+    { GLFW_GAMEPAD_BUTTON_B, ControllerButton::B },
+    { GLFW_GAMEPAD_BUTTON_X, ControllerButton::X },
+    { GLFW_GAMEPAD_BUTTON_Y, ControllerButton::Y },
+    { GLFW_GAMEPAD_BUTTON_LEFT_BUMPER, ControllerButton::LEFT_BUMPER },
+    { GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER, ControllerButton::RIGHT_BUMPER },
+    { GLFW_GAMEPAD_BUTTON_BACK, ControllerButton::BACK },
+    { GLFW_GAMEPAD_BUTTON_START, ControllerButton::START },
+    { GLFW_GAMEPAD_BUTTON_GUIDE, ControllerButton::GUIDE },
+    { GLFW_GAMEPAD_BUTTON_LEFT_THUMB, ControllerButton::LEFT_THUMB },
+    { GLFW_GAMEPAD_BUTTON_RIGHT_THUMB, ControllerButton::RIGHT_THUMB },
+    { GLFW_GAMEPAD_BUTTON_DPAD_UP, ControllerButton::DPAD_UP },
+    { GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, ControllerButton::DPAD_RIGHT },
+    { GLFW_GAMEPAD_BUTTON_DPAD_DOWN, ControllerButton::DPAD_DOWN },
+    { GLFW_GAMEPAD_BUTTON_DPAD_LEFT, ControllerButton::DPAD_RIGHT },
+};
+
+const std::unordered_map<int, ControllerAxis> GLFW_TO_CONTROLLER_AXES = {
+    { GLFW_GAMEPAD_AXIS_LEFT_X, ControllerAxis::LEFT_X },
+    { GLFW_GAMEPAD_AXIS_LEFT_Y, ControllerAxis::LEFT_Y },
+    { GLFW_GAMEPAD_AXIS_RIGHT_X, ControllerAxis::RIGHT_X },
+    { GLFW_GAMEPAD_AXIS_RIGHT_Y, ControllerAxis::RIGHT_Y },
+    { GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, ControllerAxis::LEFT_TRIGGER },
+    { GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, ControllerAxis::RIGHT_TRIGGER },
 };
 
 const std::unordered_map<int, MouseButton> GLFW_TO_MOUSE_BUTTON = {
@@ -285,6 +315,49 @@ static void poll_events_system(World&)
     glfwPollEvents();
 }
 
+static void update_gamepads(World& wld)
+{
+    auto manager = wld.get<InputManager>();
+
+    if (!manager) {
+        return;
+    }
+
+    for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; jid++) {
+        if (glfwJoystickIsGamepad(jid)) {
+            auto controller = manager->controller(jid);
+
+            if (!controller) {
+                controller = &manager->add_controller(jid);
+                return;
+            }
+
+            GLFWgamepadstate state;
+
+            if (glfwGetGamepadState(jid, &state)) {
+                for (int button = 0; button < GLFW_GAMEPAD_BUTTON_LAST;
+                     button++) {
+                    auto b = GLFW_TO_CONTROLLER_BUTTONS.find(button);
+                    auto s = GLFW_TO_REGISTRY_STATE.find(state.buttons[button]);
+
+                    if (b != GLFW_TO_CONTROLLER_BUTTONS.end()
+                        && s != GLFW_TO_REGISTRY_STATE.end()) {
+                        controller->set_state(b->second, s->second);
+                    }
+                }
+
+                for (int axis = 0; axis < GLFW_GAMEPAD_AXIS_LAST; axis++) {
+                    auto a = GLFW_TO_CONTROLLER_AXES.find(axis);
+
+                    if (a != GLFW_TO_CONTROLLER_AXES.end()) {
+                        controller->set_axis_value(a->second, state.axes[axis]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void WindowPlugin::plug(App::Builder& builder) const
 {
     builder.emplace<EventChannel<WindowEvent>>();
@@ -294,4 +367,5 @@ void WindowPlugin::plug(App::Builder& builder) const
     builder.add_cleanup_system(System::from(terminate_glfw_system));
     builder.add_system(System::from(update_window_system));
     builder.add_system(System::from(poll_events_system));
+    builder.add_system(System::from(update_gamepads));
 }

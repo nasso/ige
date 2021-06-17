@@ -26,10 +26,10 @@ enum class ControllerButton {
     DPAD_LEFT,
     DPAD_RIGHT,
     DPAD_UP,
-    LEFT_SHOULDER,
-    RIGHT_SHOULDER,
-    LEFT_STICK,
-    RIGHT_STICK,
+    LEFT_BUMPER,
+    RIGHT_BUMPER,
+    LEFT_THUMB,
+    RIGHT_THUMB,
     BACK,
     START,
     GUIDE,
@@ -38,39 +38,23 @@ enum class ControllerButton {
 enum class ControllerEventType {
     CONNECTION,
     DISCONNECTION,
-    JOYSTICK,
-    BUTTON,
-};
-
-struct ControllerEventJoystick {
-    ControllerAxis axis;
-    float value;
-};
-
-struct ControllerEventButton {
-    ControllerButton button;
-    InputRegistryState state;
 };
 
 struct ControllerEvent {
     ControllerEventType type;
     ControllerId id;
-    union {
-        ControllerEventJoystick joystick;
-        ControllerEventButton button;
-    };
 };
 
 class Controller : public InputRegistry<ControllerButton> {
-
 public:
-    void set_axis_value(ControllerAxis axis, float value);
+    Controller(const ControllerId& id);
 
+    ControllerId id() const;
+    void set_axis_value(ControllerAxis axis, float value);
     float get_axis_value(ControllerAxis axis);
 
-    void handle_controller_event(const ControllerEvent& event);
-
 private:
+    ControllerId m_id;
     std::unordered_map<ControllerAxis, float> m_axes;
 };
 
