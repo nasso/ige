@@ -6,7 +6,7 @@
 
 namespace ige::plugin::input {
 
-typedef unsigned int ControllerId;
+using ControllerId = std::size_t;
 
 enum class ControllerAxis {
     LEFT_X,
