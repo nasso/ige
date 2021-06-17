@@ -71,13 +71,24 @@ static gl::Texture::Wrap convert(Texture::WrappingMode mode)
 
 TextureCache::TextureCache(const Texture& texture)
 {
-    gl_texture.load_pixels(
+    gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, gl_texture);
+
+    // load texture data
+    gl::Texture::image_2d(
+        gl::Texture::Target::TEXTURE_2D, 0, gl::Texture::InternalFormat::RGBA8,
         static_cast<GLsizei>(texture.width()),
         static_cast<GLsizei>(texture.height()), convert(texture.format()),
         gl::Texture::Type::UNSIGNED_BYTE, texture.data().data());
-    gl_texture.filter(
-        convert(texture.mag_filter()), convert(texture.min_filter()));
-    gl_texture.wrap(convert(texture.wrap_s()), convert(texture.wrap_t()));
+
+    // setup mag and min filters
+    gl::Texture::filter(
+        gl::Texture::Target::TEXTURE_2D, convert(texture.mag_filter()),
+        convert(texture.min_filter()));
+
+    // setup wrapping modes
+    gl::Texture::wrap(
+        gl::Texture::Target::TEXTURE_2D, convert(texture.wrap_s()),
+        convert(texture.wrap_t()));
 
     gl::Error::audit("texture cache - texture loading");
 
@@ -86,7 +97,7 @@ TextureCache::TextureCache(const Texture& texture)
     case Texture::MinFilter::NEAREST_MIPMAP_LINEAR:
     case Texture::MinFilter::LINEAR_MIPMAP_NEAREST:
     case Texture::MinFilter::LINEAR_MIPMAP_LINEAR:
-        gl_texture.gen_mipmaps();
+        gl::Texture::gen_mipmaps(gl::Texture::Target::TEXTURE_2D);
         break;
     default:
         break;

@@ -24,7 +24,7 @@ using glm::vec2;
 using glm::vec3;
 using glm::vec4;
 
-Program::LinkError::LinkError(const std::string& info_log)
+Program::LinkError::LinkError(const char* info_log)
     : std::runtime_error(info_log)
 {
 }
@@ -96,7 +96,7 @@ void Program::link()
         }
 
         glDeleteProgram(m_id);
-        throw Program::LinkError(log);
+        throw Program::LinkError(log.c_str());
     }
 }
 
@@ -127,18 +127,23 @@ GLuint Program::id() const
     return m_id;
 }
 
-GLuint Program::uniform(const std::string& name)
+GLuint Program::uniform(const char* name) const
 {
-    return glGetUniformLocation(m_id, name.c_str());
+    return glGetUniformLocation(m_id, name);
 }
 
-void Program::uniform(const std::string& name, int value)
+GLuint Program::uniform_block(const char* name) const
+{
+    return glGetUniformBlockIndex(m_id, name);
+}
+
+void Program::uniform(const char* name, int value)
 {
     use();
     glUniform1i(uniform(name), value);
 }
 
-void Program::uniform(const std::string& name, std::span<const int> values)
+void Program::uniform(const char* name, std::span<const int> values)
 {
     if (values.empty()) {
         return;
@@ -150,13 +155,13 @@ void Program::uniform(const std::string& name, std::span<const int> values)
         reinterpret_cast<const GLint*>(values.data()));
 }
 
-void Program::uniform(const std::string& name, float value)
+void Program::uniform(const char* name, float value)
 {
     use();
     glUniform1f(uniform(name), value);
 }
 
-void Program::uniform(const std::string& name, std::span<const float> values)
+void Program::uniform(const char* name, std::span<const float> values)
 {
     if (values.empty()) {
         return;
@@ -167,13 +172,13 @@ void Program::uniform(const std::string& name, std::span<const float> values)
         uniform(name), static_cast<GLsizei>(values.size()), values.data());
 }
 
-void Program::uniform(const std::string& name, const vec2& value)
+void Program::uniform(const char* name, const vec2& value)
 {
     use();
     glUniform2f(uniform(name), value.x, value.y);
 }
 
-void Program::uniform(const std::string& name, std::span<const vec2> values)
+void Program::uniform(const char* name, std::span<const vec2> values)
 {
     if (values.empty()) {
         return;
@@ -185,13 +190,13 @@ void Program::uniform(const std::string& name, std::span<const vec2> values)
         reinterpret_cast<const GLfloat*>(values.data()));
 }
 
-void Program::uniform(const std::string& name, const vec3& value)
+void Program::uniform(const char* name, const vec3& value)
 {
     use();
     glUniform3f(uniform(name), value.x, value.y, value.z);
 }
 
-void Program::uniform(const std::string& name, std::span<const vec3> values)
+void Program::uniform(const char* name, std::span<const vec3> values)
 {
     if (values.empty()) {
         return;
@@ -203,13 +208,13 @@ void Program::uniform(const std::string& name, std::span<const vec3> values)
         reinterpret_cast<const GLfloat*>(values.data()));
 }
 
-void Program::uniform(const std::string& name, const vec4& value)
+void Program::uniform(const char* name, const vec4& value)
 {
     use();
     glUniform4f(uniform(name), value.x, value.y, value.z, value.w);
 }
 
-void Program::uniform(const std::string& name, std::span<const vec4> values)
+void Program::uniform(const char* name, std::span<const vec4> values)
 {
     if (values.empty()) {
         return;
@@ -221,12 +226,12 @@ void Program::uniform(const std::string& name, std::span<const vec4> values)
         reinterpret_cast<const GLfloat*>(values.data()));
 }
 
-void Program::uniform(const std::string& name, const mat2& value)
+void Program::uniform(const char* name, const mat2& value)
 {
     uniform(name, std::span(&value, 1));
 }
 
-void Program::uniform(const std::string& name, std::span<const mat2> values)
+void Program::uniform(const char* name, std::span<const mat2> values)
 {
     if (values.empty()) {
         return;
@@ -238,12 +243,12 @@ void Program::uniform(const std::string& name, std::span<const mat2> values)
         reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
-void Program::uniform(const std::string& name, const mat3& value)
+void Program::uniform(const char* name, const mat3& value)
 {
     uniform(name, std::span(&value, 1));
 }
 
-void Program::uniform(const std::string& name, std::span<const mat3> values)
+void Program::uniform(const char* name, std::span<const mat3> values)
 {
     if (values.empty()) {
         return;
@@ -255,12 +260,12 @@ void Program::uniform(const std::string& name, std::span<const mat3> values)
         reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
-void Program::uniform(const std::string& name, const mat4& value)
+void Program::uniform(const char* name, const mat4& value)
 {
     uniform(name, std::span(&value, 1));
 }
 
-void Program::uniform(const std::string& name, std::span<const mat4> values)
+void Program::uniform(const char* name, std::span<const mat4> values)
 {
     if (values.empty()) {
         return;
@@ -272,9 +277,8 @@ void Program::uniform(const std::string& name, std::span<const mat4> values)
         reinterpret_cast<const GLfloat*>(glm::value_ptr(values.front())));
 }
 
-void Program::uniform(const std::string& name, const Texture& tex)
+void Program::uniform_block(const char* name, GLuint uniform_block_binding)
 {
     use();
-    tex.bind();
-    glUniform1i(uniform(name), 0);
+    glUniformBlockBinding(m_id, uniform_block(name), uniform_block_binding);
 }

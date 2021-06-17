@@ -1,4 +1,4 @@
-#version 430 core
+#version 410 core
 
 const int MAX_JOINTS = 64;
 const int MAX_WEIGHTS = 4;
@@ -29,5 +29,6 @@ void main()
 
     v_Normal = u_NormalMatrix * skinned_normal;
     v_TexCoords = a_TexCoords;
+
     gl_Position = u_ProjViewModel * skinned_pos;
 }

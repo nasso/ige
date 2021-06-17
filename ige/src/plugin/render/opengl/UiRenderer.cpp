@@ -4,10 +4,10 @@
 #include "TextureCache.hpp"
 #include "VertexArray.hpp"
 #include "WeakPtrMap.hpp"
-#include "blobs/shaders/gl3/ui-img-fs.glsl.h"
-#include "blobs/shaders/gl3/ui-img-vs.glsl.h"
-#include "blobs/shaders/gl3/ui-rect-fs.glsl.h"
-#include "blobs/shaders/gl3/ui-rect-vs.glsl.h"
+#include "blobs/shaders/gl/ui-img-fs.glsl.h"
+#include "blobs/shaders/gl/ui-img-vs.glsl.h"
+#include "blobs/shaders/gl/ui-rect-fs.glsl.h"
+#include "blobs/shaders/gl/ui-rect-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Texture.hpp"
 #include "ige/core/App.hpp"
@@ -53,12 +53,12 @@ struct UiRenderCache {
         {
             gl::Shader vs {
                 gl::Shader::ShaderType::VERTEX,
-                BLOBS_SHADERS_GL3_UI_RECT_VS_GLSL,
+                BLOBS_SHADERS_GL_UI_RECT_VS_GLSL,
             };
 
             gl::Shader fs {
                 gl::Shader::ShaderType::FRAGMENT,
-                BLOBS_SHADERS_GL3_UI_RECT_FS_GLSL,
+                BLOBS_SHADERS_GL_UI_RECT_FS_GLSL,
             };
 
             rect_program.link(vs, fs);
@@ -67,12 +67,12 @@ struct UiRenderCache {
         {
             gl::Shader vs {
                 gl::Shader::ShaderType::VERTEX,
-                BLOBS_SHADERS_GL3_UI_IMG_VS_GLSL,
+                BLOBS_SHADERS_GL_UI_IMG_VS_GLSL,
             };
 
             gl::Shader fs {
                 gl::Shader::ShaderType::FRAGMENT,
-                BLOBS_SHADERS_GL3_UI_IMG_FS_GLSL,
+                BLOBS_SHADERS_GL_UI_IMG_FS_GLSL,
             };
 
             image_program.link(vs, fs);
@@ -172,7 +172,9 @@ static void render_ui(World& wld)
             tint.a *= vis->global_opacity();
         }
 
-        cache.image_program.uniform("u_Texture", cache[img.texture]);
+        glActiveTexture(GL_TEXTURE0);
+        gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache[img.texture]);
+        cache.image_program.uniform("u_Texture", 0);
         cache.image_program.uniform("u_Tint", tint);
         cache.image_program.uniform(
             "u_Bounds",

@@ -10,6 +10,8 @@
 
 using gl::Error;
 
+// TODO(perf): don't use unordered_map for this...
+
 const std::unordered_map<GLenum, std::string> ERROR_MAP = {
     { GL_NO_ERROR, "GL_NO_ERROR" },
     { GL_INVALID_ENUM, "GL_INVALID_ENUM" },

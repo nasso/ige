@@ -16,6 +16,7 @@ using ige::core::State;
 using ige::ecs::EntityId;
 using ige::ecs::Schedule;
 using ige::ecs::World;
+using ige::plugin::render::Light;
 using ige::plugin::render::MeshRenderer;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RenderPlugin;
@@ -41,6 +42,14 @@ class RootState : public State {
         if (auto channel = app.world().get<EventChannel<WindowEvent>>()) {
             win_events.emplace(channel->subscribe());
         }
+
+        // ambient light
+        app.world().create_entity(Light::ambient(0.2f));
+
+        // sun
+        app.world().create_entity(
+            Transform {}.set_rotation(vec3 { 45.0f, 45.0f, 0.0f }),
+            Light::directional(0.8f));
 
         // create camera
         app.world().create_entity(

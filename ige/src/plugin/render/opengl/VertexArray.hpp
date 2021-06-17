@@ -50,7 +50,9 @@ private:
     void attrib(GLuint idx, GLint size, Type type, std::span<const T> data)
     {
         auto& vbo = m_buffers.emplace_back();
-        vbo.load(data);
+
+        Buffer::bind(Buffer::Target::ARRAY_BUFFER, vbo);
+        Buffer::data(Buffer::Target::ARRAY_BUFFER, data);
 
         attrib(idx, size, type, vbo);
     }

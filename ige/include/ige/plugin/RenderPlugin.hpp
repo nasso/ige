@@ -8,6 +8,7 @@
 #include "ige/ecs/Entity.hpp"
 #include <cstdint>
 #include <filesystem>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <memory>
 #include <optional>
@@ -26,6 +27,26 @@ struct PerspectiveCamera {
         , far(far)
     {
     }
+};
+
+enum class LightType {
+    AMBIENT,
+    POINT,
+    DIRECTIONAL,
+};
+
+struct Light {
+    LightType type = LightType::POINT;
+    glm::vec3 color { 1.0f };
+    float intensity = 1.0f;
+    float range = 4.0f;
+
+    static Light ambient(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
+    static Light point(
+        float intensity, float range = 10.0f,
+        glm::vec3 color = glm::vec3 { 1.0f });
+    static Light
+    directional(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
 };
 
 class Visibility {

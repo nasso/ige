@@ -61,8 +61,8 @@ void VertexArray::attrib(
 {
     bind();
     glEnableVertexAttribArray(idx);
-    vbo.bind();
 
+    Buffer::bind(Buffer::Target::ARRAY_BUFFER, vbo);
     if (type == VertexArray::Type::FLOAT || cast_to_float) {
         glVertexAttribPointer(
             idx, size, static_cast<GLenum>(type), GL_FALSE, stride,

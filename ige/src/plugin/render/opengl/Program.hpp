@@ -13,7 +13,6 @@
 #include <glm/vec4.hpp>
 #include <span>
 #include <stdexcept>
-#include <string>
 
 namespace gl {
 
@@ -21,7 +20,7 @@ class Program {
 public:
     class LinkError : public std::runtime_error {
     public:
-        LinkError(const std::string& info_log);
+        LinkError(const char* info_log);
     };
 
     Program();
@@ -40,26 +39,27 @@ public:
     void use() const;
     GLuint id() const;
 
-    GLuint uniform(const std::string& name);
+    GLuint uniform(const char* name) const;
+    GLuint uniform_block(const char* name) const;
 
-    void uniform(const std::string& name, int);
-    void uniform(const std::string& name, std::span<const int>);
-    void uniform(const std::string& name, float);
-    void uniform(const std::string& name, std::span<const float>);
-    void uniform(const std::string& name, const glm::vec2&);
-    void uniform(const std::string& name, std::span<const glm::vec2>);
-    void uniform(const std::string& name, const glm::vec3&);
-    void uniform(const std::string& name, std::span<const glm::vec3>);
-    void uniform(const std::string& name, const glm::vec4&);
-    void uniform(const std::string& name, std::span<const glm::vec4>);
-    void uniform(const std::string& name, const glm::mat2&);
-    void uniform(const std::string& name, std::span<const glm::mat2>);
-    void uniform(const std::string& name, const glm::mat3&);
-    void uniform(const std::string& name, std::span<const glm::mat3>);
-    void uniform(const std::string& name, const glm::mat4&);
-    void uniform(const std::string& name, std::span<const glm::mat4>);
-    void uniform(const std::string& name, const Texture&);
-    void uniform(const std::string& name, std::span<const Texture>);
+    void uniform(const char* name, int);
+    void uniform(const char* name, std::span<const int>);
+    void uniform(const char* name, float);
+    void uniform(const char* name, std::span<const float>);
+    void uniform(const char* name, const glm::vec2&);
+    void uniform(const char* name, std::span<const glm::vec2>);
+    void uniform(const char* name, const glm::vec3&);
+    void uniform(const char* name, std::span<const glm::vec3>);
+    void uniform(const char* name, const glm::vec4&);
+    void uniform(const char* name, std::span<const glm::vec4>);
+    void uniform(const char* name, const glm::mat2&);
+    void uniform(const char* name, std::span<const glm::mat2>);
+    void uniform(const char* name, const glm::mat3&);
+    void uniform(const char* name, std::span<const glm::mat3>);
+    void uniform(const char* name, const glm::mat4&);
+    void uniform(const char* name, std::span<const glm::mat4>);
+
+    void uniform_block(const char* name, GLuint uniform_block_binding);
 
 private:
     GLuint m_id = 0;
