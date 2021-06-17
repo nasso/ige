@@ -15,12 +15,13 @@ Light Light::ambient(float intensity, vec3 color)
     return light;
 }
 
-Light Light::point(float intensity, vec3 color)
+Light Light::point(float intensity, float range, vec3 color)
 {
     Light light;
     light.type = LightType::POINT;
     light.color = color;
     light.intensity = intensity;
+    light.range = range;
 
     return light;
 }

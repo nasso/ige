@@ -39,9 +39,12 @@ struct Light {
     LightType type = LightType::POINT;
     glm::vec3 color { 1.0f };
     float intensity = 1.0f;
+    float range = 4.0f;
 
     static Light ambient(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
-    static Light point(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
+    static Light point(
+        float intensity, float range = 10.0f,
+        glm::vec3 color = glm::vec3 { 1.0f });
     static Light
     directional(float intensity, glm::vec3 color = glm::vec3 { 1.0f });
 };

@@ -161,7 +161,7 @@ public:
             world().create_entity(
                 Transform::from_pos({ pos.x, pos.y + 1.0f, pos.z }),
                 MeshRenderer { m_mesh, m_mat },
-                Light::point(0.5f, vec3 { 0.8f, 1.0f, 0.4f }),
+                Light::point(1.0f, 4.0f, vec3 { 0.8f, 1.0f, 0.4f }),
                 Scripts::from(FadeOutLight {}));
         }
     }
@@ -191,7 +191,7 @@ class RootState : public State {
             Transform::from_pos({ 0.0f, 0.5f, 0.0f }),
             MeshRenderer { cube_mesh, cube_mat },
             Scripts::from(
-                PlayerController { cube_mesh, cube_mat },
+                PlayerController { Mesh::make_cube(0.5f), cube_mat },
                 CharacterController {}));
 
         app.world().create_entity(

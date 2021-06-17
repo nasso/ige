@@ -14,6 +14,7 @@ public:
     enum class InternalFormat : GLenum {
         DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
         DEPTH_STENCIL = GL_DEPTH_STENCIL,
+        DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8,
         RED = GL_RED,
         RG = GL_RG,
         RGB = GL_RGB,

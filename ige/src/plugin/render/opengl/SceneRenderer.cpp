@@ -142,7 +142,7 @@ public:
     std::optional<GbufferProgram> gbuffer_program;
     std::optional<LightPassProgram> light_pass_program;
     gl::Framebuffer gbuffer;
-    gl::Renderbuffer gbuffer_depth_stencil;
+    gl::Texture gbuffer_depth_stencil;
     gl::Texture gbuffer_albedo;
     gl::Texture gbuffer_normal;
 
@@ -178,7 +178,6 @@ public:
         Fbo::attach(
             Fbo::Target::FRAMEBUFFER, Fbo::Attachment::COLOR(1),
             gbuffer_normal);
-        gl::Renderbuffer::bind(gbuffer_depth_stencil);
         Fbo::attach(
             Fbo::Target::FRAMEBUFFER, Fbo::Attachment::DEPTH_STENCIL,
             gbuffer_depth_stencil);
@@ -216,10 +215,14 @@ public:
 
         gl::Error::audit("gbuffer textures resize");
 
-        gl::Renderbuffer::bind(gbuffer_depth_stencil);
-        gl::Renderbuffer::storage(
-            gl::Renderbuffer::InternalFormat::DEPTH_STENCIL, width, height);
-        gl::Renderbuffer::unbind();
+        gl::Texture::bind(TEXTURE_2D, gbuffer_depth_stencil);
+        gl::Texture::image_2d(
+            TEXTURE_2D, 0, gl::Texture::InternalFormat::DEPTH24_STENCIL8, width,
+            height, gl::Texture::Format::DEPTH_COMPONENT,
+            gl::Texture::Type::FLOAT, nullptr);
+        gl::Texture::filter(
+            gl::Texture::Target::TEXTURE_2D, gl::Texture::MagFilter::NEAREST,
+            gl::Texture::MinFilter::NEAREST);
 
         gl::Error::audit("gbuffer render buffer resize");
 
@@ -427,6 +430,8 @@ static void render_meshes(World& world)
 
     program.use();
 
+    program.uniform("u_InvProjection", inv_proj);
+
     // bind albedo texture
     glActiveTexture(GL_TEXTURE0);
     gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_albedo);
@@ -436,6 +441,12 @@ static void render_meshes(World& world)
     glActiveTexture(GL_TEXTURE1);
     gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache.gbuffer_normal);
     program.uniform("u_GbufferNormal", 1);
+
+    // bind normal texture
+    glActiveTexture(GL_TEXTURE2);
+    gl::Texture::bind(
+        gl::Texture::Target::TEXTURE_2D, cache.gbuffer_depth_stencil);
+    program.uniform("u_GbufferDepth", 2);
 
     for (auto [entity, light] : world.query<Light>()) {
         vec3 color = glm::clamp(light.color, vec3(0.0f), vec3(1.0f));
@@ -450,11 +461,13 @@ static void render_meshes(World& world)
             vec3 pos(0.0f);
 
             if (auto xform = world.get_component<Transform>(entity)) {
-                pos = xform->world_translation();
+                pos = xform->local_to_world() * vec4(pos, 1.0f);
             }
 
+            pos = view * vec4(pos, 1.0f);
+
             program.uniform("u_LightType", 1);
-            program.uniform("u_LightPosition", pos);
+            program.uniform("u_LightPosition", vec4(pos, light.range));
         } break;
         case LightType::DIRECTIONAL: {
             vec3 dir(0.0f, -1.0f, 0.0f);
@@ -468,7 +481,7 @@ static void render_meshes(World& world)
             dir = glm::normalize(dir);
 
             program.uniform("u_LightType", 2);
-            program.uniform("u_LightPosition", dir);
+            program.uniform("u_LightPosition", vec4(dir, 0.0));
         } break;
         }
 
