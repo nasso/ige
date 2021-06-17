@@ -89,7 +89,7 @@ void TrackballCamera::tick()
 
 void TrackballCamera::update()
 {
-    auto input = get_resource<InputManager>();
+    auto input = get_resource<InputManager<>>();
 
     if (!input) {
         std::cerr << "InputManager not found! TrackballCamera needs the "

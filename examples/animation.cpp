@@ -48,7 +48,7 @@ class ExampleScript : public CppBehaviour {
 public:
     void update() override
     {
-        auto input = get_resource<InputManager>();
+        auto input = get_resource<InputManager<>>();
         auto scene = get_component<GltfScene>();
         auto animator = get_component<Animator>();
 
@@ -184,7 +184,7 @@ int main()
             .add_plugin(TransformPlugin {})
             .add_plugin(WindowPlugin {})
             .add_plugin(RenderPlugin {})
-            .add_plugin(InputPlugin {})
+            .add_plugin(InputPlugin<> {})
             .add_plugin(ScriptPlugin {})
             .add_plugin(AnimationPlugin {})
             .run<RootState>();

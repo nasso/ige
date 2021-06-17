@@ -46,7 +46,7 @@ class RootState : public State {
             }
         }
 
-        if (auto manager = app.world().get<InputManager>()) {
+        if (auto manager = app.world().get<InputManager<>>()) {
             auto controllers = manager->controllers();
             for (auto controller_iter = controllers.first;
                  controller_iter != controllers.second; controller_iter++) {
@@ -75,7 +75,7 @@ int main()
 
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
-        .add_plugin(InputPlugin {})
+        .add_plugin(InputPlugin<> {})
         .add_plugin(WindowPlugin {})
         .run<RootState>();
 

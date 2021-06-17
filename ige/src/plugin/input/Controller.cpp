@@ -15,12 +15,17 @@ ControllerId Controller::id() const
     return m_id;
 }
 
-void Controller::set_axis_value(ControllerAxis axis, float value)
+void Controller::set_axis_value(const ControllerAxis& axis, float value)
 {
     m_axes[axis] = value;
 }
 
-float Controller::get_axis_value(ControllerAxis axis)
+float Controller::get_axis_value(const ControllerAxis& axis) const
 {
-    return m_axes[axis];
+    auto a = m_axes.find(axis);
+
+    if (a == m_axes.end()) {
+        return 0.0f;
+    }
+    return a->second;
 }
