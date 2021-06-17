@@ -4,6 +4,7 @@
 #include <AL/alc.h>
 #include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 
 using ige::plugin::audio::AudioPluginException;
@@ -32,11 +33,31 @@ AudioEngine::AudioEngine(const char* deviceName)
     AudioEngine::get_native_exception();
 }
 
+AudioEngine::AudioEngine(AudioEngine&& engine)
+{
+    *this = std::move(engine);
+}
+
+AudioEngine& AudioEngine::operator=(AudioEngine&& other)
+{
+    if (!this->m_moved) {
+        alcDestroyContext(this->m_context);
+        alcCloseDevice(this->m_device);
+    }
+    this->m_context = other.m_context;
+    this->m_device = other.m_device;
+    other.m_moved = true;
+    this->m_moved = false;
+    return *this;
+}
+
 AudioEngine::~AudioEngine()
 {
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(m_context);
-    alcCloseDevice(m_device);
+    if (!m_moved) {
+        alcMakeContextCurrent(nullptr);
+        alcDestroyContext(m_context);
+        alcCloseDevice(m_device);
+    }
 }
 
 std::vector<std::string> AudioEngine::get_available_devices()
