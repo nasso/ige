@@ -40,9 +40,14 @@ AudioEngine::AudioEngine(AudioEngine&& engine)
 
 AudioEngine& AudioEngine::operator=(AudioEngine&& other)
 {
+    if (!this->m_moved) {
+        alcDestroyContext(this->m_context);
+        alcCloseDevice(this->m_device);
+    }
     this->m_context = other.m_context;
     this->m_device = other.m_device;
     other.m_moved = true;
+    this->m_moved = false;
     return *this;
 }
 
