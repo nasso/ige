@@ -52,7 +52,7 @@ class RootState : public State {
 
     void on_stop(App& app) override
     {
-        std::cout << "Called" << std::endl;
+        std::cout << "saving new input bindings" << std::endl;
 
         if (auto manager = app.world().get<InputManager<>>()) {
             manager->bindings->to_file("./config/new_bindings.json");
