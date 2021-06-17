@@ -172,6 +172,7 @@ static void render_ui(World& wld)
             tint.a *= vis->global_opacity();
         }
 
+        glActiveTexture(GL_TEXTURE0);
         gl::Texture::bind(gl::Texture::Target::TEXTURE_2D, cache[img.texture]);
         cache.image_program.uniform("u_Texture", 0);
         cache.image_program.uniform("u_Tint", tint);
