@@ -137,7 +137,7 @@ public:
     std::optional<bool> is_action_down(const ActionId& id) const
     {
         if (!bindings) {
-            return {};
+            return std::nullopt;
         }
 
         if (auto action = bindings->action(id)) {
@@ -154,13 +154,13 @@ public:
             }
         }
 
-        return {};
+        return std::nullopt;
     }
 
     std::optional<float> get_axis_value(const AxisId& id) const
     {
         if (!bindings) {
-            return {};
+            return std::nullopt;
         }
 
         if (auto axis = bindings->axis(id)) {
@@ -195,7 +195,7 @@ public:
             }
         }
 
-        return {};
+        return std::nullopt;
     }
 
 private:
