@@ -15,6 +15,7 @@ and this project adheres to
 - Basic UI plugin.
 - `GhostObject` for detecting 3D collisions without any physical response.
 - Skeletal animation support.
+- Basic diffuse lighting
 
 ### Fixed
 
@@ -26,7 +27,7 @@ and this project adheres to
 
 - ECS architecture.
 - Basic 3D renderer with support for textured and coloured materials.
-- Hard-coded lightning with a directional light and slight ambient light.
+- Hard-coded lighting with a directional light and slight ambient light.
 - `ScriptPlugin` providing a familiar Unity-like `CppBehaviour` class.
 - Basic 3D physics capabilities using
   [bullet3](https://github.com/bulletphysics/bullet3).
