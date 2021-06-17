@@ -424,7 +424,7 @@ static void render_meshes(World& world)
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     cache.quad_vao.bind();
 
@@ -475,15 +475,15 @@ static void render_meshes(World& world)
             vec3 dir(0.0f, -1.0f, 0.0f);
 
             if (auto xform = world.get_component<Transform>(entity)) {
-                dir = view * xform->local_to_world() * vec4(dir, 0.0f);
+                dir = mat3(view * xform->local_to_world()) * dir;
             } else {
-                dir = view * vec4(dir, 0.0f);
+                dir = mat3(view) * dir;
             }
 
             dir = glm::normalize(dir);
 
             program.uniform("u_LightType", 2);
-            program.uniform("u_LightPosition", vec4(dir, 0.0));
+            program.uniform("u_LightPosition", vec4(dir, 0.0f));
         } break;
         }
 
