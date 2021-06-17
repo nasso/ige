@@ -325,11 +325,12 @@ static void draw_mesh(
 
         program.uniform(
             "u_BaseColorFactor",
-            renderer.material->get_or("base_color_factor", vec4 { 1.0f }));
+            renderer.material->get_or("base_color_factor", vec4(1.0f)));
 
         auto base_texture = renderer.material->get("base_color_texture");
         if (base_texture
             && base_texture->type == Material::ParameterType::TEXTURE) {
+            glActiveTexture(GL_TEXTURE0);
             gl::Texture::bind(
                 gl::Texture::Target::TEXTURE_2D,
                 cache.get(base_texture->texture).gl_texture);
