@@ -240,6 +240,7 @@ public:
         auto iter = m_meshes.find(mesh);
 
         if (iter == m_meshes.end()) {
+            m_meshes.clean();
             iter = m_meshes.emplace(mesh, *mesh).first;
         }
 
@@ -251,7 +252,7 @@ public:
         auto iter = m_textures.find(texture);
 
         if (iter == m_textures.end()) {
-            // FIXME: textures are never destroyed
+            m_textures.clean();
             iter = m_textures.emplace(texture, *texture).first;
         }
 

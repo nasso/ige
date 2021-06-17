@@ -95,7 +95,7 @@ struct UiRenderCache {
         if (it != textures.end()) {
             return it->second.gl_texture;
         } else {
-            // FIXME: textures are never destroyed
+            textures.clean();
             return textures.emplace(tex, *tex).first->second.gl_texture;
         }
     }
