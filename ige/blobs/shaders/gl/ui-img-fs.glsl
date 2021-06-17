@@ -36,11 +36,5 @@ void main()
     uv.x = map_axis(uv.x, u_TextureBorders.xz, u_Borders.xz, u_RepeatCount.x);
     uv.y = map_axis(uv.y, u_TextureBorders.yw, u_Borders.yw, u_RepeatCount.y);
 
-    vec4 base_color = u_Tint * texture(u_Texture, uv);
-
-    if (base_color.a <= 0.001) {
-        discard;
-    }
-
-    o_Color = base_color;
+    o_Color = u_Tint * texture(u_Texture, uv);
 }

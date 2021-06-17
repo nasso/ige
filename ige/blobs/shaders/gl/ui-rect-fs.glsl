@@ -6,7 +6,5 @@ out vec4 o_Color;
 
 void main()
 {
-    vec4 base_color = u_FillColor;
-
-    o_Color = base_color;
+    o_Color = u_FillColor;
 }
