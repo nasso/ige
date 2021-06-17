@@ -44,11 +44,18 @@ using ige::plugin::window::WindowSettings;
 
 class ExampleScript : public CppBehaviour {
     std::size_t cur_track = 0;
+    bool started = false;
 
 public:
     void update() override
     {
         auto input = get_resource<InputManager<>>();
+
+        if (!started) {
+            started = input->keyboard().is_pressed(KeyboardKey::KEY_SPACE);
+            return;
+        }
+
         auto scene = get_component<GltfScene>();
         auto animator = get_component<Animator>();
 

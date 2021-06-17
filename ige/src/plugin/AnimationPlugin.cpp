@@ -62,6 +62,26 @@ static void compute_joint_pose(
     mat = glm::scale(mat, joint_pose.scale);
 }
 
+static void reset_pose(World& world, const AnimationTrack& track)
+{
+    auto pose = world.get_component<SkeletonPose>(track.target);
+
+    if (!pose) {
+        return;
+    }
+
+    std::size_t joint_count = track.clip->joints.size();
+
+    pose->joint_pose.resize(joint_count);
+    pose->global_pose.resize(joint_count);
+
+    // TODO(perf): find a better way to do this? maybe cache the bind matrix?
+    for (std::size_t i = 0; i < joint_count; i++) {
+        pose->global_pose[i]
+            = glm::inverse(pose->skeleton->joints[i].inv_bind_matrix);
+    }
+}
+
 template <typename Duration>
 static void
 update_animation_track(World& world, AnimationTrack& track, Duration delta)
@@ -96,9 +116,6 @@ update_animation_track(World& world, AnimationTrack& track, Duration delta)
         return;
     }
 
-    pose->joint_pose.resize(joint_count);
-    pose->global_pose.resize(joint_count);
-
     for (std::size_t j = 0; j < joint_count; j++) {
         compute_joint_pose(j, frame, *pose, track);
     }
@@ -116,6 +133,12 @@ static void update_animations(World& world)
     }
 
     for (auto [ent, animator] : world.query<Animator>()) {
+        // set all matrices to identity
+        for (auto& track : animator.tracks()) {
+            reset_pose(world, track);
+        }
+
+        // blend animations!
         for (auto& track : animator.tracks()) {
             // skip every track that won't participate in the calculation of the
             // final pose
