@@ -66,7 +66,7 @@ public:
         return { m_controllers.begin(), m_controllers.end() };
     }
 
-    std::pair<ControllerMapIterator, ControllerMapIterator> controllers();
+    std::pair<ControllerMapIterator, ControllerMapIterator> controllers()
     {
         return { m_controllers.begin(), m_controllers.end() };
     }
