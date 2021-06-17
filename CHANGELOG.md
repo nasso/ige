@@ -16,6 +16,8 @@ and this project adheres to
 - `GhostObject` for detecting 3D collisions without any physical response.
 - Skeletal animation support.
 - Basic diffuse lighting
+- Input game controller support
+- JSON serialised input bindings
 
 ### Fixed
 
