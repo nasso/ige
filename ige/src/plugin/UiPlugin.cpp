@@ -77,7 +77,7 @@ static void trigger_events(World& world)
         return;
     }
 
-    auto input_mgr = world.get<InputManager>();
+    auto input_mgr = world.get<InputManager<>>();
 
     if (!input_mgr) {
         std::cerr << "[ERROR] No input manager found!" << std::endl;

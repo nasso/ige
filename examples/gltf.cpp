@@ -110,7 +110,7 @@ class RootState : public State {
 
     void on_update(App& app) override
     {
-        auto input = app.world().get<InputManager>();
+        auto input = app.world().get<InputManager<>>();
 
         if (input->keyboard().is_pressed(KeyboardKey::KEY_DELETE)) {
             app.world().remove_component<GltfScene>(*entity_to_edit);
@@ -131,13 +131,12 @@ int main()
         std::cout << "Starting application..." << std::endl;
         App::Builder()
             .insert(WindowSettings { "Hello, World!", 800, 600 })
-            .add_plugin(InputPlugin {})
             .add_plugin(TimePlugin {})
             .add_plugin(GltfPlugin {})
             .add_plugin(TransformPlugin {})
             .add_plugin(WindowPlugin {})
             .add_plugin(RenderPlugin {})
-            .add_plugin(InputPlugin {})
+            .add_plugin(InputPlugin<> {})
             .add_plugin(ScriptPlugin {})
             .add_system(System::from(rotation_system))
             .run<RootState>();

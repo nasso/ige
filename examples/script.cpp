@@ -125,7 +125,7 @@ public:
 
     void update() override
     {
-        auto input = get_resource<InputManager>();
+        auto input = get_resource<InputManager<>>();
         auto controller = get_script<CharacterController>();
 
         if (!controller) {
@@ -236,7 +236,7 @@ int main()
 
     App::Builder()
         .insert(WindowSettings { "Hello, World!", 800, 600 })
-        .add_plugin(InputPlugin {})
+        .add_plugin(InputPlugin<> {})
         .add_plugin(TimePlugin {})
         .add_plugin(TransformPlugin {})
         .add_plugin(WindowPlugin {})

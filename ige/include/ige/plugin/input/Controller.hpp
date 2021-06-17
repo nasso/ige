@@ -50,8 +50,8 @@ public:
     Controller(const ControllerId& id);
 
     ControllerId id() const;
-    void set_axis_value(ControllerAxis axis, float value);
-    float get_axis_value(ControllerAxis axis);
+    void set_axis_value(const ControllerAxis& axis, float value);
+    float get_axis_value(const ControllerAxis& axis) const;
 
 private:
     ControllerId m_id;

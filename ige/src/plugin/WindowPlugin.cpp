@@ -317,7 +317,7 @@ static void poll_events_system(World&)
 
 static void update_gamepads(World& wld)
 {
-    auto manager = wld.get<InputManager>();
+    auto manager = wld.get<InputManager<>>();
 
     if (!manager) {
         return;

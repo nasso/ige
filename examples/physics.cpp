@@ -171,7 +171,7 @@ class RootState : public State {
             app.world().remove_entity(*m_ball_id1);
         }
 
-        auto manager = app.world().get<InputManager>();
+        auto manager = app.world().get<InputManager<>>();
         auto rigidbody = app.world().get_component<RigidBody>(*m_ball_id2);
 
         if (manager->keyboard().is_down(KeyboardKey::KEY_ARROW_UP)) {
@@ -194,7 +194,7 @@ int main()
         .add_plugin(GltfPlugin {})
         .add_plugin(RenderPlugin {})
         .add_plugin(TimePlugin {})
-        .add_plugin(InputPlugin {})
+        .add_plugin(InputPlugin<> {})
         .add_plugin(ScriptPlugin {})
         .run<RootState>();
 
