@@ -16,6 +16,7 @@ using ige::plugin::gltf::GltfPlugin;
 using ige::plugin::gltf::GltfScene;
 using ige::plugin::input::InputPlugin;
 using ige::plugin::render::ImageRenderer;
+using ige::plugin::render::Light;
 using ige::plugin::render::PerspectiveCamera;
 using ige::plugin::render::RectRenderer;
 using ige::plugin::render::RenderPlugin;
@@ -58,6 +59,14 @@ class RootState : public State {
     {
         auto channel = app.world().get<EventChannel<WindowEvent>>();
         m_win_events.emplace(channel->subscribe());
+
+        // ambient light
+        app.world().create_entity(Light::ambient(0.2f));
+
+        // sun
+        app.world().create_entity(
+            Transform {}.set_rotation(vec3 { 45.0f, 45.0f, 0.0f }),
+            Light::directional(0.8f));
 
         app.world().create_entity(
             PerspectiveCamera { 70.0f },
