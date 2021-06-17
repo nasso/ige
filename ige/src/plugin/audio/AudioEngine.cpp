@@ -3,8 +3,8 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <cstring>
-#include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using ige::plugin::audio::AudioPluginException;
