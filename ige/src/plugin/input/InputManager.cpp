@@ -39,24 +39,19 @@ Controller& InputManager::add_controller(const ControllerId& id)
     return m_controllers.emplace(id, id).first->second;
 }
 
-std::vector<Controller*> InputManager::controllers()
+std::pair<
+    InputManager::ControllerMapIterator, InputManager::ControllerMapIterator>
+InputManager::controllers()
 {
-    std::vector<Controller*> res;
-
-    for (auto& [controller_id, controller] : m_controllers) {
-        res.push_back(&controller);
-    }
-    return res;
+    return { m_controllers.begin(), m_controllers.end() };
 }
 
-std::vector<const Controller*> InputManager::controllers() const
+std::pair<
+    InputManager::ControllerMapConstIterator,
+    InputManager::ControllerMapConstIterator>
+InputManager::controllers() const
 {
-    std::vector<const Controller*> res;
-
-    for (auto& [controller_id, controller] : m_controllers) {
-        res.push_back(&controller);
-    }
-    return res;
+    return { m_controllers.begin(), m_controllers.end() };
 }
 
 Controller* InputManager::controller(const ControllerId& id)

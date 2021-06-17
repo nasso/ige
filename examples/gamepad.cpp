@@ -47,18 +47,22 @@ class RootState : public State {
         }
 
         if (auto manager = app.world().get<InputManager>()) {
-            for (auto& controller : manager->controllers()) {
-                if (controller->is_pressed(ControllerButton::X)) {
+            auto controllers = manager->controllers();
+            for (auto controller_iter = controllers.first;
+                 controller_iter != controllers.second; controller_iter++) {
+                if (controller_iter->second.is_pressed(ControllerButton::X)) {
                     std::cout << "You pressed X." << std::endl;
                 }
 
-                std::cout << "Gamepad(" << controller->id()
+                std::cout << "Gamepad(" << controller_iter->second.id()
                           << ") : Left X axis = "
-                          << controller->get_axis_value(ControllerAxis::LEFT_X)
+                          << controller_iter->second.get_axis_value(
+                                 ControllerAxis::LEFT_X)
                           << std::endl;
-                std::cout << "Gamepad(" << controller->id()
+                std::cout << "Gamepad(" << controller_iter->second.id()
                           << ") : Left Y axis = "
-                          << controller->get_axis_value(ControllerAxis::LEFT_Y)
+                          << controller_iter->second.get_axis_value(
+                                 ControllerAxis::LEFT_Y)
                           << std::endl;
             }
         }

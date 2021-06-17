@@ -25,6 +25,10 @@ struct InputEvent {
 
 class InputManager {
 public:
+    using ControllerMap = std::unordered_map<ControllerId, Controller>;
+    using ControllerMapIterator = ControllerMap::iterator;
+    using ControllerMapConstIterator = ControllerMap::const_iterator;
+
     Keyboard& keyboard();
     const Keyboard& keyboard() const;
     Mouse& mouse();
@@ -32,8 +36,9 @@ public:
 
     Controller& add_controller(const ControllerId& id);
 
-    std::vector<Controller*> controllers();
-    std::vector<const Controller*> controllers() const;
+    std::pair<ControllerMapIterator, ControllerMapIterator> controllers();
+    std::pair<ControllerMapConstIterator, ControllerMapConstIterator>
+    controllers() const;
 
     Controller* controller(const ControllerId& id);
     const Controller* controller(const ControllerId& id) const;
