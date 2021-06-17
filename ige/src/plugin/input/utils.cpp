@@ -11,7 +11,7 @@ using ige::plugin::input::InputsToString;
 using ige::plugin::input::KeyboardKey;
 using ige::plugin::input::MouseButton;
 
-static std::unordered_map<ControllerAxis, std::string> CONTROLLER_AXIS_TO_STRING
+const std::unordered_map<ControllerAxis, std::string> CONTROLLER_AXIS_TO_STRING
     = {
           { ControllerAxis::LEFT_X, "LEFT_X" },
           { ControllerAxis::LEFT_Y, "LEFT_Y" },
@@ -21,7 +21,7 @@ static std::unordered_map<ControllerAxis, std::string> CONTROLLER_AXIS_TO_STRING
           { ControllerAxis::RIGHT_TRIGGER, "RIGHT_TRIGGER" },
       };
 
-static std::unordered_map<std::string, ControllerAxis> STRING_TO_CONTROLLER_AXIS
+const std::unordered_map<std::string, ControllerAxis> STRING_TO_CONTROLLER_AXIS
     = {
           { "LEFT_X", ControllerAxis::LEFT_X },
           { "LEFT_Y", ControllerAxis::LEFT_Y },
@@ -31,7 +31,7 @@ static std::unordered_map<std::string, ControllerAxis> STRING_TO_CONTROLLER_AXIS
           { "RIGHT_TRIGGER", ControllerAxis::RIGHT_TRIGGER },
       };
 
-static std::unordered_map<ControllerButton, std::string>
+const std::unordered_map<ControllerButton, std::string>
     CONTROLLER_BUTTON_TO_STRING = {
         { ControllerButton::A, "A" },
         { ControllerButton::B, "B" },
@@ -50,7 +50,7 @@ static std::unordered_map<ControllerButton, std::string>
         { ControllerButton::GUIDE, "GUIDE" },
     };
 
-static std::unordered_map<std::string, ControllerButton>
+const std::unordered_map<std::string, ControllerButton>
     STRING_TO_CONTROLLER_BUTTON = {
         { "A", ControllerButton::A },
         { "B", ControllerButton::B },
@@ -69,7 +69,7 @@ static std::unordered_map<std::string, ControllerButton>
         { "GUIDE", ControllerButton::GUIDE },
     };
 
-static std::unordered_map<std::string, KeyboardKey> STRING_TO_KEYBOARD_KEY = {
+const std::unordered_map<std::string, KeyboardKey> STRING_TO_KEYBOARD_KEY = {
     { "KEY_0", KeyboardKey::KEY_0 },
     { "KEY_1", KeyboardKey::KEY_1 },
     { "KEY_2", KeyboardKey::KEY_2 },
@@ -139,7 +139,7 @@ static std::unordered_map<std::string, KeyboardKey> STRING_TO_KEYBOARD_KEY = {
     { "KEY_Z", KeyboardKey::KEY_Z },
 };
 
-static std::unordered_map<KeyboardKey, std::string> KEYBOARD_KEY_TO_STRING = {
+const std::unordered_map<KeyboardKey, std::string> KEYBOARD_KEY_TO_STRING = {
     { KeyboardKey::KEY_0, "KEY_0" },
     { KeyboardKey::KEY_1, "KEY_1" },
     { KeyboardKey::KEY_2, "KEY_2" },
@@ -209,13 +209,13 @@ static std::unordered_map<KeyboardKey, std::string> KEYBOARD_KEY_TO_STRING = {
     { KeyboardKey::KEY_Z, "KEY_Z" },
 };
 
-static std::unordered_map<MouseButton, std::string> MOUSE_BUTTON_TO_STRING = {
+const std::unordered_map<MouseButton, std::string> MOUSE_BUTTON_TO_STRING = {
     { MouseButton::LEFT, "LEFT" },
     { MouseButton::RIGHT, "RIGHT" },
     { MouseButton::MIDDLE, "MIDDLE" },
 };
 
-static std::unordered_map<std::string, MouseButton> STRING_TO_MOUSE_BUTTON = {
+const std::unordered_map<std::string, MouseButton> STRING_TO_MOUSE_BUTTON = {
     { "LEFT", MouseButton::LEFT },
     { "RIGHT", MouseButton::RIGHT },
     { "MIDDLE", MouseButton::MIDDLE },
@@ -227,7 +227,7 @@ InputsFromString::keyboard_key_from_string(const std::string& str)
     auto key = STRING_TO_KEYBOARD_KEY.find(str);
 
     if (key == STRING_TO_KEYBOARD_KEY.end()) {
-        return {};
+        return std::nullopt;
     }
     return key->second;
 }
@@ -238,7 +238,7 @@ InputsFromString::controller_button_from_string(const std::string& str)
     auto button = STRING_TO_CONTROLLER_BUTTON.find(str);
 
     if (button == STRING_TO_CONTROLLER_BUTTON.end()) {
-        return {};
+        return std::nullopt;
     }
     return button->second;
 }
@@ -249,7 +249,7 @@ InputsFromString::mouse_button_from_string(const std::string& str)
     auto button = STRING_TO_MOUSE_BUTTON.find(str);
 
     if (button == STRING_TO_MOUSE_BUTTON.end()) {
-        return {};
+        return std::nullopt;
     }
     return button->second;
 }
@@ -260,29 +260,29 @@ InputsFromString::controller_axis_from_string(const std::string& str)
     auto axis = STRING_TO_CONTROLLER_AXIS.find(str);
 
     if (axis == STRING_TO_CONTROLLER_AXIS.end()) {
-        return {};
+        return std::nullopt;
     }
     return axis->second;
 }
 
 std::string InputsToString::keyboard_key_to_string(const KeyboardKey& key)
 {
-    return KEYBOARD_KEY_TO_STRING[key];
+    return KEYBOARD_KEY_TO_STRING.at(key);
 }
 
 std::string
 InputsToString::controller_button_to_string(const ControllerButton& button)
 {
-    return CONTROLLER_BUTTON_TO_STRING[button];
+    return CONTROLLER_BUTTON_TO_STRING.at(button);
 }
 
 std::string
 InputsToString::controller_axis_to_string(const ControllerAxis& axis)
 {
-    return CONTROLLER_AXIS_TO_STRING[axis];
+    return CONTROLLER_AXIS_TO_STRING.at(axis);
 }
 
 std::string InputsToString::mouse_button_to_string(const MouseButton& button)
 {
-    return MOUSE_BUTTON_TO_STRING[button];
+    return MOUSE_BUTTON_TO_STRING.at(button);
 }
