@@ -3,6 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <cstring>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -32,8 +33,23 @@ AudioEngine::AudioEngine(const char* deviceName)
     AudioEngine::get_native_exception();
 }
 
+AudioEngine::AudioEngine(AudioEngine&& engine)
+{
+    *this = std::move(engine);
+}
+
+AudioEngine& AudioEngine::operator=(AudioEngine&& other)
+{
+    this->m_context = other.m_context;
+    this->m_device = other.m_device;
+    other.m_moved = true;
+    return *this;
+}
+
 AudioEngine::~AudioEngine()
 {
+    if (m_moved)
+        return;
     alcMakeContextCurrent(nullptr);
     alcDestroyContext(m_context);
     alcCloseDevice(m_device);
