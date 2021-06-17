@@ -48,11 +48,11 @@ AudioEngine& AudioEngine::operator=(AudioEngine&& other)
 
 AudioEngine::~AudioEngine()
 {
-    if (m_moved)
-        return;
-    alcMakeContextCurrent(nullptr);
-    alcDestroyContext(m_context);
-    alcCloseDevice(m_device);
+    if (!m_moved) {
+        alcMakeContextCurrent(nullptr);
+        alcDestroyContext(m_context);
+        alcCloseDevice(m_device);
+    }
 }
 
 std::vector<std::string> AudioEngine::get_available_devices()
