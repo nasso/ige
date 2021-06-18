@@ -37,7 +37,6 @@ struct AnimationClip {
     using Handle = std::shared_ptr<AnimationClip>;
     using Duration = std::chrono::steady_clock::duration;
 
-    std::string name = "";
     std::vector<JointSampler> joints;
     Duration duration = Duration::zero();
     Duration sample_duration = Duration::zero();

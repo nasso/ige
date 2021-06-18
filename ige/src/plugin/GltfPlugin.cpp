@@ -465,12 +465,17 @@ public:
         AnimationClip::Handle clip;
     };
 
+    struct MultiSkeletalAnimation {
+        std::string name;
+        std::vector<SkeletalAnimation> channels;
+    };
+
 private:
     std::vector<std::vector<Primitive>> m_meshes;
     std::vector<Material::Handle> m_materials;
     std::vector<Texture::Handle> m_textures;
     std::vector<Skeleton::Handle> m_skeletons;
-    std::vector<SkeletalAnimation> m_animations;
+    std::vector<MultiSkeletalAnimation> m_animations;
 
     /**
      * @brief Represents a skeleton joint
@@ -479,9 +484,6 @@ private:
         std::uint32_t skeleton_idx;
         std::size_t joint_idx;
     };
-
-    // maps a node id to a joint
-    std::unordered_map<std::uint32_t, JointNode> m_joints;
 
     fx::gltf::Document m_doc;
     std::filesystem::path m_root;
@@ -492,13 +494,20 @@ private:
             return std::nullopt;
         }
 
-        auto it = m_joints.find(node);
+        for (std::uint32_t i = 0; i < m_doc.skins.size(); i++) {
+            const auto& skin = m_doc.skins[i];
+            auto it = std::find(
+                skin.joints.begin(), skin.joints.end(),
+                static_cast<std::uint32_t>(node));
 
-        if (it != m_joints.end()) {
-            return it->second;
-        } else {
-            return std::nullopt;
+            if (it != skin.joints.end()) {
+                return JointNode {
+                    i, static_cast<std::size_t>(it - skin.joints.begin())
+                };
+            }
         }
+
+        return std::nullopt;
     }
 
     template <typename T, typename Duration>
@@ -574,18 +583,6 @@ private:
         }
 
         return sampler;
-    }
-
-    std::optional<std::uint32_t>
-    get_animated_skeleton(const fx::gltf::Animation& anim)
-    {
-        auto joint = get_joint(anim.channels[0].target.node);
-
-        if (joint) {
-            return joint->skeleton_idx;
-        } else {
-            return std::nullopt;
-        }
     }
 
     Texture::Handle get_texture(std::size_t idx)
@@ -726,101 +723,6 @@ private:
         return mesh_prims;
     }
 
-    SkeletalAnimation load_animation(const fx::gltf::Animation& tf_anim)
-    {
-        if (tf_anim.channels.empty()) {
-            throw std::runtime_error("Animation doesn't have any channel");
-        }
-
-        // try to figure out what skeleton we're animating (if any)
-        // TODO: support multi-skeleton animations
-        auto skeleton_index = get_animated_skeleton(tf_anim);
-
-        if (!skeleton_index) {
-            std::ostringstream ss;
-            ss << "Couldn't guess skeleton for ";
-
-            if (tf_anim.name.empty()) {
-                ss << "unnamed";
-            } else {
-                ss << "\"" << tf_anim.name << "\"";
-            }
-
-            ss << " animation";
-
-            throw std::runtime_error(ss.str());
-        }
-
-        std::cout << "[INFO] Found animation for skeleton #" << *skeleton_index
-                  << std::endl;
-
-        Skeleton::Handle skeleton = load_skeleton(*skeleton_index);
-
-        auto clip = std::make_shared<AnimationClip>();
-
-        {
-            using std::chrono::duration_cast;
-            using namespace std::chrono_literals;
-
-            // TODO: allow changing the sample rate
-            clip->sample_duration
-                = duration_cast<AnimationClip::Duration>(1s) / 60;
-        }
-
-        clip->name = tf_anim.name;
-        clip->joints.resize(skeleton->joints.size());
-
-        for (const auto& channel : tf_anim.channels) {
-            auto joint_info = get_joint(channel.target.node);
-
-            if (!joint_info) {
-                continue;
-            }
-
-            auto& joint_samplers = clip->joints[joint_info->joint_idx];
-
-            if (channel.target.path == "translation") {
-                auto sampler = get_samples<vec3>(
-                    tf_anim.samplers[channel.sampler], clip->sample_duration);
-
-                auto sampler_duration
-                    = clip->sample_duration * sampler.samples.size();
-                if (clip->duration < sampler_duration) {
-                    clip->duration = sampler_duration;
-                }
-
-                joint_samplers.pos_sampler = std::move(sampler);
-            } else if (channel.target.path == "rotation") {
-                auto sampler = get_samples<quat>(
-                    tf_anim.samplers[channel.sampler], clip->sample_duration);
-
-                auto sampler_duration
-                    = clip->sample_duration * sampler.samples.size();
-                if (clip->duration < sampler_duration) {
-                    clip->duration = sampler_duration;
-                }
-
-                joint_samplers.rotation_sampler = std::move(sampler);
-            } else if (channel.target.path == "scale") {
-                auto sampler = get_samples<vec3>(
-                    tf_anim.samplers[channel.sampler], clip->sample_duration);
-
-                auto sampler_duration
-                    = clip->sample_duration * sampler.samples.size();
-                if (clip->duration < sampler_duration) {
-                    clip->duration = sampler_duration;
-                }
-
-                joint_samplers.scale_sampler = std::move(sampler);
-            } else {
-                std::cerr << "[WARN] Skipping unsupported animation target \""
-                          << channel.target.path << "\"" << std::endl;
-            }
-        }
-
-        return SkeletalAnimation { *skeleton_index, clip };
-    }
-
     Skeleton::Handle load_skeleton(std::uint32_t skeleton_index)
     {
         auto& skeleton = m_skeletons[skeleton_index];
@@ -866,12 +768,6 @@ private:
             joint.inv_bind_matrix = inv_bind_matrices[i];
             // joint.parent = unknown yet;
 
-            JointNode joint_info;
-            joint_info.joint_idx = i;
-            joint_info.skeleton_idx = skeleton_index;
-
-            m_joints.emplace(skin.joints[i], joint_info);
-
             // populate the parent map
             const auto& joint_node = m_doc.nodes[skin.joints[i]];
             for (std::uint32_t child : joint_node.children) {
@@ -894,6 +790,107 @@ private:
                   << skin.joints.size() << " joints)." << std::endl;
 
         return skeleton;
+    }
+
+    MultiSkeletalAnimation load_animation(const fx::gltf::Animation& tf_anim)
+    {
+        if (tf_anim.channels.empty()) {
+            throw std::runtime_error("Animation doesn't have any channel");
+        }
+
+        std::vector<std::optional<SkeletalAnimation>> skeleton_animations;
+
+        auto get_clip = [&](std::uint32_t skeleton_idx) -> AnimationClip& {
+            if (skeleton_idx < skeleton_animations.size()) {
+                if (auto& anim = skeleton_animations[skeleton_idx]) {
+                    return *anim->clip;
+                }
+            } else {
+                skeleton_animations.resize(skeleton_idx + 1);
+            }
+
+            Skeleton::Handle skeleton = load_skeleton(skeleton_idx);
+
+            std::cout << "[INFO] Found animation for skeleton #" << skeleton_idx
+                      << std::endl;
+
+            auto clip = std::make_shared<AnimationClip>();
+
+            {
+                using std::chrono::duration_cast;
+                using namespace std::chrono_literals;
+
+                // TODO: allow changing the sample rate
+                clip->sample_duration
+                    = duration_cast<AnimationClip::Duration>(1s) / 60;
+            }
+
+            clip->joints.resize(skeleton->joints.size());
+
+            skeleton_animations[skeleton_idx].emplace(
+                SkeletalAnimation { skeleton_idx, clip });
+            return *clip;
+        };
+
+        for (const auto& channel : tf_anim.channels) {
+            auto joint_info = get_joint(channel.target.node);
+
+            if (!joint_info) {
+                continue;
+            }
+
+            auto& clip = get_clip(joint_info->skeleton_idx);
+
+            auto& joint_samplers = clip.joints[joint_info->joint_idx];
+
+            if (channel.target.path == "translation") {
+                auto sampler = get_samples<vec3>(
+                    tf_anim.samplers[channel.sampler], clip.sample_duration);
+
+                auto sampler_duration
+                    = clip.sample_duration * sampler.samples.size();
+                if (clip.duration < sampler_duration) {
+                    clip.duration = sampler_duration;
+                }
+
+                joint_samplers.pos_sampler = std::move(sampler);
+            } else if (channel.target.path == "rotation") {
+                auto sampler = get_samples<quat>(
+                    tf_anim.samplers[channel.sampler], clip.sample_duration);
+
+                auto sampler_duration
+                    = clip.sample_duration * sampler.samples.size();
+                if (clip.duration < sampler_duration) {
+                    clip.duration = sampler_duration;
+                }
+
+                joint_samplers.rotation_sampler = std::move(sampler);
+            } else if (channel.target.path == "scale") {
+                auto sampler = get_samples<vec3>(
+                    tf_anim.samplers[channel.sampler], clip.sample_duration);
+
+                auto sampler_duration
+                    = clip.sample_duration * sampler.samples.size();
+                if (clip.duration < sampler_duration) {
+                    clip.duration = sampler_duration;
+                }
+
+                joint_samplers.scale_sampler = std::move(sampler);
+            } else {
+                std::cerr << "[WARN] Skipping unsupported animation target \""
+                          << channel.target.path << "\"" << std::endl;
+            }
+        }
+
+        std::vector<SkeletalAnimation> animations;
+
+        for (auto& anim : skeleton_animations) {
+            if (anim) {
+                animations.push_back(*anim);
+            }
+        }
+
+        return { tf_anim.name, std::move(animations) };
     }
 
 public:
@@ -955,12 +952,12 @@ public:
         return m_skeletons;
     }
 
-    std::span<SkeletalAnimation> animations()
+    std::span<MultiSkeletalAnimation> animations()
     {
         return m_animations;
     }
 
-    std::span<const SkeletalAnimation> animations() const
+    std::span<const MultiSkeletalAnimation> animations() const
     {
         return m_animations;
     }
@@ -1037,13 +1034,27 @@ private:
             auto& animator = world.get_or_emplace_component<Animator>(parent);
 
             for (const auto& anim : cache.animations()) {
-                const auto& anim_target = m_skeletons.at(anim.skeleton_index);
-                const auto& name = anim.clip->name;
+                AnimationTrack track;
 
-                std::size_t id = animator.add_track(anim_target, anim.clip);
+                for (const auto& channel : anim.channels) {
+                    const auto& anim_target
+                        = m_skeletons.at(channel.skeleton_index);
 
-                if (!name.empty()) {
-                    animator.set_track_name(id, name);
+                    if (track.duration < channel.clip->duration) {
+                        using std::chrono::duration_cast;
+
+                        track.duration
+                            = duration_cast<AnimationTrack::Duration>(
+                                channel.clip->duration);
+                    }
+
+                    track.channels.push_back({ anim_target, channel.clip });
+                }
+
+                std::size_t id = animator.add_track(std::move(track));
+
+                if (!anim.name.empty()) {
+                    animator.set_track_name(id, anim.name);
                 }
             }
         } catch (const std::exception& e) {

@@ -36,14 +36,17 @@ struct SkeletonPose {
 struct AnimationTrack {
     using Duration = asset::AnimationClip::Duration;
 
-    AnimationTrack(ecs::EntityId target, asset::AnimationClip::Handle clip);
+    struct Channel {
+        ecs::EntityId target;
+        asset::AnimationClip::Handle clip;
+    };
 
     void rewind();
     void seek(Duration);
 
-    ecs::EntityId target;
-    asset::AnimationClip::Handle clip;
+    std::vector<Channel> channels;
     Duration current_time = Duration::zero();
+    Duration duration = Duration::zero();
     bool loop = true;
     float weight = 0.0f;
     float playback_rate = 1.0f;
@@ -87,8 +90,7 @@ public:
         tracks(std::string_view) const;
     std::pair<TrackIterator, TrackIterator> tracks(std::string_view);
 
-    std::size_t
-    add_track(ecs::EntityId target, asset::AnimationClip::Handle clip);
+    std::size_t add_track(AnimationTrack);
     void set_track_name(std::size_t track, std::string name);
 
 private:
