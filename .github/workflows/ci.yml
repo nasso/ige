@@ -26,7 +26,7 @@ jobs:
 
   build-ubuntu:
     needs: pre-job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     env:
       CC: gcc-10
@@ -46,7 +46,7 @@ jobs:
 
   build-epitest:
     needs: pre-job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     env:
       LIBNYQUIST_ASOUND: 1
@@ -63,7 +63,7 @@ jobs:
 
   build-windows:
     needs: pre-job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
