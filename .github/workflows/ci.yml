@@ -5,7 +5,28 @@ on:
   pull_request:
 
 jobs:
+  pre-job:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v3.4.0
+        with:
+          cancel_others: true
+          paths_ignore: >
+            [
+              "**/docs/**",
+              "**/README.md",
+              "**/CHANGELOG.md",
+              "**/LICENSE",
+              "**/.gitignore",
+              "**/.clang-format"
+            ]
+
   build-ubuntu:
+    needs: pre-job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     env:
       CC: gcc-10
@@ -24,16 +45,12 @@ jobs:
         run: ctest
 
   build-epitest:
+    needs: pre-job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     env:
       LIBNYQUIST_ASOUND: 1
     container: epitechcontent/epitest-docker
-    if: >
-      ${{ false
-      || github.ref == 'refs/heads/stable'
-      || github.ref == 'refs/heads/master'
-      || github.base_ref == 'refs/heads/master'
-      }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure
@@ -45,13 +62,9 @@ jobs:
         run: ctest
 
   build-windows:
+    needs: pre-job
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: windows-latest
-    if: >
-      ${{ false
-      || github.ref == 'refs/heads/stable'
-      || github.ref == 'refs/heads/master'
-      || github.base_ref == 'refs/heads/master'
-      }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure
