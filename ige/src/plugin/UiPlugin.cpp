@@ -108,7 +108,7 @@ static void trigger_events(World& world)
 
             // make sure the cursor is in the rectangle
             if (!is_inside) {
-                if (auto movement = world.get_component<MouseMovement>(ent)) {
+                if (world.get_component<MouseMovement>(ent)) {
                     using ige::plugin::ui::event::MouseLeave;
 
                     MouseLeave evt;

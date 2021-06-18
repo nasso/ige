@@ -303,7 +303,7 @@ static void draw_mesh(
             //      * globalJointTransform[j]
             //      * inverseBindMatrix[j];
 
-            const mat4 inv_model = xform.world_to_local();
+            // const mat4 inv_model = xform.world_to_local();
 
             for (std::size_t j = 0; j < joint_count; j++) {
                 // TODO: figure out why this is a lie

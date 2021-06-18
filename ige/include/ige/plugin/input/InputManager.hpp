@@ -186,9 +186,9 @@ public:
                 auto val = controller->second.get_axis_value(a.axis);
 
                 if (val < -a.dead_zone) {
-                    return (val + a.dead_zone) / (1.0 - a.dead_zone);
+                    return (val + a.dead_zone) / (1.0f - a.dead_zone);
                 } else if (val > a.dead_zone) {
-                    return (val - a.dead_zone) / (1.0 - a.dead_zone);
+                    return (val - a.dead_zone) / (1.0f - a.dead_zone);
                 } else {
                     return 0.0f;
                 }
