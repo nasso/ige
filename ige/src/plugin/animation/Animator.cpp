@@ -14,12 +14,6 @@ using ige::plugin::animation::Animator;
 
 // AnimationTrack
 
-AnimationTrack::AnimationTrack(EntityId target, AnimationClip::Handle clip)
-    : target(target)
-    , clip(clip)
-{
-}
-
 void AnimationTrack::rewind()
 {
     seek(Duration::zero());
@@ -108,9 +102,9 @@ Animator::tracks(std::string_view name)
 #endif
 }
 
-std::size_t Animator::add_track(EntityId target, AnimationClip::Handle clip)
+std::size_t Animator::add_track(AnimationTrack track)
 {
-    m_tracks.emplace_back(target, std::move(clip));
+    m_tracks.push_back(std::move(track));
     return m_tracks.size() - 1;
 }
 

@@ -31,10 +31,10 @@ using std::chrono::duration_cast;
 
 static void compute_joint_pose(
     std::size_t idx, std::size_t frame, SkeletonPose& pose,
-    const AnimationTrack& track)
+    const AnimationTrack::Channel& channel)
 {
     const auto& joint_info = pose.skeleton->joints[idx];
-    const auto& joint_anim = track.clip->joints[idx];
+    const auto& joint_anim = channel.clip->joints[idx];
 
     auto& joint_pose = pose.joint_pose[idx];
 
@@ -47,10 +47,10 @@ static void compute_joint_pose(
     auto& mat = pose.global_pose[idx];
 
     if (joint_info.parent) {
-        // TODO(perf): ideally, a child should always come *after* its parent
-        // so that its safe to assume the parent's transform is already computed
-        // here
-        compute_joint_pose(*joint_info.parent, frame, pose, track);
+        // TODO(perf): ideally, a child should always come *after* its
+        // parent so that its safe to assume the parent's transform is
+        // already computed here
+        compute_joint_pose(*joint_info.parent, frame, pose, channel);
 
         mat = pose.global_pose[*joint_info.parent];
     } else {
@@ -64,21 +64,24 @@ static void compute_joint_pose(
 
 static void reset_pose(World& world, const AnimationTrack& track)
 {
-    auto pose = world.get_component<SkeletonPose>(track.target);
+    for (const auto& channel : track.channels) {
+        auto pose = world.get_component<SkeletonPose>(channel.target);
 
-    if (!pose) {
-        return;
-    }
+        if (!pose) {
+            return;
+        }
 
-    std::size_t joint_count = track.clip->joints.size();
+        std::size_t joint_count = channel.clip->joints.size();
 
-    pose->joint_pose.resize(joint_count);
-    pose->global_pose.resize(joint_count);
+        pose->joint_pose.resize(joint_count);
+        pose->global_pose.resize(joint_count);
 
-    // TODO(perf): find a better way to do this? maybe cache the bind matrix?
-    for (std::size_t i = 0; i < joint_count; i++) {
-        pose->global_pose[i]
-            = glm::inverse(pose->skeleton->joints[i].inv_bind_matrix);
+        // TODO(perf): find a better way to do this? maybe cache the bind
+        // matrix?
+        for (std::size_t i = 0; i < joint_count; i++) {
+            pose->global_pose[i]
+                = glm::inverse(pose->skeleton->joints[i].inv_bind_matrix);
+        }
     }
 }
 
@@ -86,38 +89,41 @@ template <typename Duration>
 static void
 update_animation_track(World& world, AnimationTrack& track, Duration delta)
 {
-    auto pose = world.get_component<SkeletonPose>(track.target);
-
-    if (!pose) {
-        return;
-    }
-
     track.current_time
         += duration_cast<AnimationTrack::Duration>(track.playback_rate * delta);
 
-    if (track.loop) {
-        track.current_time %= track.clip->duration;
+    if (track.loop && track.duration != AnimationTrack::Duration::zero()) {
+        track.current_time %= track.duration;
     }
 
-    // the current animation frame
-    const std::size_t frame = static_cast<std::size_t>(
-        track.current_time / track.clip->sample_duration);
+    for (auto& channel : track.channels) {
+        auto pose = world.get_component<SkeletonPose>(channel.target);
 
-    // how many joints to animate
-    // should be equal to the number of joints of the skeleton
-    std::size_t joint_count = track.clip->joints.size();
+        if (!pose) {
+            continue;
+        }
 
-    // TODO: maybe wrap this in some ifdef DEBUG?
-    if (joint_count != pose->skeleton->joints.size()) {
-        std::cerr << "[WARN] Number of joints in the animation (" << joint_count
-                  << ") doesn't match the number of joints in the skeleton ("
-                  << pose->skeleton->joints.size() << ") - skipping animation."
-                  << std::endl;
-        return;
-    }
+        // the current animation frame
+        const std::size_t frame = static_cast<std::size_t>(
+            track.current_time / channel.clip->sample_duration);
 
-    for (std::size_t j = 0; j < joint_count; j++) {
-        compute_joint_pose(j, frame, *pose, track);
+        // how many joints to animate
+        // should be equal to the number of joints of the skeleton
+        std::size_t joint_count = channel.clip->joints.size();
+
+        // TODO: maybe wrap this in some ifdef DEBUG?
+        if (joint_count != pose->skeleton->joints.size()) {
+            std::cerr
+                << "[WARN] Number of joints in the animation (" << joint_count
+                << ") doesn't match the number of joints in the skeleton ("
+                << pose->skeleton->joints.size() << ") - skipping animation."
+                << std::endl;
+            continue;
+        }
+
+        for (std::size_t j = 0; j < joint_count; j++) {
+            compute_joint_pose(j, frame, *pose, channel);
+        }
     }
 }
 
