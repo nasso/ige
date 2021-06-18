@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [v0.2.2] - 2021-06-18
+
+### Added
+
+- Add support for animations targeting multiple skeletons.
+
 ## [v0.2.1] - 2021-06-18
 
 ### Fixed
@@ -44,7 +50,8 @@ and this project adheres to
 - Easy to use input manager.
 - glTF model loading support.
 
-[unreleased]: https://github.com/nasso/ige/compare/v0.2.1...HEAD
+[unreleased]: https://github.com/nasso/ige/compare/v0.2.2...HEAD
+[v0.2.2]: https://github.com/nasso/ige/releases/tag/v0.2.2
 [v0.2.1]: https://github.com/nasso/ige/releases/tag/v0.2.1
 [v0.2.0]: https://github.com/nasso/ige/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/nasso/ige/releases/tag/v0.1.0
