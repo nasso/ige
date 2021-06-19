@@ -15,7 +15,7 @@ class Error : public std::exception {
 public:
     Error(GLenum code);
 
-    const char* what() const override;
+    const char* what() const noexcept override;
 
     static std::optional<Error> get();
 

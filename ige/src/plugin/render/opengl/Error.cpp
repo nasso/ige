@@ -15,7 +15,7 @@ Error::Error(GLenum code)
 {
 }
 
-const char* Error::what() const
+const char* Error::what() const noexcept
 {
     switch (m_code) {
     case GL_NO_ERROR:
@@ -30,6 +30,8 @@ const char* Error::what() const
         return "GL_INVALID_FRAMEBUFFER_OPERATION";
     case GL_OUT_OF_MEMORY:
         return "GL_OUT_OF_MEMORY";
+    default:
+        return "?";
     }
 }
 
