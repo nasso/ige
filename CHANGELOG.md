@@ -10,7 +10,12 @@ and this project adheres to
 
 ### Added
 
+- OpenGL back-end releases textures properly now.
 - Add a `IGE_DEBUG` CMake option to enable/disable some debug-only assertions.
+
+### Fixed
+
+- Unnecessary regeneration/recompilation of some files when configuring CMake.
 
 ## [v0.2.3] - 2021-06-19
 
