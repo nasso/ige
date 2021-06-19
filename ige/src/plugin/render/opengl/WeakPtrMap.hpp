@@ -39,8 +39,9 @@ class WeakPtrMap
     : public std::unordered_map<
           std::weak_ptr<K>, V, detail::WeakPtrHash<K>, detail::WeakPtrEq<K>> {
 public:
-    void clean(bool force = false)
+    void clean(bool = false)
     {
+        /* FIXME
         if (!force) {
             const float lf = static_cast<float>(this->size() + 1)
                 / static_cast<float>(this->bucket_count());
@@ -52,6 +53,7 @@ public:
             std::erase_if(
                 *this, [](const auto& item) { return item.first.expired(); });
         }
+        */
     }
 };
 
