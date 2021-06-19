@@ -3,33 +3,37 @@
 #include <iostream>
 #include <optional>
 #include <sstream>
-#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
 using gl::Error;
 
-// TODO(perf): don't use unordered_map for this...
-
-const std::unordered_map<GLenum, std::string> ERROR_MAP = {
-    { GL_NO_ERROR, "GL_NO_ERROR" },
-    { GL_INVALID_ENUM, "GL_INVALID_ENUM" },
-    { GL_INVALID_VALUE, "GL_INVALID_VALUE" },
-    { GL_INVALID_OPERATION, "GL_INVALID_OPERATION" },
-    { GL_INVALID_FRAMEBUFFER_OPERATION, "GL_INVALID_FRAMEBUFFER_OPERATION" },
-    { GL_OUT_OF_MEMORY, "GL_OUT_OF_MEMORY" },
-};
-
 Error::Error(GLenum code)
-    : std::runtime_error(ERROR_MAP.at(code))
+    : m_code(code)
 {
 }
 
-Error::Error(const std::string& msg)
-    : std::runtime_error(msg)
+const char* Error::what() const
 {
+    switch (m_code) {
+    case GL_NO_ERROR:
+        return "GL_NO_ERROR";
+    case GL_INVALID_ENUM:
+        return "GL_INVALID_ENUM";
+    case GL_INVALID_VALUE:
+        return "GL_INVALID_VALUE";
+    case GL_INVALID_OPERATION:
+        return "GL_INVALID_OPERATION";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return "GL_INVALID_FRAMEBUFFER_OPERATION";
+    case GL_OUT_OF_MEMORY:
+        return "GL_OUT_OF_MEMORY";
+    }
 }
+
+#ifdef IGE_DEBUG
 
 std::optional<Error> Error::get()
 {
@@ -42,32 +46,16 @@ std::optional<Error> Error::get()
     }
 }
 
-std::vector<Error> Error::get_all()
+bool Error::audit(std::string_view tag, std::ostream& out)
 {
-    std::vector<Error> errors;
+    auto error = Error::get();
 
-    while (auto err = Error::get()) {
-        errors.push_back(*err);
-    }
+    if (error) {
+        out << "Caught GL error(s) at \"" << tag << "\":\n";
 
-    return errors;
-}
-
-bool Error::audit(const std::string& tag, std::ostream& out)
-{
-    auto errors = Error::get_all();
-
-    if (errors.size()) {
-        out << "Caught GL error";
-
-        if (errors.size() > 1) {
-            out << "s";
-        }
-
-        out << " at \"" << tag << "\":\n";
-
-        for (const auto& err : errors) {
-            out << " - " << err.what() << "\n";
+        for (std::size_t i = 0; error; i++) {
+            out << i << ". " << error->what() << "\n";
+            error = Error::get();
         }
 
         return true;
@@ -76,11 +64,11 @@ bool Error::audit(const std::string& tag, std::ostream& out)
     return false;
 }
 
-void Error::expect_none(const std::string& tag)
-{
-    std::stringstream ss;
+#else /* NOT IGE_DEBUG */
 
-    if (audit(tag, ss)) {
-        throw Error(ss.str());
-    }
+std::optional<Error> Error::get()
+{
+    return std::nullopt;
 }
+
+#endif

@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Add a `IGE_DEBUG` CMake option to enable/disable some debug-only assertions.
+
 ## [v0.2.3] - 2021-06-19
 
 ### Fixed

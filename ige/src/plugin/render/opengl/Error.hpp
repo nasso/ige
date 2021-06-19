@@ -2,25 +2,34 @@
 #define BBDCCAB2_3239_4477_9B15_B71394AB4E61
 
 #include "glad/gl.h"
+#include <exception>
 #include <iostream>
 #include <optional>
-#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace gl {
 
-class Error : public std::runtime_error {
-private:
-    Error(const std::string& msg);
-
+class Error : public std::exception {
 public:
     Error(GLenum code);
 
+    const char* what() const override;
+
     static std::optional<Error> get();
-    static std::vector<Error> get_all();
-    static bool audit(const std::string& tag, std::ostream& out = std::cerr);
-    static void expect_none(const std::string& tag);
+
+#ifdef IGE_DEBUG
+    static bool audit(std::string_view tag, std::ostream& out = std::cerr);
+#else
+    static constexpr bool audit(std::string_view, std::ostream& = std::cerr)
+    {
+        return false;
+    }
+#endif
+
+private:
+    GLenum m_code = 0;
 };
 
 }

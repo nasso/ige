@@ -111,7 +111,7 @@ update_animation_track(World& world, AnimationTrack& track, Duration delta)
         // should be equal to the number of joints of the skeleton
         std::size_t joint_count = channel.clip->joints.size();
 
-        // TODO: maybe wrap this in some ifdef DEBUG?
+#ifdef IGE_DEBUG
         if (joint_count != pose->skeleton->joints.size()) {
             std::cerr
                 << "[WARN] Number of joints in the animation (" << joint_count
@@ -120,6 +120,7 @@ update_animation_track(World& world, AnimationTrack& track, Duration delta)
                 << std::endl;
             continue;
         }
+#endif
 
         for (std::size_t j = 0; j < joint_count; j++) {
             compute_joint_pose(j, frame, *pose, channel);

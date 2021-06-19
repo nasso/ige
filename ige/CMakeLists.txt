@@ -232,6 +232,10 @@ set(compile_flags
     IGE_OPENGL
 )
 
+if(IGE_DEBUG)
+    list(APPEND compile_flags "IGE_DEBUG")
+endif()
+
 set(CMAKE_DEBUG_POSTFIX "" CACHE STRING "" FORCE)
 
 # static library
