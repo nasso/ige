@@ -2,29 +2,32 @@
 #define AUDIOCLIP_HPP_
 
 #include "ige/plugin/audio/AudioBuffer.hpp"
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <libnyquist/Decoders.h>
+#include <cstdint>
+#include <memory>
+#include <span>
+#include <string>
 
 namespace ige::plugin::audio {
 
 class AudioClip {
 public:
-    AudioClip(const std::string& path);
-    AudioClip(const AudioClip& other) = delete;
-    AudioClip(AudioClip&&);
+    using Handle = std::shared_ptr<AudioClip>;
 
-    std::vector<float>& get_samples();
-    AudioBuffer& get_audio_buffer();
+    AudioClip(
+        std::span<const std::int16_t> samples, std::uint32_t sample_rate,
+        std::uint8_t channels);
+    AudioClip(const AudioClip&) = delete;
+    AudioClip& operator=(const AudioClip&) = delete;
 
-    AudioClip& operator=(AudioClip&& other);
+    AudioBuffer& audio_buffer();
+    const AudioBuffer& audio_buffer() const;
+
+    static Handle load(const std::string&);
 
 private:
-    nqr::AudioData m_audio_data;
+    std::uint8_t m_channel = 2;
+    std::uint32_t m_sample_rate = 44100;
     AudioBuffer m_buffer;
-    bool m_moved;
-
-    ALenum find_sample_mode(const nqr::AudioData&);
 };
 
 }
