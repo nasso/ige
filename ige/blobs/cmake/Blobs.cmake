@@ -1,22 +1,30 @@
 function(write_blob_header DEST BLOBNAME)
     # symbol name for the include guard
     set(GUARD_SYM "BLOB_${BLOBNAME}_H")
+    set(SRC "")
 
-    file(WRITE ${DEST} "#ifndef ${GUARD_SYM}\n")
-    file(APPEND ${DEST} "#define ${GUARD_SYM}\n")
-    file(APPEND ${DEST} "#ifdef __cplusplus\n")
-    file(APPEND ${DEST} "extern \"C\" {\n")
-    file(APPEND ${DEST} "#endif\n")
+    string(APPEND SRC "#ifndef ${GUARD_SYM}\n")
+    string(APPEND SRC "#define ${GUARD_SYM}\n")
+    string(APPEND SRC "#ifdef __cplusplus\n")
+    string(APPEND SRC "extern \"C\" {\n")
+    string(APPEND SRC "#endif\n")
+    string(APPEND SRC "#include <stddef.h>\n")
+    string(APPEND SRC "extern const size_t ${BLOBNAME}_SIZE;\n")
+    string(APPEND SRC "extern const char ${BLOBNAME}[];\n")
+    string(APPEND SRC "#ifdef __cplusplus\n")
+    string(APPEND SRC "}\n")
+    string(APPEND SRC "#endif\n")
+    string(APPEND SRC "#endif\n")
 
-    file(APPEND ${DEST} "#include <stddef.h>\n")
+    set(CURRENT_SRC "")
 
-    file(APPEND ${DEST} "extern const size_t ${BLOBNAME}_SIZE;\n")
-    file(APPEND ${DEST} "extern const char ${BLOBNAME}[];\n")
+	if(EXISTS ${DEST})
+        file(READ ${DEST} CURRENT_SRC)
+    endif()
 
-    file(APPEND ${DEST} "#ifdef __cplusplus\n")
-    file(APPEND ${DEST} "}\n")
-    file(APPEND ${DEST} "#endif\n")
-    file(APPEND ${DEST} "#endif\n")
+    if(NOT "${CURRENT_SRC}" STREQUAL "${SRC}")
+        file(WRITE ${DEST} ${SRC})
+    endif()
 endfunction()
 
 function(write_blob_source DEST BLOBNAME HEADER FILEPATH)
@@ -65,8 +73,11 @@ function(add_blobs TARGET_NAME)
         string(TOUPPER ${BLOBNAME} BLOBNAME)
 
         write_blob_header(${OUTPUT_H} ${BLOBNAME})
-        write_blob_source(${OUTPUT_C} ${BLOBNAME}
-            "${TARGET_NAME}/${BLOBPATH}.h" ${FULLBLOBPATH})
+
+        if(${FULLBLOBPATH} IS_NEWER_THAN ${OUTPUT_C})
+            write_blob_source(${OUTPUT_C} ${BLOBNAME}
+                "${TARGET_NAME}/${BLOBPATH}.h" ${FULLBLOBPATH})
+        endif()
 
         set(BLOB_SOURCES ${BLOB_SOURCES} ${OUTPUT_C} ${OUTPUT_H})
     endforeach()
