@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.0] - 2021-06-20
+
 ### Added
 
 - Asynchronous `Task<T>` to load assets without blocking.
@@ -18,25 +20,25 @@ and this project adheres to
 
 - Unnecessary compilation of generated files when re-configuring CMake.
 
-## [v0.2.3] - 2021-06-19
+## [0.2.3] - 2021-06-19
 
 ### Fixed
 
 - Occasional crash when textures are released.
 
-## [v0.2.2] - 2021-06-18
+## [0.2.2] - 2021-06-18
 
 ### Added
 
 - Add support for animations targeting multiple skeletons.
 
-## [v0.2.1] - 2021-06-18
+## [0.2.1] - 2021-06-18
 
 ### Fixed
 
 - Models that aren't playing any animation are reset to bind pose.
 
-## [v0.2.0] - 2021-06-17
+## [0.2.0] - 2021-06-17
 
 ### Added
 
@@ -53,7 +55,7 @@ and this project adheres to
 
 - Fixed a crash when the window is minimised.
 
-## [v0.1.0] - 2021-06-11
+## [0.1.0] - 2021-06-11
 
 ### Added
 
@@ -66,9 +68,10 @@ and this project adheres to
 - Easy to use input manager.
 - glTF model loading support.
 
-[unreleased]: https://github.com/nasso/ige/compare/v0.2.3...HEAD
-[v0.2.3]: https://github.com/nasso/ige/releases/tag/v0.2.3
-[v0.2.2]: https://github.com/nasso/ige/releases/tag/v0.2.2
-[v0.2.1]: https://github.com/nasso/ige/releases/tag/v0.2.1
-[v0.2.0]: https://github.com/nasso/ige/releases/tag/v0.2.0
-[v0.1.0]: https://github.com/nasso/ige/releases/tag/v0.1.0
+[unreleased]: https://github.com/nasso/ige/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/nasso/ige/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/nasso/ige/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/nasso/ige/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/nasso/ige/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/nasso/ige/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/nasso/ige/releases/tag/v0.1.0
