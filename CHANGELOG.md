@@ -16,7 +16,7 @@ and this project adheres to
 
 ### Fixed
 
-- Unnecessary regeneration/recompilation of some files when configuring CMake.
+- Unnecessary compilation of generated files when re-configuring CMake.
 
 ## [v0.2.3] - 2021-06-19
 
