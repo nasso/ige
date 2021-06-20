@@ -97,7 +97,7 @@ static void compute_world_transforms(World& world)
     for (auto [entity, transform] : world.query<Transform>()) {
         // only update tree roots (entities without a parent)
         // children will get recursively updated
-        if (!world.get_component<Parent>(entity)) {
+        if (world.exists(entity) && !world.get_component<Parent>(entity)) {
             update_transform_tree(world, entity, transform, mat4 { 1.0f });
         }
     }
