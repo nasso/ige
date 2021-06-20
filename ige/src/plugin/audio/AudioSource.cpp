@@ -62,8 +62,7 @@ void AudioSource::load_clip(std::shared_ptr<AudioClip> clip)
     AudioEngine::get_native_exception();
     alSourcef(m_source, AL_ROLLOFF_FACTOR, 1.0f);
     AudioEngine::get_native_exception();
-    alSourcei(
-        m_source, AL_BUFFER, clip->get_audio_buffer().get_internal_handle());
+    alSourcei(m_source, AL_BUFFER, clip->audio_buffer().get_internal_handle());
     AudioEngine::get_native_exception();
     alSourcei(m_source, AL_MAX_DISTANCE, 500);
     AudioEngine::get_native_exception();
