@@ -16,6 +16,15 @@ and this project adheres to
 - OpenGL back-end releases textures properly now.
 - Add a `IGE_DEBUG` CMake option to enable/disable some debug-only assertions.
 
+### Changed
+
+- `AudioClip` is now loaded with `AudioClip::load` or `AudioClip::load_async`
+  instead of its constructor.
+
+### Removed
+
+- Removed `AudioClip` constructor taking an audio file path.
+
 ### Fixed
 
 - Unnecessary compilation of generated files when re-configuring CMake.
