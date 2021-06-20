@@ -1,5 +1,6 @@
 #include "ige/plugin/audio/AudioClip.hpp"
 #include "AudioEngine.hpp"
+#include "ige/core/Task.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -13,6 +14,7 @@
 #include <string>
 #include <vector>
 
+using ige::core::Task;
 using ige::plugin::audio::AudioBuffer;
 using ige::plugin::audio::AudioClip;
 using ige::plugin::audio::AudioPluginException;
@@ -61,16 +63,23 @@ AudioClip::Handle AudioClip::load(const std::string& path)
     nqr::NyquistIO loader;
     nqr::AudioData audio_data;
 
+    std::cout << "[INFO] Loading audio clip " << path << "..." << std::endl;
+
     loader.Load(&audio_data, path);
     auto u16_buffer = to_u16(audio_data.samples);
 
-    std::cerr << "[Audio Plugin] Loaded sound file:\n"
-              << "Duration      : " << audio_data.lengthSeconds << " seconds.\n"
-              << "Sample Rate   : " << audio_data.sampleRate << "Hz\n"
-              << "Channel Count : " << audio_data.channelCount << "\n"
-              << "Frame Size    : " << audio_data.frameSize << std::endl;
+    std::cout << "[INFO] Loaded audio clip " << path << ":\n"
+              << "Duration: " << audio_data.lengthSeconds << " seconds.\n"
+              << "Sample rate: " << audio_data.sampleRate << " Hz\n"
+              << "Channels: " << audio_data.channelCount << std::endl;
 
     return std::make_shared<AudioClip>(
         u16_buffer, static_cast<std::uint32_t>(audio_data.sampleRate),
         static_cast<std::uint8_t>(audio_data.channelCount));
+}
+
+Task<AudioClip::Handle> AudioClip::load_async(std::string path)
+{
+    return Task<AudioClip::Handle>::spawn(
+        [path = std::move(path)] { return AudioClip::load(path); });
 }

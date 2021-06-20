@@ -1,6 +1,7 @@
 #ifndef AUDIOCLIP_HPP_
 #define AUDIOCLIP_HPP_
 
+#include "ige/core/Task.hpp"
 #include "ige/plugin/audio/AudioBuffer.hpp"
 #include <cstdint>
 #include <memory>
@@ -23,6 +24,7 @@ public:
     const AudioBuffer& audio_buffer() const;
 
     static Handle load(const std::string&);
+    static core::Task<Handle> load_async(std::string);
 
 private:
     std::uint8_t m_channel = 2;
