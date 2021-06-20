@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.2] - 2021-06-20
+
+### Fixed
+
+- EventChannel Subscription operator= didn't return a value.
+
 ## [0.3.1] - 2021-06-20
 
 ### Fixed
@@ -83,7 +89,8 @@ and this project adheres to
 - Easy to use input manager.
 - glTF model loading support.
 
-[unreleased]: https://github.com/nasso/ige/compare/v0.3.1...HEAD
+[unreleased]: https://github.com/nasso/ige/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/nasso/ige/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/nasso/ige/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/nasso/ige/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/nasso/ige/compare/v0.2.2...v0.2.3
