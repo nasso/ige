@@ -117,6 +117,7 @@ public:
             m_handle = rhs.m_handle;
             m_moved = false;
             rhs.m_moved = true;
+            return *this;
         }
 
         ~Subscription()
