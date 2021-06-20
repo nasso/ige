@@ -10,6 +10,7 @@ and this project adheres to
 
 ### Added
 
+- Asynchronous `Task<T>` to load assets without blocking.
 - OpenGL back-end releases textures properly now.
 - Add a `IGE_DEBUG` CMake option to enable/disable some debug-only assertions.
 
