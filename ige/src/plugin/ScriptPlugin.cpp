@@ -85,7 +85,9 @@ namespace systems {
 static void update_scripts(World& world)
 {
     for (auto [entity, scripts] : world.query<Scripts>()) {
-        scripts.run_all(world, entity);
+        if (world.exists(entity)) {
+            scripts.run_all(world, entity);
+        }
     }
 }
 
