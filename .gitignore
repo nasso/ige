@@ -1,4 +1,7 @@
 .vs
 .vscode
+.xmake
 /build*
 /out
+
+.DS_Store
