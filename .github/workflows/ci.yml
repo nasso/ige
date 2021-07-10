@@ -24,6 +24,11 @@ jobs:
           cancel_others: true
 
   build-ubuntu:
+    strategy:
+      matrix:
+        arch: [x64]
+        mode: [debug, release]
+
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
@@ -31,11 +36,7 @@ jobs:
     env:
       CC: gcc-10
       CXX: g++-10
-
-    strategy:
-      matrix:
-        arch: [x64]
-        mode: [debug, release]
+      LIBNYQUIST_ASOUND: 1
 
     steps:
       - uses: actions/checkout@v2
@@ -57,15 +58,18 @@ jobs:
         run: xmake test
 
   build-epitest:
+    strategy:
+      matrix:
+        arch: [x64]
+        mode: [debug, release]
+
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
 
-    strategy:
-      matrix:
-        arch: [x64]
-        mode: [debug, release]
+    env:
+      LIBNYQUIST_ASOUND: 1
 
     steps:
       - uses: actions/checkout@v2
