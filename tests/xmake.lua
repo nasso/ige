@@ -1,4 +1,4 @@
-add_requires("gtest master", {configs={main=true, gmock=true}})
+add_requires("gtest ^1.11.0", {configs={main=true, gmock=true}})
 
 local tests = {
     ["any"] = { files = {"any.cpp"} },
