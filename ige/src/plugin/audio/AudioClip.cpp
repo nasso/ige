@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstdint>
 #include <glm/common.hpp>
+#include <iostream>
 #include <libnyquist/Decoders.h>
 #include <limits>
 #include <memory>
