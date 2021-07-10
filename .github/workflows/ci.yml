@@ -26,7 +26,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
-        arch: [x64]
+        arch: [x86_64]
         mode: [debug, release]
 
     needs: pre-job
@@ -83,7 +83,7 @@ jobs:
   build-epitest:
     strategy:
       matrix:
-        arch: [x64]
+        arch: [x86_64]
         mode: [debug, release]
 
     needs: pre-job
@@ -148,7 +148,7 @@ jobs:
 
     strategy:
       matrix:
-        arch: [x64]
+        arch: [x86_64]
         mode: [debug, release]
 
     steps:
