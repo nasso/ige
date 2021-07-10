@@ -36,14 +36,37 @@ jobs:
     env:
       CC: gcc-10
       CXX: g++-10
-      LIBNYQUIST_ASOUND: 1
 
     steps:
       - uses: actions/checkout@v2
 
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >>
+          $GITHUB_ENV
+
       # Install xmake
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
 
       # Configure
       - name: Configure
@@ -68,15 +91,40 @@ jobs:
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
 
-    env:
-      LIBNYQUIST_ASOUND: 1
-
     steps:
       - uses: actions/checkout@v2
+
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >>
+          $GITHUB_ENV
 
       # Install xmake
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
+
+      # Install unzip
+      - name: Install dependencies
+        run: sudo dnf install unzip
 
       # Configure
       - name: Configure
@@ -103,9 +151,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" | Out-File
+          -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       # Install xmake
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
 
       # Configure
       - name: Configure
