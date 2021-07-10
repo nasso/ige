@@ -91,6 +91,9 @@ jobs:
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker
 
+    env:
+      XMAKE_ROOT: y
+
     steps:
       - uses: actions/checkout@v2
 
