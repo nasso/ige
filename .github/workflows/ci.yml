@@ -94,6 +94,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # Install unzip
+      - name: Install dependencies
+        run: sudo dnf install unzip
+
       # Force xmake to a specific folder (for cache)
       - name: Set xmake env
         run: >
@@ -121,10 +125,6 @@ jobs:
           key: >
             ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
             steps.dep_hash.outputs.hash }}
-
-      # Install unzip
-      - name: Install dependencies
-        run: sudo dnf install unzip
 
       # Configure
       - name: Configure
