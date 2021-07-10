@@ -1,11 +1,13 @@
 target("blobs")
     set_kind("static")
+    add_rules("static_bytes")
     add_files("shaders/gl/**.glsl", {rule="static_bytes"})
     add_includedirs("$(buildir)/static_bytes", {interface=true})
 
 rule("static_bytes")
-    on_build_file(function(target, src_path, opt)
+    before_build(function(target, opt)
         import("core.base.option")
+        import("core.project.depend")
         import("private.utils.progress")
 
         --- generate the variable name for the given source path
@@ -69,22 +71,26 @@ rule("static_bytes")
             dst_file:close()
         end
 
-        local dst_path = path.join(
-            "$(buildir)",
-            "static_bytes",
-            target:name(),
-            path.relative(src_path, target:scriptdir()) .. ".h"
-        )
+        for _, sourcebatch in pairs(target:sourcebatches()) do
+            if sourcebatch.rulename == "static_bytes" then
+                for _, src_path in pairs(sourcebatch.sourcefiles) do
+                    local dst_path = path.join(
+                        "$(buildir)",
+                        "static_bytes",
+                        target:name(),
+                        path.relative(src_path, target:scriptdir()) .. ".h"
+                    )
 
-        import("core.project.depend")
-
-        depend.on_changed(
-            function(target)
-                gen_header(dst_path, src_path)
-            end,
-            {
-                files = { src_path },
-                always_changed = option.get("rebuild")
-            }
-        )
+                    depend.on_changed(
+                        function(target)
+                            gen_header(dst_path, src_path)
+                        end,
+                        {
+                            files = { src_path },
+                            always_changed = option.get("rebuild")
+                        }
+                    )
+                end
+            end
+        end
     end)
