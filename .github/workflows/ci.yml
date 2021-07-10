@@ -148,7 +148,7 @@ jobs:
 
     strategy:
       matrix:
-        arch: [x86_64]
+        arch: [x64]
         mode: [debug, release]
 
     steps:
