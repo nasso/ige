@@ -9,11 +9,6 @@
 #include "TextureCache.hpp"
 #include "VertexArray.hpp"
 #include "WeakPtrMap.hpp"
-#include "blobs/shaders/gl/gbuffer-fs.glsl.h"
-#include "blobs/shaders/gl/gbuffer-skin-vs.glsl.h"
-#include "blobs/shaders/gl/gbuffer-vs.glsl.h"
-#include "blobs/shaders/gl/light-pass-fs.glsl.h"
-#include "blobs/shaders/gl/light-pass-vs.glsl.h"
 #include "glad/gl.h"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
@@ -26,6 +21,11 @@
 #include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
+#include "res/shaders/gl/gbuffer-fs.glsl.h"
+#include "res/shaders/gl/gbuffer-skin-vs.glsl.h"
+#include "res/shaders/gl/gbuffer-vs.glsl.h"
+#include "res/shaders/gl/light-pass-fs.glsl.h"
+#include "res/shaders/gl/light-pass-vs.glsl.h"
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -74,17 +74,17 @@ public:
 
         gl::Shader gbuffer_vs {
             gl::Shader::VERTEX,
-            BLOBS_SHADERS_GL_GBUFFER_VS_GLSL,
+            RES_SHADERS_GL_GBUFFER_VS_GLSL,
         };
 
         gl::Shader gbuffer_skin_vs {
             gl::Shader::VERTEX,
-            BLOBS_SHADERS_GL_GBUFFER_SKIN_VS_GLSL,
+            RES_SHADERS_GL_GBUFFER_SKIN_VS_GLSL,
         };
 
         gl::Shader gbuffer_fs {
             gl::Shader::FRAGMENT,
-            BLOBS_SHADERS_GL_GBUFFER_FS_GLSL,
+            RES_SHADERS_GL_GBUFFER_FS_GLSL,
         };
 
         std::cout << "[INFO] Linking GbufferProgram..." << std::endl;
@@ -113,12 +113,12 @@ public:
 
         gl::Shader light_pass_vs {
             gl::Shader::VERTEX,
-            BLOBS_SHADERS_GL_LIGHT_PASS_VS_GLSL,
+            RES_SHADERS_GL_LIGHT_PASS_VS_GLSL,
         };
 
         gl::Shader light_pass_fs {
             gl::Shader::FRAGMENT,
-            BLOBS_SHADERS_GL_LIGHT_PASS_FS_GLSL,
+            RES_SHADERS_GL_LIGHT_PASS_FS_GLSL,
         };
 
         std::cout << "[INFO] Linking LightPassProgram..." << std::endl;
