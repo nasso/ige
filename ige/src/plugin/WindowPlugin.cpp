@@ -5,7 +5,6 @@
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/InputPlugin.hpp"
 
-#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <unordered_set>

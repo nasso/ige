@@ -1,0 +1,7 @@
+target("framework")
+    set_kind("static")
+    set_languages("cxx20")
+    set_warnings("all")
+    add_files("./**.cpp")
+    add_includedirs(".", {public=true})
+    add_deps("ige")
