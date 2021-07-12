@@ -8,12 +8,14 @@
 #include <cstdint>
 #include <glm/common.hpp>
 #include <iostream>
-#include <libnyquist/Decoders.h>
 #include <limits>
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
 
 using ige::core::Task;
 using ige::plugin::audio::AudioBuffer;
@@ -59,28 +61,64 @@ static std::vector<std::int16_t> to_u16(std::span<const float> vec)
     return ret;
 }
 
-AudioClip::Handle AudioClip::load(const std::string& path)
+// decode a vorbis audio file using vorbisfile
+AudioClip::Handle AudioClip::load(std::string_view path)
 {
-    nqr::NyquistIO loader;
-    nqr::AudioData audio_data;
-
     std::cout << "[INFO] Loading audio clip " << path << "..." << std::endl;
 
-    loader.Load(&audio_data, path);
-    auto u16_buffer = to_u16(audio_data.samples);
+    OggVorbis_File vf;
+
+    if (ov_fopen(path.data(), &vf) != 0) {
+        throw AudioPluginException("could not open file");
+    }
+
+    vorbis_info* vi = ov_info(&vf, -1);
+    if (vi == nullptr) {
+        throw AudioPluginException("could not get vorbis info");
+    }
+
+    const std::uint32_t sample_rate = vi->rate;
+    const std::uint8_t channels = vi->channels;
+    const float duration = ov_time_total(&vf, -1);
+
+    std::vector<std::int16_t> samples(ov_pcm_total(&vf, -1) * channels);
+
+    std::uint32_t samples_read = 0;
+    while (samples_read < samples.size()) {
+        char* buf = reinterpret_cast<char*>(samples.data() + samples_read);
+        const std::uint32_t len
+            = static_cast<std::uint32_t>(samples.size() - samples_read);
+        const std::int32_t bytes_read
+            = ov_read(&vf, buf, len, 0, 2, 1, nullptr);
+        if (bytes_read == 0) {
+            break;
+        } else if (bytes_read == OV_EBADLINK) {
+            throw AudioPluginException("error decoding vorbis file");
+        }
+
+        samples_read += bytes_read / sizeof(std::int16_t);
+    }
+
+    ov_clear(&vf);
 
     std::cout << "[INFO] Loaded audio clip " << path << ":\n"
-              << "Duration: " << audio_data.lengthSeconds << " seconds.\n"
-              << "Sample rate: " << audio_data.sampleRate << " Hz\n"
-              << "Channels: " << audio_data.channelCount << std::endl;
+              << "Duration: " << duration << " seconds.\n"
+              << "Sample rate: " << sample_rate << " Hz\n"
+              << "Channels: " << channels << std::endl;
 
-    return std::make_shared<AudioClip>(
-        u16_buffer, static_cast<std::uint32_t>(audio_data.sampleRate),
-        static_cast<std::uint8_t>(audio_data.channelCount));
+    return std::make_shared<AudioClip>(samples, sample_rate, channels);
 }
 
 Task<AudioClip::Handle> AudioClip::load_async(std::string path)
 {
     return Task<AudioClip::Handle>::spawn(
-        [path = std::move(path)] { return AudioClip::load(path); });
+        [path = std::move(path)]() -> AudioClip::Handle {
+            try {
+                return AudioClip::load(path);
+            } catch (const AudioPluginException& e) {
+                std::cerr << "[ERROR] Couldn't load " << path << ": "
+                          << e.what() << std::endl;
+                return nullptr;
+            }
+        });
 }

@@ -3,9 +3,9 @@ add_requires(
     "bullet3 ^3.09",
     "nlohmann_json ^3.9.1",
     "glfw ^3.3.4",
-    "fx-gltf ^1.2.0",
-    "libnyquist master"
+    "fx-gltf ^1.2.0"
 )
+add_requires("libvorbis ^1.3.7", {configs={with_vorbisenc=false}})
 add_requires("openal-soft ^1.21.1", {configs={shared=true}})
 
 target("glad")
@@ -37,7 +37,8 @@ target("ige")
     -- define some symbols
     add_defines(
         "_CRT_SECURE_NO_WARNINGS",
-        "IGE_OPENGL"
+        "IGE_OPENGL",
+        "IGE_BUILD"
     )
 
     -- define IGE_DEBUG when in debug mode
@@ -54,7 +55,8 @@ target("ige")
         "openal-soft",
         "nlohmann_json",
         "fx-gltf",
-        "libnyquist",
+        "libvorbis",
+        -- todo: make dependencies non-public
         {public=true}
     )
 
