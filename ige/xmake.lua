@@ -26,11 +26,18 @@ target("ige")
     add_includedirs("include", {public=true})
     add_includedirs("$(buildir)/ige")
 
+    add_headerfiles("include/(**.hpp)")
+
     -- define some symbols
     add_defines(
         "_CRT_SECURE_NO_WARNINGS",
         "IGE_OPENGL"
     )
+
+    -- define IGE_DEBUG when in debug mode
+    if is_mode("debug") then
+        add_defines("IGE_DEBUG")
+    end
 
     -- dependencies
     add_deps("glad", "stb")
