@@ -8,8 +8,14 @@ add_requires(
 )
 add_requires("openal-soft ^1.21.1", {configs={shared=true}})
 
-includes("glad")
-includes("stb")
+target("glad")
+    set_kind("object")
+    add_files("glad/src/**.c")
+    add_includedirs("glad/include", {public=true})
+
+target("stb")
+    set_kind("object")
+    add_includedirs("stb", {public=true})
 
 target("ige")
     set_kind("static")
