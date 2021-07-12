@@ -26,7 +26,7 @@ class RootState : public State {
 public:
     void on_start(App& app) override
     {
-        auto clip = AudioClip::load("./assets/piano2.wav");
+        auto clip = AudioClip::load("./assets/piano2.ogg");
 
         // Warning: Only mono sound files support 3D Spatialization
         source_entity = app.world().create_entity(Transform {});

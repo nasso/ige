@@ -7,6 +7,7 @@
 #include <memory>
 #include <span>
 #include <string>
+#include <string_view>
 
 namespace ige::plugin::audio {
 
@@ -23,7 +24,7 @@ public:
     AudioBuffer& audio_buffer();
     const AudioBuffer& audio_buffer() const;
 
-    static Handle load(const std::string&);
+    static Handle load(std::string_view path);
     static core::Task<Handle> load_async(std::string);
 
 private:
