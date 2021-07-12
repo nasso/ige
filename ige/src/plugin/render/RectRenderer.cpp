@@ -1,7 +1,6 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/RenderPlugin.hpp"
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <utility>
 
 using glm::vec3;
 using glm::vec4;

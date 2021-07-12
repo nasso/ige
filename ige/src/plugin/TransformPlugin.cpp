@@ -1,11 +1,10 @@
-#include "ige/plugin/TransformPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
-#include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
-#include <utility>
 
 using glm::mat4;
 using glm::vec2;

@@ -1,19 +1,14 @@
-#include "ige/plugin/audio/AudioClip.hpp"
+#include "igepch.hpp"
+
 #include "AudioEngine.hpp"
 #include "ige/core/Task.hpp"
+#include "ige/plugin/audio/AudioClip.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <cassert>
 #include <cstdint>
-#include <glm/common.hpp>
-#include <iostream>
 #include <limits>
-#include <memory>
-#include <span>
-#include <string>
-#include <string_view>
-#include <vector>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 

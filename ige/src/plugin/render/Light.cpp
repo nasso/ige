@@ -1,5 +1,6 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/RenderPlugin.hpp"
-#include <glm/vec3.hpp>
 
 using glm::vec3;
 using ige::plugin::render::Light;

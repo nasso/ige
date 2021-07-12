@@ -1,18 +1,11 @@
 #ifndef B9861FCE_54F8_45FA_9DDB_2BDD0F68CD1A
 #define B9861FCE_54F8_45FA_9DDB_2BDD0F68CD1A
 
+#include "igepch.hpp"
+
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "glad/gl.h"
-#include <concepts>
-#include <glm/mat2x2.hpp>
-#include <glm/mat3x3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <span>
-#include <stdexcept>
 
 namespace gl {
 

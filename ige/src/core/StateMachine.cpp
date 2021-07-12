@@ -1,8 +1,8 @@
-#include "ige/core/StateMachine.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/core/State.hpp"
-#include <functional>
-#include <optional>
+#include "ige/core/StateMachine.hpp"
 
 using ige::core::App;
 using ige::core::State;

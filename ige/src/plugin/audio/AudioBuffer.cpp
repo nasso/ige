@@ -1,8 +1,9 @@
-#include "ige/plugin/audio/AudioBuffer.hpp"
+#include "igepch.hpp"
+
 #include "AudioEngine.hpp"
+#include "ige/plugin/audio/AudioBuffer.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <utility>
 
 using ige::plugin::audio::AudioBuffer;
 

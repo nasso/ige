@@ -1,11 +1,10 @@
+#include "igepch.hpp"
+
 #include "AudioEngine.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <cstring>
-#include <string>
-#include <utility>
-#include <vector>
 
 using ige::plugin::audio::AudioPluginException;
 

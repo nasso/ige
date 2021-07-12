@@ -1,11 +1,9 @@
+#include "igepch.hpp"
+
 #include "ige/asset/AnimationClip.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/plugin/AnimationPlugin.hpp"
 #include <cstddef>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <utility>
 
 using ige::asset::AnimationClip;
 using ige::ecs::EntityId;

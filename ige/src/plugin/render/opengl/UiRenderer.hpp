@@ -1,6 +1,8 @@
 #ifndef FFE76428_D275_401F_91CB_CCA396785D99
 #define FFE76428_D275_401F_91CB_CCA396785D99
 
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 
 class UiRenderer : public ige::core::App::Plugin {

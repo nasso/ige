@@ -1,8 +1,9 @@
-#include "ige/plugin/input/utils.hpp"
+#include "igepch.hpp"
+
 #include "ige/plugin/input/Controller.hpp"
 #include "ige/plugin/input/Keyboard.hpp"
 #include "ige/plugin/input/Mouse.hpp"
-#include <string>
+#include "ige/plugin/input/utils.hpp"
 
 using ige::plugin::input::ControllerAxis;
 using ige::plugin::input::ControllerButton;

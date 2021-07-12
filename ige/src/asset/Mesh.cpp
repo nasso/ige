@@ -1,11 +1,8 @@
+#include "igepch.hpp"
+
 #include "ige/asset/Mesh.hpp"
 #include <cstddef>
 #include <cstdint>
-#include <memory>
-#include <optional>
-#include <span>
-#include <stdexcept>
-#include <utility>
 
 using ige::asset::Mesh;
 

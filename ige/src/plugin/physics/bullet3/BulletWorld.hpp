@@ -1,6 +1,8 @@
 #ifndef A17BC820_E47A_445F_A85E_1D87FE8FB1EA
 #define A17BC820_E47A_445F_A85E_1D87FE8FB1EA
 
+#include "igepch.hpp"
+
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/World.hpp"
@@ -8,10 +10,6 @@
 #include "ige/plugin/physics/GhostObject.hpp"
 #include "ige/plugin/physics/PhysicsWorld.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
-#include <memory>
-#include <unordered_set>
-#include <utility>
-#include <vector>
 
 namespace ige::bt {
 

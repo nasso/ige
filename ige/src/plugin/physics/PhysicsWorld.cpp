@@ -1,5 +1,7 @@
-#include "ige/plugin/physics/PhysicsWorld.hpp"
+#include "igepch.hpp"
+
 #include "ige/ecs/Entity.hpp"
+#include "ige/plugin/physics/PhysicsWorld.hpp"
 
 using ige::ecs::EntityId;
 using ige::plugin::physics::Collision;

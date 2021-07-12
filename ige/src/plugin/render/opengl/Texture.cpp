@@ -1,6 +1,7 @@
+#include "igepch.hpp"
+
 #include "Texture.hpp"
 #include "glad/gl.h"
-#include <utility>
 
 using gl::Texture;
 

@@ -1,9 +1,9 @@
-#include "TextureCache.hpp"
+#include "igepch.hpp"
+
 #include "Error.hpp"
 #include "Texture.hpp"
+#include "TextureCache.hpp"
 #include "ige/asset/Texture.hpp"
-#include <iostream>
-#include <stdexcept>
 
 using ige::asset::Texture;
 

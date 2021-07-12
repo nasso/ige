@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/input/Controller.hpp"
 
 using ige::plugin::input::Controller;

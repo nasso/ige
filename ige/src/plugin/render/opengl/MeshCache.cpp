@@ -1,11 +1,11 @@
-#include "MeshCache.hpp"
+#include "igepch.hpp"
+
 #include "Error.hpp"
+#include "MeshCache.hpp"
 #include "VertexArray.hpp"
 #include "glad/gl.h"
 #include "ige/asset/Mesh.hpp"
 #include <cstddef>
-#include <iostream>
-#include <stdexcept>
 
 using ige::asset::Mesh;
 

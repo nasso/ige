@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/input/Keyboard.hpp"
 
 using ige::plugin::input::Keyboard;

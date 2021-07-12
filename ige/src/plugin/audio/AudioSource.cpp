@@ -1,10 +1,10 @@
-#include "ige/plugin/audio/AudioSource.hpp"
+#include "igepch.hpp"
+
 #include "AudioEngine.hpp"
+#include "ige/plugin/audio/AudioSource.hpp"
 #include "ige/plugin/audio/exceptions/AudioPluginException.hpp"
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <glm/vec3.hpp>
-#include <utility>
 
 using ige::plugin::audio::AudioSource;
 

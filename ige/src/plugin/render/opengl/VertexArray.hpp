@@ -1,14 +1,11 @@
 #ifndef E75B6E7E_883E_4710_8365_1C7EC7E1B775
 #define E75B6E7E_883E_4710_8365_1C7EC7E1B775
 
+#include "igepch.hpp"
+
 #include "Buffer.hpp"
 #include "glad/gl.h"
 #include <cstddef>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <span>
-#include <vector>
 
 namespace gl {
 

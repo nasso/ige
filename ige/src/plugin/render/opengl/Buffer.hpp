@@ -1,11 +1,10 @@
 #ifndef EECC3E28_49AF_4009_90BE_066F9860D4F6
 #define EECC3E28_49AF_4009_90BE_066F9860D4F6
 
+#include "igepch.hpp"
+
 #include "glad/gl.h"
 #include <cstddef>
-#include <functional>
-#include <span>
-#include <vector>
 
 namespace gl {
 

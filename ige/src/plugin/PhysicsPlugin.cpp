@@ -1,7 +1,9 @@
-#include "ige/plugin/PhysicsPlugin.hpp"
+#include "igepch.hpp"
+
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/PhysicsPlugin.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physics/GhostObject.hpp"

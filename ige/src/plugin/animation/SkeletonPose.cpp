@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/asset/Skeleton.hpp"
 #include "ige/plugin/AnimationPlugin.hpp"
 

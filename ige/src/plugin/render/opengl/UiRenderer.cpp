@@ -1,7 +1,9 @@
-#include "UiRenderer.hpp"
+#include "igepch.hpp"
+
 #include "Program.hpp"
 #include "Shader.hpp"
 #include "TextureCache.hpp"
+#include "UiRenderer.hpp"
 #include "VertexArray.hpp"
 #include "WeakPtrMap.hpp"
 #include "glad/gl.h"
@@ -16,14 +18,7 @@
 #include "res/shaders/gl/ui-img-vs.glsl.h"
 #include "res/shaders/gl/ui-rect-fs.glsl.h"
 #include "res/shaders/gl/ui-rect-vs.glsl.h"
-#include <algorithm>
-#include <functional>
-#include <glm/vec2.hpp>
-#include <glm/vec4.hpp>
-#include <iostream>
-#include <tuple>
 #include <variant>
-#include <vector>
 
 using glm::vec2;
 using glm::vec4;

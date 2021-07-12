@@ -1,4 +1,5 @@
-#include "ige/plugin/RenderPlugin.hpp"
+#include "igepch.hpp"
+
 #include "SceneRenderer.hpp"
 #include "UiRenderer.hpp"
 #include "glad/gl.h"
@@ -6,6 +7,7 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 
 using ige::core::App;

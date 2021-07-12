@@ -1,10 +1,10 @@
 #ifndef E135A54D_3A15_47F1_B7B8_1EC91E8D6648
 #define E135A54D_3A15_47F1_B7B8_1EC91E8D6648
 
+#include "igepch.hpp"
+
 #include "VertexArray.hpp"
 #include "ige/asset/Mesh.hpp"
-#include <optional>
-#include <span>
 
 class MeshCache {
 public:

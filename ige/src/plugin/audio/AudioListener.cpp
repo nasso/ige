@@ -1,6 +1,7 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/audio/AudioListener.hpp"
 #include <AL/al.h>
-#include <glm/vec3.hpp>
 
 using glm::vec3;
 using ige::plugin::audio::AudioListener;

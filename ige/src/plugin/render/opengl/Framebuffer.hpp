@@ -1,13 +1,12 @@
 #ifndef FF4C8D44_2751_4BEE_B440_F854C20FCFCD
 #define FF4C8D44_2751_4BEE_B440_F854C20FCFCD
 
+#include "igepch.hpp"
+
 #include "Renderbuffer.hpp"
 #include "Texture.hpp"
 #include "glad/gl.h"
 #include <cstddef>
-#include <optional>
-#include <span>
-#include <vector>
 
 namespace gl {
 

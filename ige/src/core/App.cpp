@@ -1,11 +1,11 @@
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/core/StateMachine.hpp"
 #include "ige/ecs/Resources.hpp"
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include <memory>
-#include <optional>
 
 using ige::core::App;
 using ige::core::StateMachine;

@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/physics/GhostObject.hpp"
 
 using ige::plugin::physics::Collider;

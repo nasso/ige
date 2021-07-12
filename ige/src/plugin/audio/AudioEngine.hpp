@@ -1,10 +1,10 @@
 #ifndef AUDIO_ENGINE_HPP_
 #define AUDIO_ENGINE_HPP_
 
+#include "igepch.hpp"
+
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <string>
-#include <vector>
 
 class AudioEngine {
 public:

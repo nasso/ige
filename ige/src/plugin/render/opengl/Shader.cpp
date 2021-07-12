@@ -1,9 +1,7 @@
+#include "igepch.hpp"
+
 #include "Shader.hpp"
 #include "glad/gl.h"
-#include <stdexcept>
-#include <string>
-#include <string_view>
-#include <vector>
 
 using gl::Shader;
 

@@ -1,16 +1,15 @@
-#include "ige/plugin/AnimationPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/asset/AnimationClip.hpp"
 #include "ige/asset/Skeleton.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/AnimationPlugin.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
 #include <chrono>
-#include <glm/mat4x4.hpp>
-#include <iostream>
-#include <optional>
 
 using glm::mat4;
 using ige::asset::AnimationClip;

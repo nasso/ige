@@ -1,15 +1,13 @@
-#include "ige/plugin/UiPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/InputPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
+#include "ige/plugin/UiPlugin.hpp"
 #include "ige/plugin/WindowPlugin.hpp"
-#include <glm/vec2.hpp>
-#include <iostream>
-#include <stdexcept>
-#include <utility>
 
 using glm::vec2;
 using ige::core::App;

@@ -1,13 +1,14 @@
 #ifndef AEBE5777_3041_432D_8A6B_F977321EC36E
 #define AEBE5777_3041_432D_8A6B_F977321EC36E
 
+#include "igepch.hpp"
+
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physics/Collider.hpp"
 #include "ige/plugin/physics/GhostObject.hpp"
-#include <memory>
 
 namespace ige::bt {
 

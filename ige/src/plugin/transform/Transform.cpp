@@ -1,9 +1,7 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/TransformPlugin.hpp"
 #include <glm/gtc/quaternion.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <utility>
 
 using glm::mat4;
 using glm::quat;

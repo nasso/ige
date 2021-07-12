@@ -1,4 +1,5 @@
-#include "ige/plugin/GltfPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/asset/AnimationClip.hpp"
 #include "ige/asset/Material.hpp"
 #include "ige/asset/Mesh.hpp"
@@ -8,37 +9,19 @@
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/AnimationPlugin.hpp"
+#include "ige/plugin/GltfPlugin.hpp"
 #include "ige/plugin/RenderPlugin.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
-#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
-#include <functional>
 #include <fx/gltf.h>
 #include <glm/ext/quaternion_common.hpp>
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <glm/mat2x2.hpp>
-#include <glm/mat3x3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <optional>
-#include <span>
-#include <sstream>
-#include <stdexcept>
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 
 using glm::mat4;
 using glm::quat;

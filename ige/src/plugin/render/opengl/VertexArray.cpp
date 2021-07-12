@@ -1,8 +1,9 @@
-#include "VertexArray.hpp"
+#include "igepch.hpp"
+
 #include "Buffer.hpp"
+#include "VertexArray.hpp"
 #include "glad/gl.h"
 #include <cstddef>
-#include <utility>
 
 using gl::Buffer;
 using gl::VertexArray;

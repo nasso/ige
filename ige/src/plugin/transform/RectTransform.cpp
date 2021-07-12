@@ -1,6 +1,6 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/TransformPlugin.hpp"
-#include <glm/vec2.hpp>
-#include <utility>
 
 using glm::vec2;
 using ige::plugin::transform::RectTransform;

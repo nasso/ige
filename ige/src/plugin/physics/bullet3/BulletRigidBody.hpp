@@ -1,6 +1,8 @@
 #ifndef F564463C_F6C2_4B7F_86AB_387B624C888B
 #define F564463C_F6C2_4B7F_86AB_387B624C888B
 
+#include "igepch.hpp"
+
 #include "btBulletCollisionCommon.h"
 #include "btBulletDynamicsCommon.h"
 #include "ige/ecs/Entity.hpp"
@@ -8,7 +10,6 @@
 #include "ige/plugin/TransformPlugin.hpp"
 #include "ige/plugin/physics/Collider.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
-#include <memory>
 
 namespace ige::bt {
 

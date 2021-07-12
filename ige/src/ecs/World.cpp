@@ -1,5 +1,7 @@
-#include "ige/ecs/World.hpp"
+#include "igepch.hpp"
+
 #include "ige/ecs/Resources.hpp"
+#include "ige/ecs/World.hpp"
 
 using ige::ecs::EntityId;
 using ige::ecs::Resources;

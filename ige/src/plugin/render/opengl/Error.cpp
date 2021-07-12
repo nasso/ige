@@ -1,12 +1,7 @@
+#include "igepch.hpp"
+
 #include "Error.hpp"
 #include "glad/gl.h"
-#include <iostream>
-#include <optional>
-#include <sstream>
-#include <string>
-#include <string_view>
-#include <unordered_map>
-#include <vector>
 
 using gl::Error;
 

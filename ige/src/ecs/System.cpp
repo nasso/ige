@@ -1,7 +1,7 @@
+#include "igepch.hpp"
+
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include <functional>
-#include <memory>
 
 using ige::ecs::System;
 using ige::ecs::World;

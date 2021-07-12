@@ -1,8 +1,10 @@
-#include "ige/plugin/ScriptPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/ScriptPlugin.hpp"
 #include "ige/plugin/TimePlugin.hpp"
 #include <cstdint>
 

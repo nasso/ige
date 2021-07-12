@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "BulletRigidBody.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/World.hpp"
@@ -6,10 +8,6 @@
 #include "ige/plugin/physics/RigidBody.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <iostream>
 
 using glm::mat4;
 using glm::quat;

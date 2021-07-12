@@ -1,7 +1,8 @@
+#include "igepch.hpp"
+
 #include "ige/ecs/Entity.hpp"
 #include <cstddef>
 #include <cstdint>
-#include <unordered_set>
 
 using ige::ecs::EntityId;
 using ige::ecs::EntityPool;

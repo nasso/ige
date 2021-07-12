@@ -1,10 +1,9 @@
 #ifndef B95ECE62_B7EE_424D_8BD3_422F4D6BF32B
 #define B95ECE62_B7EE_424D_8BD3_422F4D6BF32B
 
+#include "igepch.hpp"
+
 #include "glad/gl.h"
-#include <stdexcept>
-#include <string>
-#include <string_view>
 
 namespace gl {
 

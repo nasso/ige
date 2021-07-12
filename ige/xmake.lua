@@ -31,8 +31,10 @@ target("ige")
     -- include directories
     add_includedirs("include", {public=true})
     add_includedirs("$(buildir)/ige")
+    add_includedirs("src")
 
     add_headerfiles("include/(**.hpp)")
+    set_pcxxheader("src/igepch.hpp")
 
     -- define some symbols
     add_defines(

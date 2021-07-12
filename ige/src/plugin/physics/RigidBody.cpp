@@ -1,6 +1,6 @@
+#include "igepch.hpp"
+
 #include "ige/plugin/physics/RigidBody.hpp"
-#include "glm/vec3.hpp"
-#include <utility>
 
 using glm::vec3;
 using ige::plugin::physics::Collider;

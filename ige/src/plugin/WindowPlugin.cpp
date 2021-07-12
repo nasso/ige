@@ -1,13 +1,13 @@
-#include "ige/plugin/WindowPlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/core/EventChannel.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/InputPlugin.hpp"
+#include "ige/plugin/WindowPlugin.hpp"
 
 #include <GLFW/glfw3.h>
-#include <stdexcept>
-#include <unordered_set>
 
 #ifdef IGE_OPENGL
 #include "glad/gl.h"

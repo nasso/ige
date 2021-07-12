@@ -1,9 +1,8 @@
+#include "igepch.hpp"
+
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
-#include <algorithm>
-#include <memory>
-#include <vector>
 
 using ige::ecs::Schedule;
 using ige::ecs::System;

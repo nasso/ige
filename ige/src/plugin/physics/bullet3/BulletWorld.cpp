@@ -1,6 +1,8 @@
-#include "BulletWorld.hpp"
+#include "igepch.hpp"
+
 #include "BulletGhostObject.hpp"
 #include "BulletRigidBody.hpp"
+#include "BulletWorld.hpp"
 #include "ige/ecs/Entity.hpp"
 #include "ige/ecs/World.hpp"
 #include "ige/plugin/TransformPlugin.hpp"
@@ -8,7 +10,6 @@
 #include "ige/plugin/physics/GhostObject.hpp"
 #include "ige/plugin/physics/PhysicsWorld.hpp"
 #include "ige/plugin/physics/RigidBody.hpp"
-#include <optional>
 
 using ige::bt::BulletGhostObject;
 using ige::bt::BulletWorld;

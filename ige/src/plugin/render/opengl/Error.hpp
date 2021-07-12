@@ -1,13 +1,9 @@
 #ifndef BBDCCAB2_3239_4477_9B15_B71394AB4E61
 #define BBDCCAB2_3239_4477_9B15_B71394AB4E61
 
+#include "igepch.hpp"
+
 #include "glad/gl.h"
-#include <exception>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
 
 namespace gl {
 

@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/core/State.hpp"
 
 using ige::core::State;

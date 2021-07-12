@@ -1,10 +1,11 @@
-#include "ige/plugin/TimePlugin.hpp"
+#include "igepch.hpp"
+
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/plugin/TimePlugin.hpp"
 #include <chrono>
 #include <cstdint>
-#include <iostream>
 #include <ratio>
 
 using ige::core::App;

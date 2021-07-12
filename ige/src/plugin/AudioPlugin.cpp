@@ -1,4 +1,5 @@
-#include "ige/plugin/AudioPlugin.hpp"
+#include "igepch.hpp"
+
 #include "audio/AudioEngine.hpp"
 #include "ige/core/App.hpp"
 #include "ige/ecs/System.hpp"

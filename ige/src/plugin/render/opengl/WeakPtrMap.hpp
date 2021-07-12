@@ -1,11 +1,9 @@
 #ifndef A33C094A_DF9B_4BBB_B3B2_5AA3DD54CB65
 #define A33C094A_DF9B_4BBB_B3B2_5AA3DD54CB65
 
+#include "igepch.hpp"
+
 #include <cstddef>
-#include <functional>
-#include <memory>
-#include <unordered_map>
-#include <utility>
 
 namespace detail {
 

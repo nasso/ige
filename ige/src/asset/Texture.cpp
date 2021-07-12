@@ -1,3 +1,5 @@
+#include "igepch.hpp"
+
 #include "ige/asset/Texture.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
@@ -7,10 +9,6 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
-#include <span>
-#include <stdexcept>
-#include <vector>
 
 using ige::asset::Texture;
 
