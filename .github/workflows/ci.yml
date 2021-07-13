@@ -3,14 +3,6 @@ name: build + tests
 on:
   pull_request:
   push:
-    paths-ignore:
-      - ".github/workflows/format.yml"
-      - "**/docs/**"
-      - "**/README.md"
-      - "**/CHANGELOG.md"
-      - "**/LICENSE"
-      - "**/.gitignore"
-      - "**/.clang-format"
 
 jobs:
   pre-job:
@@ -22,6 +14,15 @@ jobs:
         uses: fkirc/skip-duplicate-actions@v3.4.0
         with:
           cancel_others: true
+          paths_ignore: >
+            [
+              ".github/workflows/format.yml",
+              "**/README.md",
+              "**/CHANGELOG.md",
+              "**/LICENSE",
+              "**/.gitignore",
+              "**/.clang-format"
+            ]
 
   build-ubuntu:
     strategy:
