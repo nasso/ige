@@ -75,9 +75,10 @@ AudioClip::Handle AudioClip::load(std::string_view path)
 
     const std::uint32_t sample_rate = vi->rate;
     const std::uint8_t channels = vi->channels;
-    const float duration = ov_time_total(&vf, -1);
+    const double duration = ov_time_total(&vf, -1);
 
-    std::vector<std::int16_t> samples(ov_pcm_total(&vf, -1) * channels);
+    std::vector<std::int16_t> samples(
+        static_cast<std::size_t>(ov_pcm_total(&vf, -1) * channels));
 
     std::uint32_t samples_read = 0;
     while (samples_read < samples.size()) {
