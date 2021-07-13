@@ -69,6 +69,7 @@ AudioClip::Handle AudioClip::load(std::string_view path)
 
     vorbis_info* vi = ov_info(&vf, -1);
     if (vi == nullptr) {
+        ov_clear(&vf);
         throw AudioPluginException("could not get vorbis info");
     }
 
