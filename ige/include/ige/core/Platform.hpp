@@ -22,10 +22,6 @@
         #error "Standard library does not support std::span"
     #endif
 
-    #if __cpp_lib_generic_unordered_lookup < 201811L
-        #error "Standard library does not support generic unordered lookup"
-    #endif
-
 #endif
 
 // platform detection
