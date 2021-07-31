@@ -8,9 +8,9 @@ target("ige")
     add_headerfiles("include/(**.hpp)")
     add_headerfiles("include/(**.inl)")
 
-    -- private header files
-    add_includedirs("common/include")
-    set_pcxxheader("common/include/igepch.hpp")
+    -- precompiled header
+    add_includedirs("src")
+    set_pcxxheader("src/igepch.hpp")
 
     -- source files
     add_files("src/**.cpp")
