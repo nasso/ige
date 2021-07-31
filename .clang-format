@@ -6,3 +6,4 @@ AllowShortFunctionsOnASingleLine: None
 AlwaysBreakTemplateDeclarations: Yes
 IndentRequires: true
 AlignAfterOpenBracket: AlwaysBreak
+IndentPPDirectives: BeforeHash

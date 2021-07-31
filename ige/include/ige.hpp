@@ -1,9 +1,7 @@
-#ifndef EAEDB201_01CA_4359_9ABB_3BFDFB33BC2D
-#define EAEDB201_01CA_4359_9ABB_3BFDFB33BC2D
+#ifndef D4A24B41_0763_4C1A_A04E_2F7DC4446EF7
+#define D4A24B41_0763_4C1A_A04E_2F7DC4446EF7
 
-#include "ige/asset.hpp"
 #include "ige/core.hpp"
-#include "ige/ecs.hpp"
-#include "ige/plugin.hpp"
+#include "ige/graphics.hpp"
 
-#endif /* EAEDB201_01CA_4359_9ABB_3BFDFB33BC2D */
+#endif /* D4A24B41_0763_4C1A_A04E_2F7DC4446EF7 */

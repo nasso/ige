@@ -1,12 +1,8 @@
-#ifndef B138B78F_C3FA_45B5_AA1E_BED919453DA7
-#define B138B78F_C3FA_45B5_AA1E_BED919453DA7
+#ifndef E3AA2E45_72B2_4FF3_9016_499DF84BCA62
+#define E3AA2E45_72B2_4FF3_9016_499DF84BCA62
 
-#include "core/Any.hpp"
-#include "core/App.hpp"
-#include "core/EventChannel.hpp"
-#include "core/State.hpp"
-#include "core/StateMachine.hpp"
-#include "core/Task.hpp"
-#include "core/TypeId.hpp"
+#include "ige/core/Entity.hpp"
+#include "ige/core/Platform.hpp"
+#include "ige/core/World.hpp"
 
-#endif /* B138B78F_C3FA_45B5_AA1E_BED919453DA7 */
+#endif /* E3AA2E45_72B2_4FF3_9016_499DF84BCA62 */
