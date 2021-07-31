@@ -45,7 +45,7 @@ public:
      * @return Entity ID of the new entity.
      */
     template <Component... Cs>
-    Entity spawn(Cs...);
+    Entity spawn(Cs&&...);
 
     /**
      * @brief Load a plugin.

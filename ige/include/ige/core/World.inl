@@ -3,7 +3,7 @@
 namespace ige::core {
 
 template <Component... Cs>
-Entity World::spawn(Cs... comps)
+Entity World::spawn(Cs&&...)
 {
     // TODO
 

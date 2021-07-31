@@ -8,6 +8,7 @@ namespace ige::graphics {
 
 struct IGE_API WindowPlugin {
     WindowPlugin(ige::core::World&);
+    ~WindowPlugin();
 };
 
 }
