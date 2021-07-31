@@ -29,7 +29,7 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64]
-        mode: [debug, release]
+        mode: [debug, releasedbg]
 
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
@@ -86,7 +86,7 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64]
-        mode: [debug, release]
+        mode: [debug, releasedbg]
 
     needs: pre-job
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
@@ -151,7 +151,7 @@ jobs:
     strategy:
       matrix:
         arch: [x64]
-        mode: [debug, release]
+        mode: [debug, releasedbg]
 
     steps:
       - uses: actions/checkout@v2
