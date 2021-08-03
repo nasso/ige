@@ -3,7 +3,7 @@
 
 #include "ige/core/Types.hpp"
 
-namespace ige::core {
+namespace ige::ecs {
 
 using EntityId = u64;
 

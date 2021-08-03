@@ -6,10 +6,13 @@
 
 namespace ige::graphics {
 
+/**
+ * @brief Component representing a window.
+ */
 struct Window {
     std::string title;
-    u32 width;
-    u32 height;
+    u32 width = 0;
+    u32 height = 0;
 };
 
 }

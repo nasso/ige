@@ -1,6 +1,6 @@
 #include "Entity.hpp"
 
-namespace ige::core {
+namespace ige::ecs {
 
 Entity::Entity(EntityId id)
     : m_id(id)

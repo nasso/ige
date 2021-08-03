@@ -1,6 +1,6 @@
 #include <ige.hpp>
 
-using ige::core::World;
+using ige::ecs::World;
 using ige::graphics::Window;
 using ige::graphics::WindowPlugin;
 

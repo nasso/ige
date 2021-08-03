@@ -1,10 +1,10 @@
 #include "ige/graphics/WindowPlugin.hpp"
-#include "ige/core/World.hpp"
+#include "ige/ecs/World.hpp"
 #include "igepch.hpp"
 
 namespace ige::graphics {
 
-WindowPlugin::WindowPlugin(core::World&)
+WindowPlugin::WindowPlugin(ecs::World&)
 {
     // TODO
     std::cout << "Window plugin is loading!" << std::endl;
