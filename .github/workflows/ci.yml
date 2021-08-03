@@ -80,7 +80,7 @@ jobs:
 
       # Run tests
       - name: Test
-        run: xmake test
+        run: xmake run tests
 
   build-epitest:
     strategy:
@@ -141,7 +141,7 @@ jobs:
 
       # Run tests
       - name: Test
-        run: xmake test
+        run: xmake run tests
 
   build-windows:
     needs: pre-job
@@ -194,4 +194,4 @@ jobs:
 
       # Run tests
       - name: Test
-        run: xmake test
+        run: xmake run tests
