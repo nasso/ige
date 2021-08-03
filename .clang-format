@@ -7,3 +7,7 @@ AlwaysBreakTemplateDeclarations: Yes
 IndentRequires: true
 AlignAfterOpenBracket: AlwaysBreak
 IndentPPDirectives: BeforeHash
+BinPackArguments: false
+BinPackParameters: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
