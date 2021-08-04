@@ -63,11 +63,20 @@ namespace ige::utility {
 template <std::movable T, class Allocator = std::allocator<T>>
 class RingBuffer {
 public:
-    RingBuffer(const Allocator& allocator = Allocator());
+    RingBuffer(const Allocator& = Allocator());
 
     RingBuffer(usize capacity, const Allocator& allocator = Allocator());
 
+    RingBuffer(const RingBuffer&) requires std::copy_constructible<T>;
+
+    RingBuffer(RingBuffer&&);
+
     ~RingBuffer();
+
+    RingBuffer&
+    operator=(const RingBuffer&) requires std::copy_constructible<T>;
+
+    RingBuffer& operator=(RingBuffer&&);
 
     template <class... Args>
         requires std::constructible_from<T, Args...>
@@ -97,6 +106,8 @@ public:
 
 private:
     inline void destroy_elements(usize start, usize count);
+
+    void mark_as_moved();
 
     Allocator m_allocator;
     T* m_buffer = nullptr;

@@ -38,6 +38,36 @@ RingBuffer<T, Allocator>::RingBuffer(usize capacity, const Allocator& allocator)
 }
 
 /**
+ * @brief Construct a RingBuffer copying the data from the given RingBuffer.
+ *
+ * @param other The RingBuffer to copy.
+ */
+template <std::movable T, class Allocator>
+RingBuffer<T, Allocator>::RingBuffer(
+    const RingBuffer& other) requires std::copy_constructible<T>
+    : RingBuffer(AllocatorTraits::select_on_container_copy_construction(
+          other.m_allocator))
+{
+    *this = other;
+}
+
+/**
+ * @brief Construct a RingBuffer moving the data from the given RingBuffer.
+ *
+ * @param other The RingBuffer to move.
+ */
+template <std::movable T, class Allocator>
+RingBuffer<T, Allocator>::RingBuffer(RingBuffer&& other)
+    : m_allocator(std::move(other.m_allocator))
+    , m_buffer(other.m_buffer)
+    , m_head(other.m_head)
+    , m_size(other.m_size)
+    , m_capacity(other.m_capacity)
+{
+    other.mark_as_moved();
+}
+
+/**
  * @brief Destroy the RingBuffer.
  */
 template <std::movable T, class Allocator>
@@ -46,6 +76,45 @@ RingBuffer<T, Allocator>::~RingBuffer()
     destroy_elements(m_head, m_size);
 
     AllocatorTraits::deallocate(m_allocator, m_buffer, m_capacity);
+}
+
+/**
+ * @brief Overwrite all elements with a copy of the given RingBuffer's data.
+ *
+ * @param other The RingBuffer to copy.
+ * @return A reference to this RingBuffer.
+ */
+template <std::movable T, class Allocator>
+auto RingBuffer<T, Allocator>::operator=(const RingBuffer& other)
+    -> RingBuffer& requires std::copy_constructible<T>
+{
+    // TODO: dumb copy if T is trivially copyable
+
+    clear();
+    reserve(other.size());
+    other.for_each([&](const T& element) { emplace(element); });
+
+    return *this;
+}
+
+/**
+ * @brief Move the data from the given RingBuffer.
+ *
+ * @param other
+ * @return
+ */
+template <std::movable T, class Allocator>
+auto RingBuffer<T, Allocator>::operator=(RingBuffer&& other) -> RingBuffer&
+{
+    // TODO: dumb copy if T is trivially copyable
+
+    clear();
+    reserve(other.size());
+    while (auto elem = other.pop()) {
+        emplace(std::move(*elem));
+    }
+
+    return *this;
 }
 
 /**
@@ -302,6 +371,21 @@ inline void RingBuffer<T, Allocator>::destroy_elements(usize start, usize count)
             m_allocator,
             &m_buffer[(start + i) % m_capacity]);
     }
+}
+
+/**
+ * @brief Reset the RingBuffer to its initial state after a move.
+ *
+ * This method is called on a RingBuffer when it is moved away from. Since the
+ * ownership of the buffer is transferred, the buffer is not deallocated.
+ */
+template <std::movable T, class Allocator>
+void RingBuffer<T, Allocator>::mark_as_moved()
+{
+    m_buffer = nullptr;
+    m_head = 0;
+    m_size = 0;
+    m_capacity = 0;
 }
 
 }

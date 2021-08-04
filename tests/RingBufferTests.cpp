@@ -280,3 +280,83 @@ TEST(RingBufferTests, ForEachMut)
     EXPECT_EQ(4, buffer.pop());
     EXPECT_EQ(6, buffer.pop());
 }
+
+TEST(RingBufferTests, CopyConstructor)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    RingBuffer<int> buffer_copy(buffer);
+
+    EXPECT_EQ(3, buffer_copy.size());
+    EXPECT_EQ(1, buffer_copy.pop());
+    EXPECT_EQ(2, buffer_copy.pop());
+    EXPECT_EQ(3, buffer_copy.pop());
+
+    EXPECT_EQ(3, buffer.size());
+    EXPECT_EQ(1, buffer.pop());
+    EXPECT_EQ(2, buffer.pop());
+    EXPECT_EQ(3, buffer.pop());
+}
+
+TEST(RingBufferTests, CopyAssignment)
+{
+    RingBuffer<int> buffer;
+    RingBuffer<int> buffer_copy;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    buffer_copy = buffer;
+
+    EXPECT_EQ(3, buffer_copy.size());
+    EXPECT_EQ(1, buffer_copy.pop());
+    EXPECT_EQ(2, buffer_copy.pop());
+    EXPECT_EQ(3, buffer_copy.pop());
+
+    EXPECT_EQ(3, buffer.size());
+    EXPECT_EQ(1, buffer.pop());
+    EXPECT_EQ(2, buffer.pop());
+    EXPECT_EQ(3, buffer.pop());
+}
+
+TEST(RingBufferTests, MoveConstructor)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    RingBuffer<int> buffer_moved(std::move(buffer));
+
+    EXPECT_TRUE(buffer.empty());
+
+    EXPECT_EQ(3, buffer_moved.size());
+    EXPECT_EQ(1, buffer_moved.pop());
+    EXPECT_EQ(2, buffer_moved.pop());
+    EXPECT_EQ(3, buffer_moved.pop());
+}
+
+TEST(RingBufferTests, MoveAssignment)
+{
+    RingBuffer<int> buffer;
+    RingBuffer<int> buffer_moved;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    buffer_moved = std::move(buffer);
+
+    EXPECT_TRUE(buffer.empty());
+
+    EXPECT_EQ(3, buffer_moved.size());
+    EXPECT_EQ(1, buffer_moved.pop());
+    EXPECT_EQ(2, buffer_moved.pop());
+    EXPECT_EQ(3, buffer_moved.pop());
+}
