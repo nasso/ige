@@ -41,6 +41,24 @@ TEST(RingBufferTests, EmplaceGrowsWhenFull)
     EXPECT_EQ(2, buffer.capacity());
 }
 
+TEST(RingBufferTests, EmplaceReturnsReferenceToElement)
+{
+    RingBuffer<int> buffer;
+
+    EXPECT_EQ(1, buffer.emplace(1));
+    EXPECT_EQ(2, buffer.emplace(2));
+    EXPECT_EQ(3, buffer.emplace(3));
+}
+
+TEST(RingBufferTests, EmplaceDefaultConstructor)
+{
+    RingBuffer<int> buffer;
+
+    EXPECT_EQ(0, buffer.emplace());
+    EXPECT_EQ(1, buffer.size());
+    EXPECT_EQ(0, buffer.pop());
+}
+
 TEST(RingBufferTests, PopReturnsNullOptWhenEmpty)
 {
     RingBuffer<int> buffer;
@@ -156,4 +174,109 @@ TEST(RingBufferTests, ReserveDoesntGrowCapacityWhenAlreadyBigEnough)
     buffer.reserve(5);
     EXPECT_EQ(0, buffer.size());
     EXPECT_EQ(10, buffer.capacity());
+}
+
+TEST(RingBufferTests, Circular)
+{
+    RingBuffer<int> buffer(5);
+
+    // _____
+    buffer.emplace(1);
+    // 1____
+    buffer.emplace(2);
+    // 12___
+    buffer.emplace(3);
+    // 123__
+    buffer.pop();
+    // _23__
+    buffer.pop();
+    // __3__
+    buffer.emplace(4);
+    // __34_
+    buffer.emplace(5);
+    // __345
+    buffer.emplace(6);
+    // 6_345
+    buffer.emplace(7);
+    // 67345
+
+    EXPECT_EQ(5, buffer.capacity());
+    EXPECT_EQ(5, buffer.size());
+    EXPECT_EQ(3, buffer.pop());
+    EXPECT_EQ(4, buffer.pop());
+    EXPECT_EQ(5, buffer.pop());
+    EXPECT_EQ(6, buffer.pop());
+    EXPECT_EQ(7, buffer.pop());
+}
+
+TEST(RingBufferTests, CircularGrowth)
+{
+    RingBuffer<int> buffer(5);
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+    buffer.pop();
+    buffer.pop();
+    buffer.emplace(4);
+    buffer.emplace(5);
+    buffer.emplace(6);
+    buffer.emplace(7);
+    // 67345
+
+    buffer.emplace(8);
+
+    EXPECT_EQ(6, buffer.size());
+    EXPECT_NE(5, buffer.capacity());
+
+    EXPECT_EQ(3, buffer.pop());
+    EXPECT_EQ(4, buffer.pop());
+    EXPECT_EQ(5, buffer.pop());
+    EXPECT_EQ(6, buffer.pop());
+    EXPECT_EQ(7, buffer.pop());
+    EXPECT_EQ(8, buffer.pop());
+}
+
+TEST(RingBufferTests, Empty)
+{
+    RingBuffer<int> buffer;
+
+    EXPECT_TRUE(buffer.empty());
+    buffer.emplace(1);
+    EXPECT_FALSE(buffer.empty());
+    buffer.pop();
+    EXPECT_TRUE(buffer.empty());
+}
+
+TEST(RingBufferTests, ForEach)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    int i = 0;
+
+    buffer.for_each([&](const int& x) {
+        i++;
+        EXPECT_EQ(i, x);
+    });
+
+    EXPECT_EQ(3, i);
+}
+
+TEST(RingBufferTests, ForEachMut)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    buffer.for_each_mut([](int& x) { x *= 2; });
+
+    EXPECT_EQ(2, buffer.pop());
+    EXPECT_EQ(4, buffer.pop());
+    EXPECT_EQ(6, buffer.pop());
 }

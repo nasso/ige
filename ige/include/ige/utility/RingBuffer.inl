@@ -248,7 +248,8 @@ inline usize RingBuffer<T, Allocator>::size() const
 /**
  * @brief Apply a function to each element in the RingBuffer.
  *
- * This is the mutable version of the function @a for_each.
+ * The function is invoked with a mutable reference to the element. If you don't
+ * need a mutable reference, use @a for_each instead.
  *
  * @param f The function to apply to each element.
  */
@@ -257,14 +258,17 @@ template <std::invocable<T&> F>
 void RingBuffer<T, Allocator>::for_each_mut(F&& f)
 {
     for (usize i = 0; i < m_size; ++i) {
-        std::invoke(f, m_buffer[(m_head + i) % m_capacity]);
+        T& element = m_buffer[(m_head + i) % m_capacity];
+
+        std::invoke(f, element);
     }
 }
 
 /**
  * @brief Apply a function to each element in the RingBuffer.
  *
- * If you need a mutable version of this function, use @a for_each_mut.
+ * The function is invoked with a constant reference to the element. If you need
+ * a mutable reference, use @a for_each_mut.
  *
  * @param f The function to apply to each element.
  */
@@ -273,7 +277,9 @@ template <std::invocable<const T&> F>
 void RingBuffer<T, Allocator>::for_each(F&& f) const
 {
     for (usize i = 0; i < m_size; ++i) {
-        std::invoke(f, m_buffer[(m_head + i) % m_capacity]);
+        const T& element = m_buffer[(m_head + i) % m_capacity];
+
+        std::invoke(f, element);
     }
 }
 
