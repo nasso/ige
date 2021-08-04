@@ -67,16 +67,13 @@ public:
 
     RingBuffer(usize capacity, const Allocator& allocator = Allocator());
 
-    RingBuffer(const RingBuffer&) requires std::copy_constructible<T>;
-
     RingBuffer(RingBuffer&&);
 
     ~RingBuffer();
 
-    RingBuffer&
-    operator=(const RingBuffer&) requires std::copy_constructible<T>;
-
     RingBuffer& operator=(RingBuffer&&);
+
+    RingBuffer clone() const requires std::copy_constructible<T>;
 
     template <class... Args>
         requires std::constructible_from<T, Args...>
@@ -106,7 +103,6 @@ public:
 
 private:
     inline void destroy_elements(usize start, usize count);
-
     void mark_as_moved();
 
     Allocator m_allocator;

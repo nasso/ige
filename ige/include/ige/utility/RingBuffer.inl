@@ -38,20 +38,6 @@ RingBuffer<T, Allocator>::RingBuffer(usize capacity, const Allocator& allocator)
 }
 
 /**
- * @brief Construct a RingBuffer copying the data from the given RingBuffer.
- *
- * @param other The RingBuffer to copy.
- */
-template <std::movable T, class Allocator>
-RingBuffer<T, Allocator>::RingBuffer(
-    const RingBuffer& other) requires std::copy_constructible<T>
-    : RingBuffer(AllocatorTraits::select_on_container_copy_construction(
-          other.m_allocator))
-{
-    *this = other;
-}
-
-/**
  * @brief Construct a RingBuffer moving the data from the given RingBuffer.
  *
  * @param other The RingBuffer to move.
@@ -79,25 +65,6 @@ RingBuffer<T, Allocator>::~RingBuffer()
 }
 
 /**
- * @brief Overwrite all elements with a copy of the given RingBuffer's data.
- *
- * @param other The RingBuffer to copy.
- * @return A reference to this RingBuffer.
- */
-template <std::movable T, class Allocator>
-auto RingBuffer<T, Allocator>::operator=(const RingBuffer& other)
-    -> RingBuffer& requires std::copy_constructible<T>
-{
-    // TODO: dumb copy if T is trivially copyable
-
-    clear();
-    reserve(other.size());
-    other.for_each([&](const T& element) { emplace(element); });
-
-    return *this;
-}
-
-/**
  * @brief Move the data from the given RingBuffer.
  *
  * @param other
@@ -115,6 +82,24 @@ auto RingBuffer<T, Allocator>::operator=(RingBuffer&& other) -> RingBuffer&
     }
 
     return *this;
+}
+
+/**
+ * @brief Create a copy of the RingBuffer.
+ *
+ * @return A copy of this RingBuffer.
+ */
+template <std::movable T, class Allocator>
+auto RingBuffer<T, Allocator>::clone() const
+    -> RingBuffer requires std::copy_constructible<T>
+{
+    // TODO: dumb copy if T is trivially copyable
+
+    RingBuffer copy(m_capacity, m_allocator);
+
+    for_each([&](const T& element) { copy.emplace(element); });
+
+    return copy;
 }
 
 /**
