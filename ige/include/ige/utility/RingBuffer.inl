@@ -1,5 +1,6 @@
 #include "RingBuffer.hpp"
 #include "ige/core/Types.hpp"
+#include "ige/utility/Assert.hpp"
 #include "ige/utility/CallOnExit.hpp"
 #include <algorithm>
 #include <concepts>
@@ -297,6 +298,38 @@ template <std::movable T, class Allocator>
 inline usize RingBuffer<T, Allocator>::size() const
 {
     return m_size;
+}
+
+/**
+ * @brief Get the element at the given index.
+ *
+ * The behaviour of this function is undefined if the index is out of bounds.
+ *
+ * @param index The index of the element to get.
+ * @return A mutable reference to the element at the given index.
+ */
+template <std::movable T, class Allocator>
+inline T& RingBuffer<T, Allocator>::operator[](usize index)
+{
+    IGE_ASSERT(index < m_size, "Index out of bounds");
+
+    return m_buffer[(m_head + index) % m_capacity];
+}
+
+/**
+ * @brief Get the element at the given index.
+ *
+ * The behaviour of this function is undefined if the index is out of bounds.
+ *
+ * @param index The index of the element to get.
+ * @return A constant reference to the element at the given index.
+ */
+template <std::movable T, class Allocator>
+inline const T& RingBuffer<T, Allocator>::operator[](usize index) const
+{
+    IGE_ASSERT(index < m_size, "Index out of bounds");
+
+    return m_buffer[(m_head + index) % m_capacity];
 }
 
 /**

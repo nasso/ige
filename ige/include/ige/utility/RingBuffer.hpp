@@ -95,6 +95,10 @@ public:
 
     inline usize size() const;
 
+    inline T& operator[](usize);
+
+    inline const T& operator[](usize) const;
+
     template <std::invocable<T&> F>
     void for_each_mut(F&& f);
 

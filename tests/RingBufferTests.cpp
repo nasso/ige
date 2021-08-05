@@ -338,3 +338,31 @@ TEST(RingBufferTests, Clone)
     EXPECT_EQ(2, buffer.pop());
     EXPECT_EQ(3, buffer.pop());
 }
+
+TEST(RingBufferTests, IndexOperator)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    EXPECT_EQ(1, buffer[0]);
+    EXPECT_EQ(2, buffer[1]);
+    EXPECT_EQ(3, buffer[2]);
+}
+
+TEST(RingBufferTests, ConstIndexOperator)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    const auto& buffer_ref = buffer;
+
+    EXPECT_EQ(1, buffer_ref[0]);
+    EXPECT_EQ(2, buffer_ref[1]);
+    EXPECT_EQ(3, buffer_ref[2]);
+}
