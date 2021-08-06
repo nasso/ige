@@ -1,8 +1,8 @@
 #ifndef A2343F8A_C627_4776_814C_859306346CD2
 #define A2343F8A_C627_4776_814C_859306346CD2
 
-#include "ige/core/Platform.hpp"
 #include "ige/ecs/World.hpp"
+#include "ige/utility/Platform.hpp"
 
 namespace ige::graphics {
 

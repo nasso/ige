@@ -1,9 +1,8 @@
 #ifndef FFC8B3DE_EA2F_4AE8_8911_6993DB10A089
 #define FFC8B3DE_EA2F_4AE8_8911_6993DB10A089
 
-#include <version>
-
 #ifndef __INTELLISENSE__
+    #include <version>
 
     // Compiler feature testing
     #if __cplusplus < 201703L && (!defined(_MSVC_LANG) || _MSVC_LANG < 201703L)
@@ -18,7 +17,6 @@
     #if __cpp_lib_span < 202002L
         #error "Standard library does not support std::span"
     #endif
-
 #endif
 
 // platform detection

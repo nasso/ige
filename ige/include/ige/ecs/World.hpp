@@ -1,9 +1,9 @@
 #ifndef C01AD257_208F_403B_BE58_A9DC00BD4D9B
 #define C01AD257_208F_403B_BE58_A9DC00BD4D9B
 
-#include "ige/core/Platform.hpp"
 #include "ige/ecs/Component.hpp"
 #include "ige/ecs/Entity.hpp"
+#include "ige/utility/Platform.hpp"
 #include <concepts>
 
 namespace ige::ecs {

@@ -1,7 +1,7 @@
 #include "RingBuffer.hpp"
-#include "ige/core/Types.hpp"
 #include "ige/utility/Assert.hpp"
 #include "ige/utility/CallOnExit.hpp"
+#include "ige/utility/Types.hpp"
 #include <algorithm>
 #include <concepts>
 #include <functional>

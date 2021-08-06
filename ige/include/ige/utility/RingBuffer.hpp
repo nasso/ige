@@ -1,7 +1,7 @@
 #ifndef A6B8546A_B04A_4D35_A638_497082B9F07A
 #define A6B8546A_B04A_4D35_A638_497082B9F07A
 
-#include "ige/core/Types.hpp"
+#include "ige/utility/Types.hpp"
 #include <concepts>
 #include <iterator>
 #include <memory>

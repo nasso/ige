@@ -1,7 +1,7 @@
 #ifndef A8E6AC32_5F53_4DA0_89E8_D7F4492032B0
 #define A8E6AC32_5F53_4DA0_89E8_D7F4492032B0
 
-#include "ige/core/Types.hpp"
+#include "ige/utility/Types.hpp"
 
 namespace ige::ecs {
 
