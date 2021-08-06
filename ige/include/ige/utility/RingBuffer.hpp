@@ -3,8 +3,10 @@
 
 #include "ige/core/Types.hpp"
 #include <concepts>
+#include <iterator>
 #include <memory>
 #include <optional>
+#include <type_traits>
 
 namespace ige::utility {
 
@@ -63,15 +65,79 @@ namespace ige::utility {
 template <std::movable T, class Allocator = std::allocator<T>>
 class RingBuffer {
 public:
+    /**
+     * @brief Iterator for RingBuffer.
+     */
+    template <bool Const>
+    class Iterator {
+        using Buffer = std::conditional_t<Const, const RingBuffer, RingBuffer>;
+        using BufferRef = std::add_lvalue_reference_t<Buffer>;
+        using BufferPtr = std::add_pointer_t<Buffer>;
+
+    public:
+        friend Iterator<!Const>;
+
+        using iterator_category = std::random_access_iterator_tag;
+        using difference_type = isize;
+        using value_type = std::conditional_t<Const, const T, T>;
+        using pointer = value_type*;
+        using reference = value_type&;
+
+        // (iterator concepts)
+        // input:
+
+        Iterator() = default;
+        Iterator(BufferRef, usize);
+
+        reference operator*() const;
+        pointer operator->() const;
+
+        // forward:
+
+        Iterator& operator++();
+        Iterator operator++(int);
+
+        template <bool RhsConst>
+        bool operator==(const Iterator<RhsConst>&) const;
+
+        // bidirectional:
+
+        Iterator& operator--();
+        Iterator operator--(int);
+
+        // random access:
+
+        bool operator<(const Iterator&) const;
+        bool operator>(const Iterator&) const;
+        bool operator<=(const Iterator&) const;
+        bool operator>=(const Iterator&) const;
+
+        template <bool RhsConst>
+        difference_type operator-(const Iterator<RhsConst>&) const;
+
+        Iterator& operator+=(difference_type);
+        Iterator operator+(difference_type) const;
+        friend Iterator operator+(difference_type, const Iterator&);
+
+        Iterator& operator-=(difference_type);
+        Iterator operator-(difference_type) const;
+        friend Iterator operator-(difference_type, const Iterator&);
+
+        reference operator[](difference_type) const;
+
+    private:
+        BufferPtr m_buffer = nullptr;
+        usize m_index;
+    };
+
+    using MutIterator = Iterator<false>;
+    using ConstIterator = Iterator<true>;
+
     RingBuffer(const Allocator& = Allocator());
-
     RingBuffer(usize capacity, const Allocator& allocator = Allocator());
-
     RingBuffer(RingBuffer&&);
-
-    ~RingBuffer();
-
     RingBuffer& operator=(RingBuffer&&);
+    ~RingBuffer();
 
     RingBuffer clone() const requires std::copy_constructible<T>;
 
@@ -82,22 +148,24 @@ public:
     std::optional<T> pop();
 
     inline T* peek_mut();
-
     inline const T* peek() const;
 
     void clear();
-
     void reserve(usize new_capacity);
 
     inline bool empty() const;
-
     inline usize capacity() const;
-
     inline usize size() const;
 
     inline T& operator[](usize);
-
     inline const T& operator[](usize) const;
+
+    inline MutIterator begin();
+    inline ConstIterator begin() const;
+    inline ConstIterator cbegin() const;
+    inline MutIterator end();
+    inline ConstIterator end() const;
+    inline ConstIterator cend() const;
 
     template <std::invocable<T&> F>
     void for_each_mut(F&& f);

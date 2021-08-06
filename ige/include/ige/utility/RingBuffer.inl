@@ -333,6 +333,72 @@ inline const T& RingBuffer<T, Allocator>::operator[](usize index) const
 }
 
 /**
+ * @brief Get a mutable iterator to the first element in the RingBuffer.
+ *
+ * @return A mutable iterator to the first element in the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::begin() -> MutIterator
+{
+    return MutIterator(*this, 0);
+}
+
+/**
+ * @brief Get a constant iterator to the first element in the RingBuffer.
+ *
+ * @return A constant iterator to the first element in the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::begin() const -> ConstIterator
+{
+    return ConstIterator(*this, 0);
+}
+
+/**
+ * @brief Get a constant iterator to the first element in the RingBuffer.
+ *
+ * @return A constant iterator to the first element in the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::cbegin() const -> ConstIterator
+{
+    return ConstIterator(*this, 0);
+}
+
+/**
+ * @brief Get a mutable iterator to the end of the RingBuffer.
+ *
+ * @return A mutable iterator to the end of the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::end() -> MutIterator
+{
+    return MutIterator(*this, m_size);
+}
+
+/**
+ * @brief Get a constant iterator to the end of the RingBuffer.
+ *
+ * @return A constant iterator to the end of the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::end() const -> ConstIterator
+{
+    return ConstIterator(*this, m_size);
+}
+
+/**
+ * @brief Get a constant iterator to the end of the RingBuffer.
+ *
+ * @return A constant iterator to the end of the RingBuffer.
+ */
+template <std::movable T, class Allocator>
+inline auto RingBuffer<T, Allocator>::cend() const -> ConstIterator
+{
+    return ConstIterator(*this, m_size);
+}
+
+/**
  * @brief Apply a function to each element in the RingBuffer.
  *
  * The function is invoked with a mutable reference to the element. If you don't
@@ -404,6 +470,180 @@ void RingBuffer<T, Allocator>::mark_as_moved()
     m_head = 0;
     m_size = 0;
     m_capacity = 0;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+RingBuffer<T, Allocator>::Iterator<Const>::Iterator(
+    BufferRef buffer,
+    usize index)
+    : m_buffer(&buffer)
+    , m_index(index)
+{
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator*() const -> reference
+{
+    return (*m_buffer)[m_index];
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator->() const -> pointer
+{
+    return &(*m_buffer)[m_index];
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator++() -> Iterator&
+{
+    ++m_index;
+    return *this;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator++(int) -> Iterator
+{
+    Iterator tmp(*this);
+
+    ++m_index;
+    return tmp;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+template <bool RhsConst>
+bool RingBuffer<T, Allocator>::Iterator<Const>::operator==(
+    const Iterator<RhsConst>& rhs) const
+{
+    return m_buffer == rhs.m_buffer && m_index == rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator--() -> Iterator&
+{
+    --m_index;
+    return *this;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator--(int) -> Iterator
+{
+    Iterator tmp(*this);
+
+    --m_index;
+    return tmp;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+bool RingBuffer<T, Allocator>::Iterator<Const>::operator<(
+    const Iterator& rhs) const
+{
+    return m_index < rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+bool RingBuffer<T, Allocator>::Iterator<Const>::operator>(
+    const Iterator& rhs) const
+{
+    return m_index > rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+bool RingBuffer<T, Allocator>::Iterator<Const>::operator<=(
+    const Iterator& rhs) const
+{
+    return m_index <= rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+bool RingBuffer<T, Allocator>::Iterator<Const>::operator>=(
+    const Iterator& rhs) const
+{
+    return m_index >= rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+template <bool RhsConst>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator-(
+    const Iterator<RhsConst>& rhs) const -> difference_type
+{
+    return m_index - rhs.m_index;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator+=(difference_type n)
+    -> Iterator&
+{
+    m_index += n;
+    return *this;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator+(
+    difference_type n) const -> Iterator
+{
+    return Iterator(*m_buffer, m_index + n);
+}
+
+template <std::movable T, class Allocator, bool Const>
+RingBuffer<T, Allocator>::template Iterator<Const> operator+(
+    typename RingBuffer<T, Allocator>::template Iterator<Const>::difference_type
+        n,
+    const typename RingBuffer<T, Allocator>::template Iterator<Const>& rhs)
+{
+    return RingBuffer<T, Allocator>::Iterator<Const>(
+        *rhs.m_buffer,
+        rhs.m_index + n);
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator-=(difference_type n)
+    -> Iterator&
+{
+    m_index -= n;
+    return *this;
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator-(
+    difference_type n) const -> Iterator
+{
+    return Iterator(*m_buffer, m_index - n);
+}
+
+template <std::movable T, class Allocator, bool Const>
+RingBuffer<T, Allocator>::template Iterator<Const> operator-(
+    typename RingBuffer<T, Allocator>::template Iterator<Const>::difference_type
+        n,
+    const typename RingBuffer<T, Allocator>::template Iterator<Const>& rhs)
+{
+    return RingBuffer<T, Allocator>::Iterator<Const>(
+        *rhs.m_buffer,
+        rhs.m_index - n);
+}
+
+template <std::movable T, class Allocator>
+template <bool Const>
+auto RingBuffer<T, Allocator>::Iterator<Const>::operator[](
+    difference_type n) const -> reference
+{
+    return (*m_buffer)[m_index + n];
 }
 
 }

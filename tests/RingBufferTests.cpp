@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <ige/utility/RingBuffer.hpp>
+#include <ranges>
 
 using ige::utility::RingBuffer;
 
@@ -365,4 +367,102 @@ TEST(RingBufferTests, ConstIndexOperator)
     EXPECT_EQ(1, buffer_ref[0]);
     EXPECT_EQ(2, buffer_ref[1]);
     EXPECT_EQ(3, buffer_ref[2]);
+}
+
+TEST(RingBufferTests, RangeConcepts)
+{
+    static_assert(std::ranges::sized_range<RingBuffer<int>>);
+    static_assert(std::ranges::range<RingBuffer<int>>);
+    static_assert(std::ranges::input_range<RingBuffer<int>>);
+    static_assert(std::ranges::forward_range<RingBuffer<int>>);
+    static_assert(std::ranges::bidirectional_range<RingBuffer<int>>);
+    static_assert(std::ranges::random_access_range<RingBuffer<int>>);
+}
+
+TEST(RingBufferTests, Range)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    int i = 0;
+    for (auto& x : buffer) {
+        i++;
+        EXPECT_EQ(x, i);
+    }
+}
+
+TEST(RingBufferTests, ConstRange)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    const auto& const_buffer = buffer;
+
+    int i = 0;
+    for (const auto& x : const_buffer) {
+        i++;
+        EXPECT_EQ(x, i);
+    }
+}
+
+TEST(RingBufferTests, BidirectionalRange)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+
+    int i = 3;
+    for (const auto& x : buffer | std::views::reverse) {
+        EXPECT_EQ(i, x);
+        i--;
+    }
+}
+
+TEST(RingBufferTests, RangeSort)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(3);
+    buffer.emplace(2);
+    buffer.emplace(1);
+
+    std::ranges::sort(buffer);
+
+    EXPECT_EQ(1, buffer[0]);
+    EXPECT_EQ(2, buffer[1]);
+    EXPECT_EQ(3, buffer[2]);
+}
+
+TEST(RingBufferTests, CompareIteratorsOfDifferentConstness)
+{
+    RingBuffer<int> buffer;
+
+    auto it = buffer.begin();
+    auto it_const = buffer.cbegin();
+
+    EXPECT_TRUE(it == it_const);
+}
+
+TEST(RingBufferTests, DistanceBetweenIteratorsOfDifferentConstness)
+{
+    RingBuffer<int> buffer;
+
+    buffer.emplace(1);
+    buffer.emplace(2);
+    buffer.emplace(3);
+    buffer.emplace(4);
+    buffer.emplace(5);
+
+    auto begin = buffer.begin();
+    auto cend = buffer.cend();
+
+    EXPECT_EQ(5, cend - begin);
 }
