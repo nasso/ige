@@ -20,6 +20,15 @@ EventReader<E>::EventReader(usize id)
 }
 
 /**
+ * @brief Destroy the EventReader and unregister it from the EventChannel.
+ */
+template <Event E>
+EventReader<E>::~EventReader()
+{
+    // TODO: send a message to the channel that this reader is being destroyed
+}
+
+/**
  * @brief Push an event to the channel.
  *
  * The event is constructed in place, by forwarding all arguments to the

@@ -27,10 +27,15 @@ class EventReader {
 public:
     friend EventChannel<E>;
 
-    EventReader(const EventReader&) = default;
-    EventReader& operator=(const EventReader&) = default;
+    // movable
     EventReader(EventReader&&) = default;
     EventReader& operator=(EventReader&&) = default;
+
+    // not copyable
+    EventReader(const EventReader&) = delete;
+    EventReader& operator=(const EventReader&) = delete;
+
+    ~EventReader();
 
 private:
     EventReader(usize id);
