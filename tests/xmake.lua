@@ -8,7 +8,9 @@ target("tests")
     add_packages("gtest")
 
     if is_plat("windows") then
+        add_defines("_CRT_SECURE_NO_WARNINGS")
         add_ldflags("/subsystem:console")
+        add_cxxflags("/Zc:__cplusplus")
     end
 
     add_files("**.cpp")

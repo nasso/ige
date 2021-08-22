@@ -411,6 +411,7 @@ TEST(RingBufferTests, ConstRange)
     }
 }
 
+#ifdef __cpp_lib_ranges
 TEST(RingBufferTests, BidirectionalRange)
 {
     RingBuffer<int> buffer;
@@ -440,6 +441,7 @@ TEST(RingBufferTests, RangeSort)
     EXPECT_EQ(2, buffer[1]);
     EXPECT_EQ(3, buffer[2]);
 }
+#endif
 
 TEST(RingBufferTests, CompareIteratorsOfDifferentConstness)
 {
