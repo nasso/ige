@@ -7,5 +7,6 @@
 #include "utility/RingBuffer.hpp"
 #include "utility/Stringify.hpp"
 #include "utility/Types.hpp"
+#include "utility/mpsc.hpp"
 
 #endif /* C93D553A_07D0_464D_9210_199172E2FB83 */
