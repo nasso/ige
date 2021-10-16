@@ -15,13 +15,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/cache/clang-format
-          key: ${{ runner.os }}-clang-format-12.0.0
+          key: ${{ runner.os }}-clang-format-13.0.0
 
       - name: Download & Extract LLVM
         if: steps.cache-clang-format.outputs.cache-hit != 'true'
         run: |
           wget --progress=bar:force:noscroll -q --show-progress -O /tmp/llvm.tar.xz \
-            https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang+llvm-12.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
+            https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-20.04.tar.xz
           mkdir -p /tmp/llvm
           tar -xf /tmp/llvm.tar.xz -C /tmp/llvm --strip-components=1
           mkdir -p ~/cache
@@ -32,5 +32,5 @@ jobs:
 
       - name: Check for clang-format errors
         run: >
-          find -type f \( -iname "*.cpp" -o -iname "*.hpp" \)
-          -exec ~/cache/clang-format --verbose --Werror --style=file --dry-run {} +
+          find -type f \( -iname "*.cpp" -o -iname "*.hpp" \) -exec
+          ~/cache/clang-format --verbose --Werror --style=file --dry-run {} +
