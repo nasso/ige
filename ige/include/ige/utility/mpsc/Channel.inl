@@ -32,7 +32,15 @@ void Sender<T>::emplace(Args&&... args)
 template <std::movable T>
 void Sender<T>::send(T&& msg)
 {
-    emplace(std::forward<T>(msg));
+    m_queue.lock()->push(msg);
+}
+
+template <std::movable T>
+void Sender<T>::send(const T& msg)
+{
+    static_assert(std::copyable<T>, "T cannot be copied. Use std::move.");
+
+    m_queue.lock()->push(msg);
 }
 
 /**

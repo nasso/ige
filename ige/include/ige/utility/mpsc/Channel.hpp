@@ -26,6 +26,7 @@ public:
     void emplace(Args&&... args);
 
     void send(T&&);
+    void send(const T&);
 
     bool closed() const;
 

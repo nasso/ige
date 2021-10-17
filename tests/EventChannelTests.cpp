@@ -126,3 +126,39 @@ TEST(EventChannelTests, MultipleReaders)
     EXPECT_EQ(expected, collect(events1));
     EXPECT_EQ(expected, collect(events2));
 }
+
+TEST(EventChannelTests, AutomaticReaderUnsubscription)
+{
+    EventChannel<int> channel;
+
+    {
+        auto reader = channel.create_reader();
+
+        channel.push(1);
+        channel.push(2);
+
+        std::vector<int> expected { 1, 2 };
+        EXPECT_EQ(expected, collect(channel.read(reader)));
+
+        EXPECT_EQ(1, channel.reader_count());
+    }
+
+    channel.push(3);
+    channel.push(4);
+
+    EXPECT_EQ(0, channel.reader_count());
+
+    {
+        auto reader = channel.create_reader();
+
+        channel.push(5);
+        channel.push(6);
+
+        std::vector<int> expected { 5, 6 };
+        EXPECT_EQ(expected, collect(channel.read(reader)));
+
+        EXPECT_EQ(1, channel.reader_count());
+    }
+
+    EXPECT_EQ(0, channel.reader_count());
+}

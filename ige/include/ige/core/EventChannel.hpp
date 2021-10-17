@@ -3,6 +3,7 @@
 
 #include "ige/utility/RingBuffer.hpp"
 #include "ige/utility/Types.hpp"
+#include "ige/utility/mpsc/Channel.hpp"
 #include <concepts>
 #include <optional>
 #include <span>
@@ -38,9 +39,10 @@ public:
     ~EventReader();
 
 private:
-    EventReader(usize id);
+    EventReader(usize id, mpsc::Sender<usize> death_notifier);
 
     usize m_id = 0;
+    mpsc::Sender<usize> m_death_notifier;
 };
 
 /**
@@ -70,10 +72,13 @@ public:
     usize reader_count() const;
 
 private:
+    void free_dead_readers() const;
+
     utility::RingBuffer<E> m_buffer;
-    std::vector<usize> m_free_readers;
-    mutable std::vector<usize> m_readers_last_event;
     usize m_last_event_id = 0;
+    mutable std::vector<usize> m_free_readers;
+    mutable std::vector<usize> m_readers_last_event;
+    mutable mpsc::Receiver<usize> m_death_messages;
 };
 
 }

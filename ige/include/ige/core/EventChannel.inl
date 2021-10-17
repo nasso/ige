@@ -14,8 +14,9 @@ namespace ige::core {
  *              EventReaders.
  */
 template <Event E>
-EventReader<E>::EventReader(usize id)
+EventReader<E>::EventReader(usize id, mpsc::Sender<usize> death_notifier)
     : m_id(id)
+    , m_death_notifier(death_notifier)
 {
 }
 
@@ -25,7 +26,7 @@ EventReader<E>::EventReader(usize id)
 template <Event E>
 EventReader<E>::~EventReader()
 {
-    // TODO: send a message to the channel that this reader is being destroyed
+    m_death_notifier.send(m_id);
 }
 
 /**
@@ -42,6 +43,8 @@ template <class... Args>
 void EventChannel<E>::emplace(Args&&... args)
 {
     if (reader_count() != 0) {
+        free_dead_readers();
+
         m_last_event_id++;
         m_buffer.emplace(std::forward<Args>(args)...);
     }
@@ -73,7 +76,7 @@ auto EventChannel<E>::create_reader() -> Reader
         auto id = m_readers_last_event.size();
 
         m_readers_last_event.push_back(m_last_event_id);
-        return Reader(id);
+        return Reader(id, m_death_messages.make_sender());
     } else {
         // use a free reader
         auto id = m_free_readers.back();
@@ -81,7 +84,7 @@ auto EventChannel<E>::create_reader() -> Reader
 
         m_readers_last_event[id] = m_last_event_id;
 
-        return Reader(id);
+        return Reader(id, m_death_messages.make_sender());
     }
 }
 
@@ -127,7 +130,16 @@ decltype(auto) EventChannel<E>::read(Reader& reader) const
 template <Event E>
 usize EventChannel<E>::reader_count() const
 {
+    free_dead_readers();
     return m_readers_last_event.size() - m_free_readers.size();
+}
+
+template <Event E>
+void EventChannel<E>::free_dead_readers() const
+{
+    while (auto id = m_death_messages.try_receive()) {
+        m_free_readers.push_back(*id);
+    }
 }
 
 }
