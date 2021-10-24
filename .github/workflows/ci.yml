@@ -28,6 +28,7 @@ jobs:
   build-ubuntu:
     strategy:
       matrix:
+        toolchain: [gcc, clang]
         arch: [x86_64]
         mode: [debug, releasedbg]
 
@@ -72,7 +73,9 @@ jobs:
 
       # Configure
       - name: Configure
-        run: xmake f -a ${{ matrix.arch }} -m ${{ matrix.mode }} -yv
+        run: >
+          xmake f --toolchain=${{ matrix.toolchain }} -a ${{ matrix.arch }} -m
+          ${{ matrix.mode }} -yv
 
       # Build
       - name: Build
@@ -150,6 +153,7 @@ jobs:
 
     strategy:
       matrix:
+        toolchain: [msvc, clang]
         arch: [x64]
         mode: [debug, releasedbg]
 
@@ -186,7 +190,9 @@ jobs:
 
       # Configure
       - name: Configure
-        run: xmake f -a ${{ matrix.arch }} -m ${{ matrix.mode }} -yv
+        run: >
+          xmake f --toolchain=${{ matrix.toolchain }} -a ${{ matrix.arch }} -m
+          ${{ matrix.mode }} -yv
 
       # Build
       - name: Build
