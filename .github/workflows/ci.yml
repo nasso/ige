@@ -25,62 +25,6 @@ jobs:
               "**/.clang-format"
             ]
 
-  build-ubuntu:
-    strategy:
-      matrix:
-        toolchain: [gcc, clang]
-        arch: [x86_64]
-        mode: [debug, releasedbg]
-
-    needs: pre-job
-    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-
-      # Force xmake to a specific folder (for cache)
-      - name: Set xmake env
-        run: >
-          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >>
-          $GITHUB_ENV
-
-      # Install xmake
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-
-      # Update xmake repository (in order to have the file that will be cached)
-      - name: Update xmake repository
-        run: xmake repo --update -v
-
-      # Fetch xmake dephash
-      - name: Retrieve dependencies hash
-        id: dep_hash
-        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
-
-      # Cache xmake dependencies
-      - name: Retrieve cached xmake dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-          key: >
-            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
-            steps.dep_hash.outputs.hash }}
-
-      # Configure
-      - name: Configure
-        run: >
-          xmake f --toolchain=${{ matrix.toolchain }} -a ${{ matrix.arch }} -m
-          ${{ matrix.mode }} -yv
-
-      # Build
-      - name: Build
-        run: xmake -v
-
-      # Run tests
-      - name: Test
-        run: xmake run tests
-
   build-epitest:
     strategy:
       matrix:
