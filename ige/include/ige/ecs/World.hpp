@@ -5,6 +5,7 @@
 #include "ige/ecs/Entity.hpp"
 #include "ige/utility/Platform.hpp"
 #include <concepts>
+#include <functional>
 
 namespace ige::ecs {
 
@@ -28,8 +29,6 @@ concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
  */
 class IGE_API World {
 public:
-    void update();
-
     template <Component... Cs>
     Entity spawn(Cs&&...);
 
@@ -41,6 +40,9 @@ public:
 
     template <Component C>
     C* get_mut() const;
+
+    template <Component... Cs, std::invocable<const Cs&...> F>
+    void for_each(F&& f) const;
 };
 
 }

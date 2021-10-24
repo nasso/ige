@@ -11,8 +11,16 @@ namespace ige::graphics {
  */
 struct Window {
     std::string title;
-    u32 width = 0;
-    u32 height = 0;
+    u32 width;
+    u32 height;
+    bool closed = false;
+
+    Window(std::string title, u32 width, u32 height)
+        : title(title)
+        , width(width)
+        , height(height)
+    {
+    }
 };
 
 }

@@ -2,7 +2,7 @@
 Language: Cpp
 BasedOnStyle: WebKit
 ColumnLimit: 80
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: All
 AlwaysBreakTemplateDeclarations: Yes
 IndentRequires: true
 AlignAfterOpenBracket: AlwaysBreak

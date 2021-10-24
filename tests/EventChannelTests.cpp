@@ -29,10 +29,7 @@ std::vector<std::ranges::range_value_t<R>> collect(R&& range)
     return result;
 }
 
-TEST(EventChannelTests, DefaultConstructor)
-{
-    EventChannel<int> channel;
-}
+TEST(EventChannelTests, DefaultConstructor) { EventChannel<int> channel; }
 
 TEST(EventChannelTests, Push)
 {

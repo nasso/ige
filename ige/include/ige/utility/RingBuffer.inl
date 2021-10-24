@@ -600,7 +600,7 @@ auto RingBuffer<T, Allocator>::Iterator<Const>::operator+(
 }
 
 template <std::movable T, class Allocator, bool Const>
-RingBuffer<T, Allocator>::template Iterator<Const> operator+(
+typename RingBuffer<T, Allocator>::template Iterator<Const> operator+(
     typename RingBuffer<T, Allocator>::template Iterator<Const>::difference_type
         n,
     const typename RingBuffer<T, Allocator>::template Iterator<Const>& rhs)
@@ -628,7 +628,7 @@ auto RingBuffer<T, Allocator>::Iterator<Const>::operator-(
 }
 
 template <std::movable T, class Allocator, bool Const>
-RingBuffer<T, Allocator>::template Iterator<Const> operator-(
+typename RingBuffer<T, Allocator>::template Iterator<Const> operator-(
     typename RingBuffer<T, Allocator>::template Iterator<Const>::difference_type
         n,
     const typename RingBuffer<T, Allocator>::template Iterator<Const>& rhs)

@@ -1,4 +1,5 @@
 #include "World.hpp"
+#include <functional>
 
 namespace ige::ecs {
 
@@ -63,6 +64,12 @@ C* World::get_mut() const
 {
     // TODO
     return nullptr;
+}
+
+template <Component... Cs, std::invocable<const Cs&...> F>
+void World::for_each(F&& f) const
+{
+    // TODO
 }
 
 }

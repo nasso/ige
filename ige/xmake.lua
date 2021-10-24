@@ -23,7 +23,7 @@ target("ige")
         add_defines("IGE_DEBUG")
     end
 
-    if is_plat("windows") then
+    if is_plat("windows") and get_config("toolchain") ~= "clang" then
         add_defines("_CRT_SECURE_NO_WARNINGS")
         add_cxxflags("/Zc:__cplusplus")
     end

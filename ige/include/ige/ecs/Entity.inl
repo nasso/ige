@@ -7,9 +7,6 @@ Entity::Entity(EntityId id)
 {
 }
 
-Entity::operator EntityId() const
-{
-    return m_id;
-}
+Entity::operator EntityId() const { return m_id; }
 
 }
