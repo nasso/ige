@@ -36,10 +36,6 @@ jobs:
     if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-latest
 
-    env:
-      CC: gcc-10
-      CXX: g++-10
-
     steps:
       - uses: actions/checkout@v2
 
