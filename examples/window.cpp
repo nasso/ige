@@ -1,6 +1,8 @@
 #include <ige.hpp>
+#include <iostream>
 #include <utility>
 
+using ige::ecs::Changed;
 using ige::ecs::World;
 using ige::graphics::Window;
 using ige::graphics::WindowPlugin;
@@ -20,13 +22,19 @@ int main()
     // "spawn" is used to create a new entity.
     world.spawn(Window("Example Window", 640, 480));
 
+    bool running = true;
+
+    // "system" creates a system to be run on entities matching a query.
+    // Here, we create a system to detect if the window has been closed.
+    // If the window is closed, the program will exit.
+    world.system<Changed<const Window>>([&](auto& window) {
+        if (window.closed) {
+            running = false;
+        }
+    });
+
     // This is the main game loop.
-    for (bool running = true; running;) {
-        // "for_each" is used to iterate over all entities with the Window
-        // component.
-        world.for_each<Window>([&](const Window& window) {
-            // break if the window was closed
-            running &= !window.closed;
-        });
+    while (running) {
+        world.update();
     }
 }

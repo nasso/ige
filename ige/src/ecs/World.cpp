@@ -2,4 +2,10 @@
 
 namespace ige::ecs {
 
+void World::update()
+{
+    m_tick++;
+    // TODO
+}
+
 }
