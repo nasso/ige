@@ -8,4 +8,6 @@ void World::update()
     // TODO
 }
 
+SystemBuilder<> World::system() { return SystemBuilder(*this); }
+
 }

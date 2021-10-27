@@ -103,23 +103,29 @@ C* World::get_mut(Entity)
 }
 
 /**
- * @brief Run a function for each entity matching a query.
+ * @brief Add an "all" constraint to the system's query.
  *
- * @param f The function to run.
+ * The system will only be executed on entities which have all of the given
+ * components attached.
  */
-template <Component... Cs, std::invocable<const Cs&...> F>
-void World::for_each(F&& f) const
+template <Component... Cs>
+template <Component... Css>
+SystemBuilder<Cs..., Css...> SystemBuilder<Cs...>::all()
 {
-    // TODO
+    return SystemBuilder<Cs..., Css...>(m_world);
 }
 
 /**
- * @brief Create a system and attach it to this world.
+ * @brief Define the function to be called when the system is executed.
  *
- * @param f The system's run function.
+ * Any component passed by a non-const reference to the function will be
+ * considered modified. Systems defined to be run when a component is modified
+ * will be executed even if you did not actually modify it. For this reason, you
+ * should prefer constant references whenever possible.
  */
-template <QueryTerm... Ts, std::invocable<TermRes<Ts>...> F>
-void World::system(F&& f)
+template <Component... Cs>
+template <std::invocable<Cs&...> F>
+void SystemBuilder<Cs...>::each(F&&)
 {
     // TODO
 }

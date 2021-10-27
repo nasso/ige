@@ -2,7 +2,6 @@
 #include <iostream>
 #include <utility>
 
-using ige::ecs::Changed;
 using ige::ecs::World;
 using ige::graphics::Window;
 using ige::graphics::WindowPlugin;
@@ -27,11 +26,14 @@ int main()
     // "system" creates a system to be run on entities matching a query.
     // Here, we create a system to detect if the window has been closed.
     // If the window is closed, the program will exit.
-    world.system<Changed<const Window>>([&](auto& window) {
-        if (window.closed) {
-            running = false;
-        }
-    });
+    world //
+        .system()
+        .all<Window>()
+        .each([&](const Window& window) {
+            if (window.closed) {
+                running = false;
+            }
+        });
 
     // This is the main game loop.
     while (running) {

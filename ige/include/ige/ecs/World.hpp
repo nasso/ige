@@ -22,28 +22,29 @@ template <class P>
 concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
 
 /**
- * @brief Concept representing a term for a query.
+ * @brief SystemBuilders are temporary objects used when constructing a system.
+ *
+ * @see World::system
  */
-template <class T>
-concept QueryTerm = Component<T>;
+template <Component... Cs>
+class SystemBuilder {
+public:
+    explicit SystemBuilder(World& world)
+        : m_world(world)
+    {
+    }
 
-template <class T>
-struct Changed {
-    u32 tick = 0;
+    // TODO: union<Cs..., Css...> to remove duplicates
+
+    template <Component... Css>
+    SystemBuilder<Cs..., Css...> all();
+
+    template <std::invocable<Cs&...> F>
+    void each(F&& f);
+
+private:
+    World& m_world;
 };
-
-template <class T>
-struct TermResHelper {
-    using type = T;
-};
-
-template <class T>
-struct TermResHelper<Changed<T>> {
-    using type = T;
-};
-
-template <class T>
-using TermRes = typename TermResHelper<T>::type;
 
 /**
  * @brief A world is a container for entities, components and systems.
@@ -60,6 +61,13 @@ public:
      * Executes all scheduled systems.
      */
     void update();
+
+    /**
+     * @brief Create a system and attach it to this world.
+     *
+     * @param f The system's run function.
+     */
+    SystemBuilder<> system();
 
     template <Component... Cs>
     Entity spawn(Cs&&...);
@@ -78,12 +86,6 @@ public:
 
     template <Component C>
     C* get_mut(Entity);
-
-    template <Component... Cs, std::invocable<const Cs&...> F>
-    void for_each(F&& f) const;
-
-    template <QueryTerm... Ts, std::invocable<TermRes<Ts>...> F>
-    void system(F&& f);
 
 private:
     u32 m_tick = 0;
