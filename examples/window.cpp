@@ -23,20 +23,18 @@ int main()
 
     bool running = true;
 
-    // "system" creates a system to be run on entities matching a query.
-    // Here, we create a system to detect if the window has been closed.
-    // If the window is closed, the program will exit.
-    world //
-        .system()
-        .all<Window>()
-        .each([&](const Window& window) {
+    // "query" creates an object matching a set of entities.
+    // Here, we create a query matching entities with a "Window" component.
+    auto q = world.query().all<Window>();
+
+    // This is the main game loop.
+    while (running) {
+        // "each" can be used to iterate over entities matching a query.
+        q.each([&](const Window& window) {
+            // If the window is closed, the program will exit.
             if (window.closed) {
                 running = false;
             }
         });
-
-    // This is the main game loop.
-    while (running) {
-        world.update();
     }
 }

@@ -7,10 +7,21 @@
 #include "ige/utility/Types.hpp"
 #include <concepts>
 #include <functional>
+#include <vector>
 
 namespace ige::ecs {
 
+template <Component... C>
+class SystemBuilder;
+
 class World;
+
+/**
+ * @brief An Archetype regroups entities having the same attachments.
+ */
+struct Archetype {
+    std::vector<u64> attachments;
+};
 
 /**
  * @brief Concept defining a Plugin.
@@ -22,14 +33,16 @@ template <class P>
 concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
 
 /**
- * @brief SystemBuilders are temporary objects used when constructing a system.
+ * @brief A Query is used to rapidly find and iterate a set of entities matching
+ * a logical expression defining what attachments each entity must and must not
+ * have.
  *
- * @see World::system
+ * @see World::query
  */
 template <Component... Cs>
-class SystemBuilder {
+class Query {
 public:
-    explicit SystemBuilder(World& world)
+    explicit Query(World& world)
         : m_world(world)
     {
     }
@@ -37,7 +50,7 @@ public:
     // TODO: union<Cs..., Css...> to remove duplicates
 
     template <Component... Css>
-    SystemBuilder<Cs..., Css...> all();
+    Query<Cs..., Css...> all();
 
     template <std::invocable<Cs&...> F>
     void each(F&& f);
@@ -56,11 +69,24 @@ private:
 class IGE_API World {
 public:
     /**
-     * @brief Run one step of the simulation.
-     *
-     * Executes all scheduled systems.
+     * @brief Create an empty entity.
      */
-    void update();
+    Entity empty();
+
+    /**
+     * @brief Add an attachment to an entity.
+     */
+    void attach(Entity, u64);
+
+    /**
+     * @brief Remove an attachment from an entity.
+     */
+    void detach(Entity, u64);
+
+    /**
+     * @brief Create a new query.
+     */
+    Query<> query();
 
     /**
      * @brief Create a system and attach it to this world.
@@ -69,23 +95,35 @@ public:
      */
     SystemBuilder<> system();
 
+    /**
+     * @brief Run one step of the simulation.
+     *
+     * Executes all scheduled systems.
+     */
+    void update();
+
     template <Component... Cs>
     Entity spawn(Cs&&...);
 
     template <Plugin P>
     bool load();
 
-    template <Component C>
-    const C* get() const;
+    template <Component... Cs>
+    void add(Entity, Cs&&...);
 
-    template <Component C>
-    C* get_mut();
+    template <Component... Cs>
+    void remove(Entity, Cs&&...);
 
     template <Component C>
     const C* get(Entity) const;
 
+    template <Component... Cs>
+    void set(Entity, Cs&&...);
+
+#if IGE_WORLD_RESOURCE_API
     template <Component C>
-    C* get_mut(Entity);
+    const C* get() const;
+#endif
 
 private:
     u32 m_tick = 0;
