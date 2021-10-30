@@ -14,6 +14,8 @@ public:
 
     inline u16 gen() const { return (m_id >> 16) & 0xFFFF; }
 
+    inline u64 idgen() const { return m_id; }
+
 private:
     u64 m_id = 0;
 };

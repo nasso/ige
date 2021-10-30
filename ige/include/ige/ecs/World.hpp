@@ -7,6 +7,7 @@
 #include "ige/utility/Types.hpp"
 #include <concepts>
 #include <functional>
+#include <unordered_set>
 #include <vector>
 
 namespace ige::ecs {
@@ -71,17 +72,38 @@ public:
     /**
      * @brief Create an empty entity.
      */
-    Entity empty();
+    Entity entity();
+
+    /**
+     * @brief Destroy an entity.
+     *
+     * @param entity The entity to destroy.
+     */
+    void destroy(Entity entity);
+
+    /**
+     * @brief Check is an entity is alive.
+     *
+     * @param entity The entity to check.
+     * @return True if the entity is alive, false otherwise.
+     */
+    bool is_alive(Entity entity) const;
 
     /**
      * @brief Add an attachment to an entity.
+     *
+     * @param entity The entity to attach to.
+     * @param id The attachment to add.
      */
-    void attach(Entity, u64);
+    void attach(Entity entity, u64 id);
 
     /**
      * @brief Remove an attachment from an entity.
+     *
+     * @param entity The entity to detach from.
+     * @param id The attachment to remove.
      */
-    void detach(Entity, u64);
+    void detach(Entity entity, u64 id);
 
     /**
      * @brief Create a new query.
@@ -127,6 +149,9 @@ public:
 
 private:
     u32 m_tick = 0;
+    u32 m_last_entity_id = 0;
+    std::vector<Entity> m_free_entities = {};
+    std::unordered_set<u64> m_entities = {};
 };
 
 }
