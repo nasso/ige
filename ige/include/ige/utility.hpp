@@ -3,6 +3,7 @@
 
 #include "utility/Assert.hpp"
 #include "utility/CallOnExit.hpp"
+#include "utility/Control.hpp"
 #include "utility/Platform.hpp"
 #include "utility/RingBuffer.hpp"
 #include "utility/Stringify.hpp"
