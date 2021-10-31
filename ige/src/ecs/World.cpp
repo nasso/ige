@@ -1,7 +1,6 @@
 #include "ige/ecs/World.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/utility/Control.hpp"
-#include <cstdlib>
 
 namespace ige::ecs {
 

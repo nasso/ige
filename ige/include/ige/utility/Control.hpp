@@ -2,6 +2,8 @@
 #define A8C539C5_24BA_48A0_A67B_22700412822C
 
 #include "ige/utility/Types.hpp"
+#include <cstdlib>
+#include <iostream>
 #include <string_view>
 
 namespace ige::utility {
