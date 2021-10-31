@@ -11,7 +11,7 @@
     #define IGE_ASSERT(x, msg)                                                 \
         if (!(x)) {                                                            \
             std::cerr << __FILE__ << "(" << __LINE__ << ")"                    \
-                      << ": (" << IGE_STRING(x)                                \
+                      << ": (" << IGE_STRINGIFY(x)                             \
                       << ") assertion failed: " << msg << std::endl;           \
             std::abort();                                                      \
         }

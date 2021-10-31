@@ -38,3 +38,14 @@ TEST(WorldTests, EntityIdReusedAfterDestroy)
     EXPECT_FALSE(world.is_alive(e1));
     EXPECT_TRUE(world.is_alive(e2));
 }
+
+TEST(WorldTests, Attach)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+
+    EXPECT_TRUE(world.has(e1, e2));
+}
