@@ -69,6 +69,9 @@ private:
  */
 class IGE_API World {
 public:
+    World();
+    ~World();
+
     /**
      * @brief Create an empty entity.
      */
@@ -150,8 +153,8 @@ public:
 private:
     u32 m_tick = 0;
     u32 m_last_entity_id = 0;
-    std::vector<Entity> m_free_entities = {};
-    std::unordered_set<u64> m_entities = {};
+    std::vector<Entity>* m_free_entities;
+    std::unordered_set<u64>* m_entities;
 };
 
 }
