@@ -23,3 +23,18 @@ TEST(WorldTests, DestroyEntity)
 
     EXPECT_FALSE(world.is_alive(e));
 }
+
+TEST(WorldTests, EntityIdReusedAfterDestroy)
+{
+    World world;
+    Entity e1 = world.entity();
+
+    world.destroy(e1);
+
+    Entity e2 = world.entity();
+
+    EXPECT_EQ(e1.id(), e2.id());
+    EXPECT_NE(e1.gen(), e2.gen());
+    EXPECT_FALSE(world.is_alive(e1));
+    EXPECT_TRUE(world.is_alive(e2));
+}
