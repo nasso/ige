@@ -139,3 +139,43 @@ TEST(WorldTests, DestroyWithAttachments)
     EXPECT_TRUE(world.is_alive(e2));
     EXPECT_TRUE(world.is_alive(e3));
 }
+
+TEST(WorldTests, AttachTwice)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+    world.attach(e1, e2);
+
+    EXPECT_TRUE(world.has(e1, e2));
+
+    world.detach(e1, e2);
+
+    EXPECT_FALSE(world.has(e1, e2));
+}
+
+TEST(WorldTests, DetachTwice)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+    world.detach(e1, e2);
+    world.detach(e1, e2);
+
+    EXPECT_FALSE(world.has(e1, e2));
+}
+
+TEST(WorldTests, DetachUnattached)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.detach(e1, e2);
+
+    EXPECT_FALSE(world.has(e1, e2));
+}
