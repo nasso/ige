@@ -49,3 +49,15 @@ TEST(WorldTests, Attach)
 
     EXPECT_TRUE(world.has(e1, e2));
 }
+
+TEST(WorldTests, Detach)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+    world.detach(e1, e2);
+
+    EXPECT_FALSE(world.has(e1, e2));
+}

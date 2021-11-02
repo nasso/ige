@@ -10,75 +10,10 @@
 #include <concepts>
 #include <functional>
 #include <span>
+#include <unordered_set>
 #include <vector>
 
 namespace ige::ecs {
-
-/**
- * @brief A Family represents a unique set of attachments.
- *
- * Every Entity in the World belongs to exactly one Family. The (unordered) set
- * of attachments an Entity has uniquely determines its Family.
- */
-class IGE_API Family {
-public:
-    /**
-     * @brief Create a new Family.
-     *
-     * @param ids The set of attachment ids.
-     */
-    Family(std::span<const u64> ids);
-
-    Family(const Family&) = delete;
-    Family& operator=(const Family&) = delete;
-    Family(Family&&);
-    Family& operator=(Family&&);
-
-    Family clone() const;
-
-    ~Family();
-
-    /**
-     * @brief Get the set of attachment ids.
-     *
-     * @return The set of attachment ids.
-     */
-    std::span<const u64> ids() const;
-
-    /**
-     * @brief Get the number of attachments in the Family.
-     *
-     * @return The number of attachments in the Family.
-     */
-    usize size() const;
-
-    /**
-     * @brief Compare this Family to a set of attachments.
-     *
-     * @param ids The set of attachment ids.
-     * @return True iff the set of attachments corresponds to this Family.
-     */
-    bool operator==(std::span<const u64> ids) const;
-
-    /**
-     * @brief Compare two Families.
-     *
-     * @param other The other Family.
-     * @return True if the two Families are equal, false otherwise.
-     */
-    bool operator==(const Family& other) const;
-
-private:
-    usize m_size;
-    u64* m_ids;
-};
-
-struct IGE_API FamilyHash {
-    using is_transparent = void;
-
-    usize operator()(std::span<const u64> ids) const noexcept;
-    usize operator()(const Family& family) const noexcept;
-};
 
 /**
  * @brief An Archetype groups entities having the same attachments.
@@ -90,23 +25,61 @@ struct IGE_API FamilyHash {
  */
 class IGE_API Archetype {
 public:
-    Archetype(std::span<const u64> ids);
-    ~Archetype();
+    /**
+     * @brief Descriptor for an Archetype having one attachment more than
+     * another.
+     */
+    struct With {
+        const Archetype& base;
+        u64 extra_id;
+    };
 
-    inline const Family& family() const noexcept { return m_family; }
+    /**
+     * @brief Descriptor for an Archetype having one attachment less than
+     * another.
+     */
+    struct Without {
+        const Archetype& base;
+        u64 missing_id;
 
-    inline u32 entity_count() const noexcept { return m_entity_count; }
+        bool empty() const noexcept;
+    };
 
-    inline u32& entity_count() noexcept { return m_entity_count; }
+    /**
+     * @brief Helper class for hashing Archetypes.
+     */
+    struct Hash {
+        using is_transparent = void;
 
-    inline const Table* table() const noexcept { return m_table; }
+        usize operator()(std::span<const u64>) const noexcept;
+        usize operator()(const With&) const noexcept;
+        usize operator()(const Without&) const noexcept;
+        usize operator()(const Archetype&) const noexcept;
+    };
 
-    inline Table* table() noexcept { return m_table; }
+    Archetype(const Archetype&) = delete;
+    Archetype& operator=(const Archetype&) = delete;
+    Archetype(Archetype&&);
+    Archetype& operator=(Archetype&&);
+
+    Archetype(std::span<const u64>);
+    Archetype(With);
+    Archetype(Without);
+
+    bool operator==(const Archetype&) const;
+    bool operator==(const With&) const;
+    bool operator==(const Without&) const;
+    bool operator==(std::span<const u64> ids) const;
+
+    auto with(u64 id) const -> With;
+    auto without(u64 id) const -> Without;
+
+    bool has(u64 id) const noexcept;
+
+    inline std::span<const u64> ids() const noexcept { return m_ids; }
 
 private:
-    Family m_family;
-    u32 m_entity_count = 0;
-    Table* m_table = nullptr;
+    std::vector<u64> m_ids;
 };
 
 /**
@@ -117,8 +90,8 @@ private:
  * components.
  */
 struct Record {
-    Archetype* archetype = nullptr;
-    u32 row = 0;
+    std::reference_wrapper<const Archetype> archetype;
+    u64 row;
 };
 
 class World;
@@ -218,6 +191,8 @@ public:
     /**
      * @brief Remove an attachment from an entity.
      *
+     * If the entity does not have the attachment, this function does nothing.
+     *
      * @param entity The entity to detach from.
      * @param id The attachment to remove.
      */
@@ -303,9 +278,34 @@ private:
     using EntityList = std::vector<Entity>;
     using EntityIndex = std::unordered_map<u64, Record>;
     using ArchetypeIndex
-        = std::unordered_map<Family, Archetype, FamilyHash, std::equal_to<>>;
+        = std::unordered_set<Archetype, Archetype::Hash, std::equal_to<>>;
 
-    Archetype* get_archetype(std::span<const u64>);
+    /**
+     * @brief Get a reference to the empty Archetype.
+     */
+    const Archetype& empty_archetype();
+
+    /**
+     * @brief Get a reference to the archetype representing the given set of
+     * attachments.
+     *
+     * The archetype will be created if it doesn't exist.
+     */
+    const Archetype& get_archetype(std::span<const u64>);
+
+    /**
+     * @brief Get a reference to the archetype for the given descriptor.
+     *
+     * The archetype will be created if it doesn't exist.
+     */
+    const Archetype& get_archetype(Archetype::With);
+
+    /**
+     * @brief Get a reference to the archetype for the given descriptor.
+     *
+     * The archetype will be created if it doesn't exist.
+     */
+    const Archetype& get_archetype(Archetype::Without);
 
     u32 m_tick = 0;
     u32 m_last_entity_id = 0;
