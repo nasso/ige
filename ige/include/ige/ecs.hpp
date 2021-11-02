@@ -3,6 +3,7 @@
 
 #include "ecs/Component.hpp"
 #include "ecs/Entity.hpp"
+#include "ecs/Family.hpp"
 #include "ecs/System.hpp"
 #include "ecs/Table.hpp"
 #include "ecs/World.hpp"

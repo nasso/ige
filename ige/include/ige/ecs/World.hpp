@@ -3,6 +3,7 @@
 
 #include "ige/ecs/Component.hpp"
 #include "ige/ecs/Entity.hpp"
+#include "ige/ecs/Family.hpp"
 #include "ige/ecs/Table.hpp"
 #include "ige/utility/Platform.hpp"
 #include "ige/utility/Types.hpp"
@@ -25,72 +26,6 @@ class World;
  */
 template <class P>
 concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
-
-/**
- * @brief A Family describes the set of attachments of an Entity.
- *
- * Every Entity belongs to a Family.
- */
-class IGE_API Family {
-public:
-    /**
-     * @brief Descriptor for a Family having one attachment more than another.
-     */
-    struct With {
-        const Family& base;
-        u64 extra_id;
-    };
-
-    /**
-     * @brief Descriptor for a Family having one attachment less than another.
-     */
-    struct Without {
-        const Family& base;
-        u64 missing_id;
-
-        bool empty() const noexcept;
-    };
-
-    /**
-     * @brief Helper class for hashing Archetypes.
-     */
-    struct Hash {
-        using is_transparent = void;
-
-        usize operator()(std::span<const u64>) const noexcept;
-        usize operator()(const With&) const noexcept;
-        usize operator()(const Without&) const noexcept;
-        usize operator()(const Family&) const noexcept;
-    };
-
-    Family(const Family&) = delete;
-    Family& operator=(const Family&) = delete;
-    Family(Family&&);
-    Family& operator=(Family&&);
-
-    Family(std::span<const u64>);
-    Family(With);
-    Family(Without);
-
-    bool operator==(const Family&) const;
-    bool operator==(const With&) const;
-    bool operator==(const Without&) const;
-    bool operator==(std::span<const u64> ids) const;
-
-    auto with(u64 id) const -> With;
-    auto without(u64 id) const -> Without;
-
-    bool has(u64 id) const noexcept;
-
-    inline std::span<const u64> ids() const noexcept
-    {
-        return { m_ids, m_size };
-    }
-
-private:
-    u64* m_ids;
-    usize m_size;
-};
 
 /**
  * @brief An Archetype groups entities having the same Family.
@@ -274,24 +209,83 @@ public:
      */
     void update();
 
+    /**
+     * @brief Spawn a new entity.
+     *
+     * @param components A list of components to be added to the new entity.
+     * @return Entity ID of the new entity.
+     */
     template <Component... Cs>
     Entity spawn(Cs&&...);
 
+    /**
+     * @brief Load a plugin.
+     *
+     * If the plugin was already loaded to this world, no action is taken.
+     *
+     * @tparam P The plugin type.
+     * @return bool true if the plugin was loaded, false if it was already.
+     */
     template <Plugin P>
     bool load();
 
+    /**
+     * @brief Add components to an entity.
+     *
+     * If any of the components are already present on the entity, they are
+     * replaced.
+     *
+     * @param entity The entity to add the components to.
+     * @param components The components to add.
+     */
     template <Component... Cs>
     void add(Entity, Cs&&...);
 
+    /**
+     * @brief Remove components from an entity.
+     *
+     * If any of the components are not present on the entity, no action is
+     * taken.
+     *
+     * @param entity The entity to remove the components from.
+     * @param components The components to remove.
+     */
     template <Component... Cs>
     void remove(Entity, Cs&&...);
 
+    /**
+     * @brief Get a constant pointer to a component attached to the given
+     * entity.
+     *
+     * If no component of the specified type exists, a null pointer is returned.
+     *
+     * @param entity The entity.
+     * @return const C* A pointer to the component.
+     */
     template <Component C>
     const C* get(Entity) const;
 
+    /**
+     * @brief Set the value of one or more components attached to the given
+     * entity.
+     *
+     * If any component is missing from the entity, it is added.
+     *
+     * @tparam Cs The component types.
+     * @param entity The entity.
+     * @param components The component values to set.
+     */
     template <Component... Cs>
     void set(Entity, Cs&&...);
 
+    /**
+     * @brief Get a constant pointer to a resource.
+     *
+     * If no resource of the specified type exists, a null pointer is returned.
+     *
+     * @tparam C The resource type.
+     * @return const C* A pointer to the resource.
+     */
     template <Component C>
     const C* get() const;
 
