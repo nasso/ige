@@ -6,14 +6,14 @@
 
 namespace ige::ecs {
 
-bool Archetype::Without::empty() const noexcept
+bool Family::Without::empty() const noexcept
 {
     const auto ids = base.ids();
 
     return ids.empty() || (ids.size() == 1 && ids.front() == missing_id);
 }
 
-usize Archetype::Hash::operator()(std::span<const u64> ids) const noexcept
+usize Family::Hash::operator()(std::span<const u64> ids) const noexcept
 {
     usize hash = 17;
 
@@ -24,7 +24,7 @@ usize Archetype::Hash::operator()(std::span<const u64> ids) const noexcept
     return hash;
 }
 
-usize Archetype::Hash::operator()(const With& w) const noexcept
+usize Family::Hash::operator()(const With& w) const noexcept
 {
     usize hash = 17;
 
@@ -39,7 +39,7 @@ usize Archetype::Hash::operator()(const With& w) const noexcept
     return hash;
 }
 
-usize Archetype::Hash::operator()(const Without& w) const noexcept
+usize Family::Hash::operator()(const Without& w) const noexcept
 {
     usize hash = 17;
 
@@ -52,12 +52,12 @@ usize Archetype::Hash::operator()(const Without& w) const noexcept
     return hash;
 }
 
-usize Archetype::Hash::operator()(const Archetype& a) const noexcept
+usize Family::Hash::operator()(const Family& a) const noexcept
 {
     return operator()(a.ids());
 }
 
-Archetype::Archetype(std::span<const u64> ids)
+Family::Family(std::span<const u64> ids)
 {
     m_ids = new u64[ids.size()];
     m_size = ids.size();
@@ -66,7 +66,7 @@ Archetype::Archetype(std::span<const u64> ids)
     std::sort(m_ids, m_ids + m_size);
 }
 
-Archetype::Archetype(With w)
+Family::Family(With w)
 {
     auto ids = w.base.ids();
 
@@ -84,7 +84,7 @@ Archetype::Archetype(With w)
     }
 }
 
-Archetype::Archetype(Without w)
+Family::Family(Without w)
 {
     auto ids = w.base.ids();
 
@@ -106,7 +106,7 @@ Archetype::Archetype(Without w)
     }
 }
 
-Archetype::Archetype(Archetype&& a)
+Family::Family(Family&& a)
     : m_ids(a.m_ids)
     , m_size(a.m_size)
 {
@@ -114,7 +114,7 @@ Archetype::Archetype(Archetype&& a)
     a.m_size = 0;
 }
 
-Archetype& Archetype::operator=(Archetype&& f)
+Family& Family::operator=(Family&& f)
 {
     if (this != &f) {
         delete[] m_ids;
@@ -129,13 +129,13 @@ Archetype& Archetype::operator=(Archetype&& f)
     return *this;
 }
 
-bool Archetype::operator==(std::span<const u64> rhs) const
+bool Family::operator==(std::span<const u64> rhs) const
 {
     // ids are sorted at construction, so we can use std::equal
     return std::equal(ids().begin(), ids().end(), rhs.begin(), rhs.end());
 }
 
-bool Archetype::operator==(const Archetype& rhs) const
+bool Family::operator==(const Family& rhs) const
 {
     return std::equal(
         ids().begin(),
@@ -144,7 +144,7 @@ bool Archetype::operator==(const Archetype& rhs) const
         rhs.ids().end());
 }
 
-bool Archetype::operator==(const With& w) const
+bool Family::operator==(const With& w) const
 {
     auto w_ids = w.base.ids();
 
@@ -186,7 +186,7 @@ bool Archetype::operator==(const With& w) const
     return false;
 }
 
-bool Archetype::operator==(const Without& w) const
+bool Family::operator==(const Without& w) const
 {
     auto w_ids = w.base.ids();
 
@@ -209,11 +209,11 @@ bool Archetype::operator==(const Without& w) const
                ids().end());
 }
 
-auto Archetype::with(u64 id) const -> With { return { *this, id }; }
+auto Family::with(u64 id) const -> With { return { *this, id }; }
 
-auto Archetype::without(u64 id) const -> Without { return { *this, id }; }
+auto Family::without(u64 id) const -> Without { return { *this, id }; }
 
-bool Archetype::has(u64 id) const noexcept
+bool Family::has(u64 id) const noexcept
 {
     // we can use std::binary_search because ids are sorted
     return std::binary_search(ids().begin(), ids().end(), id);
@@ -266,7 +266,7 @@ void World::attach(Entity entity, u64 id)
 
     Record& record = m_entity_index->at(entity.idgen());
 
-    record.archetype = get_archetype(record.archetype.get().with(id));
+    record.type = get_archetype(record.type.family->with(id));
 }
 
 void World::detach(Entity entity, u64 id)
@@ -275,14 +275,14 @@ void World::detach(Entity entity, u64 id)
 
     auto& record = m_entity_index->at(entity.idgen());
 
-    record.archetype = get_archetype(record.archetype.get().without(id));
+    record.type = get_archetype(record.type.family->without(id));
 }
 
 bool World::has(Entity entity, u64 id) const
 {
     IGE_ASSERT(is_alive(entity), "Entity is not alive");
 
-    return m_entity_index->at(entity.idgen()).archetype.get().has(id);
+    return m_entity_index->at(entity.idgen()).type.family->has(id);
 }
 
 Query<> World::query() { return Query(*this); }
@@ -295,42 +295,42 @@ void World::update()
     IGE_TODO();
 }
 
-const Archetype& World::empty_archetype()
+ArchetypeRecord World::empty_archetype()
 {
     return get_archetype(std::span<const u64>());
 }
 
-const Archetype& World::get_archetype(std::span<const u64> ids)
+ArchetypeRecord World::get_archetype(std::span<const u64> ids)
 {
     auto it = m_archetypes->find(ids);
 
-    if (it != m_archetypes->end()) {
-        return *it;
+    if (it == m_archetypes->end()) {
+        it = m_archetypes->emplace(ids, Archetype()).first;
     }
 
-    return *m_archetypes->emplace(ids).first;
+    return { &it->first, &it->second };
 }
 
-const Archetype& World::get_archetype(Archetype::With w)
+ArchetypeRecord World::get_archetype(Family::With w)
 {
     auto it = m_archetypes->find(w);
 
-    if (it != m_archetypes->end()) {
-        return *it;
+    if (it == m_archetypes->end()) {
+        it = m_archetypes->emplace(w, Archetype()).first;
     }
 
-    return *m_archetypes->emplace(w).first;
+    return { &it->first, &it->second };
 }
 
-const Archetype& World::get_archetype(Archetype::Without w)
+ArchetypeRecord World::get_archetype(Family::Without w)
 {
     auto it = m_archetypes->find(w);
 
-    if (it != m_archetypes->end()) {
-        return *it;
+    if (it == m_archetypes->end()) {
+        it = m_archetypes->emplace(w, Archetype()).first;
     }
 
-    return *m_archetypes->emplace(w).first;
+    return { &it->first, &it->second };
 }
 
 }

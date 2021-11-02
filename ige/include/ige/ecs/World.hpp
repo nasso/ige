@@ -10,36 +10,42 @@
 #include <concepts>
 #include <functional>
 #include <span>
-#include <unordered_set>
+#include <unordered_map>
 #include <vector>
 
 namespace ige::ecs {
 
+class World;
+
 /**
- * @brief An Archetype groups entities having the same attachments.
+ * @brief Concept defining a Plugin.
  *
- * The Archetype does not store component data directly. Rather, it stores a set
- * of attachments and an optional pointer to the Table holding the actual data.
- * Since some attachments may not need data, the pointer to the Table may be
- * nullptr.
+ * A plugin is any type constructible from a lvalue reference to a World, and
+ * satisfying the requirements of the concept for Component.
  */
-class IGE_API Archetype {
+template <class P>
+concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
+
+/**
+ * @brief A Family describes the set of attachments of an Entity.
+ *
+ * Every Entity belongs to a Family.
+ */
+class IGE_API Family {
 public:
     /**
-     * @brief Descriptor for an Archetype having one attachment more than
-     * another.
+     * @brief Descriptor for a Family having one attachment more than another.
      */
     struct With {
-        const Archetype& base;
+        const Family& base;
         u64 extra_id;
     };
 
     /**
-     * @brief Descriptor for an Archetype having one attachment less than
-     * another.
+     * @brief Descriptor for a Family having one attachment less than another.
      */
     struct Without {
-        const Archetype& base;
+        const Family& base;
         u64 missing_id;
 
         bool empty() const noexcept;
@@ -54,19 +60,19 @@ public:
         usize operator()(std::span<const u64>) const noexcept;
         usize operator()(const With&) const noexcept;
         usize operator()(const Without&) const noexcept;
-        usize operator()(const Archetype&) const noexcept;
+        usize operator()(const Family&) const noexcept;
     };
 
-    Archetype(const Archetype&) = delete;
-    Archetype& operator=(const Archetype&) = delete;
-    Archetype(Archetype&&);
-    Archetype& operator=(Archetype&&);
+    Family(const Family&) = delete;
+    Family& operator=(const Family&) = delete;
+    Family(Family&&);
+    Family& operator=(Family&&);
 
-    Archetype(std::span<const u64>);
-    Archetype(With);
-    Archetype(Without);
+    Family(std::span<const u64>);
+    Family(With);
+    Family(Without);
 
-    bool operator==(const Archetype&) const;
+    bool operator==(const Family&) const;
     bool operator==(const With&) const;
     bool operator==(const Without&) const;
     bool operator==(std::span<const u64> ids) const;
@@ -87,27 +93,38 @@ private:
 };
 
 /**
+ * @brief An Archetype groups entities having the same Family.
+ *
+ * The Archetype does not store component data directly. Rather, it stores a
+ * pointer to the Table holding the actual data. Since some Families do not need
+ * to store data, the pointer to the Table may be null.
+ */
+struct IGE_API Archetype {
+    Table* table = nullptr;
+    usize entity_count = 0;
+};
+
+/**
+ * @brief An ArchetypeRecord is a pair of a Family and an Archetype.
+ *
+ * This type represents an entry in the world's archetype index.
+ */
+struct IGE_API ArchetypeRecord {
+    const Family* family;
+    Archetype* archetype;
+};
+
+/**
  * @brief A Record stores information about an Entity.
  *
  * All living entities are associated with a Record, which stores information
  * such as the Entity's archetype and its row in the Table storing the Entity's
  * components.
  */
-struct Record {
-    std::reference_wrapper<const Archetype> archetype;
+struct IGE_API Record {
+    ArchetypeRecord type;
     u64 row;
 };
-
-class World;
-
-/**
- * @brief Concept defining a Plugin.
- *
- * A plugin is any type constructible from a lvalue reference to a World, and
- * satisfying the requirements of the concept for Component.
- */
-template <class P>
-concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
 
 /**
  * @brief A Query is used to rapidly find and iterate a set of entities matching
@@ -282,12 +299,12 @@ private:
     using EntityList = std::vector<Entity>;
     using EntityIndex = std::unordered_map<u64, Record>;
     using ArchetypeIndex
-        = std::unordered_set<Archetype, Archetype::Hash, std::equal_to<>>;
+        = std::unordered_map<Family, Archetype, Family::Hash, std::equal_to<>>;
 
     /**
-     * @brief Get a reference to the empty Archetype.
+     * @brief Get a reference to the empty Family.
      */
-    const Archetype& empty_archetype();
+    ArchetypeRecord empty_archetype();
 
     /**
      * @brief Get a reference to the archetype representing the given set of
@@ -295,21 +312,21 @@ private:
      *
      * The archetype will be created if it doesn't exist.
      */
-    const Archetype& get_archetype(std::span<const u64>);
+    ArchetypeRecord get_archetype(std::span<const u64>);
 
     /**
      * @brief Get a reference to the archetype for the given descriptor.
      *
      * The archetype will be created if it doesn't exist.
      */
-    const Archetype& get_archetype(Archetype::With);
+    ArchetypeRecord get_archetype(Family::With);
 
     /**
      * @brief Get a reference to the archetype for the given descriptor.
      *
      * The archetype will be created if it doesn't exist.
      */
-    const Archetype& get_archetype(Archetype::Without);
+    ArchetypeRecord get_archetype(Family::Without);
 
     u32 m_tick = 0;
     u32 m_last_entity_id = 0;
