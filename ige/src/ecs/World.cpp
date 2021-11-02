@@ -6,6 +6,12 @@
 
 namespace ige::ecs {
 
+void Archetype::merge_from(const Archetype& other)
+{
+    m_entity_count += other.m_entity_count;
+    // TODO: merge tables
+}
+
 World::World()
     : m_free_entities(new EntityList)
     , m_entity_index(new EntityIndex)
@@ -38,6 +44,36 @@ Entity World::entity()
 
 void World::destroy(Entity entity)
 {
+    // detach from all entities that had this entity as a component
+    auto it = m_archetypes->begin();
+
+    while (it != m_archetypes->end()) {
+        auto& [fam, arch] = *it;
+
+        // this family of entity has this entity as a component
+        if (fam.has(entity.id())) {
+            // lookup the family that does not have it
+            auto tit = m_archetypes->find(fam.without(entity.id()));
+
+            if (tit != m_archetypes->end()) {
+                // we found a family that is the same as fam without entity
+                // just move all entities there
+                tit->second.merge_from(arch);
+                m_archetypes->erase(it++);
+            } else {
+                // it doesn't exist, so we have to create it
+                // since fam won't exist anymore, we can safely replace it
+                auto nh = m_archetypes->extract(it++);
+
+                // todo: mutate the family instead of creating a new one
+                nh.key() = Family(fam.without(entity.id()));
+                m_archetypes->insert(std::move(nh));
+            }
+        } else {
+            ++it;
+        }
+    }
+
     m_entity_index->erase(entity.idgen());
     m_free_entities->emplace_back(entity.id(), entity.gen() + 1);
 }

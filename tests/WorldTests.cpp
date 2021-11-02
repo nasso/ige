@@ -110,3 +110,32 @@ TEST(WorldTests, DetachOneOfMany)
     EXPECT_FALSE(world.has(e1, e3));
     EXPECT_TRUE(world.has(e1, e4));
 }
+
+TEST(WorldTests, AutoDetachAfterDestroy)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+    world.destroy(e2);
+
+    EXPECT_FALSE(world.has(e1, e2));
+}
+
+TEST(WorldTests, DestroyWithAttachments)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+    Entity e3 = world.entity();
+
+    world.attach(e1, e2);
+    world.attach(e1, e3);
+
+    world.destroy(e1);
+
+    EXPECT_FALSE(world.is_alive(e1));
+    EXPECT_TRUE(world.is_alive(e2));
+    EXPECT_TRUE(world.is_alive(e3));
+}

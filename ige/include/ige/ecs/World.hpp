@@ -34,9 +34,21 @@ concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
  * pointer to the Table holding the actual data. Since some Families do not need
  * to store data, the pointer to the Table may be null.
  */
-struct IGE_API Archetype {
-    Table* table = nullptr;
-    usize entity_count = 0;
+class IGE_API Archetype {
+public:
+    Archetype() = default;
+
+    void merge_from(const Archetype& other);
+
+    inline const Table* table() const noexcept { return m_table; }
+
+    inline Table* table_mut() noexcept { return m_table; }
+
+    inline usize entity_count() const noexcept { return m_entity_count; }
+
+private:
+    Table* m_table = nullptr;
+    usize m_entity_count = 0;
 };
 
 /**
