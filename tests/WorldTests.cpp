@@ -45,7 +45,7 @@ TEST(WorldTests, Attach)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
+    world.add(e1, e2);
 
     EXPECT_TRUE(world.has(e1, e2));
 }
@@ -56,8 +56,8 @@ TEST(WorldTests, Detach)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
-    world.detach(e1, e2);
+    world.add(e1, e2);
+    world.remove(e1, e2);
 
     EXPECT_FALSE(world.has(e1, e2));
 }
@@ -68,9 +68,9 @@ TEST(WorldTests, Reattach)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
-    world.detach(e1, e2);
-    world.attach(e1, e2);
+    world.add(e1, e2);
+    world.remove(e1, e2);
+    world.add(e1, e2);
 
     EXPECT_TRUE(world.has(e1, e2));
 }
@@ -83,9 +83,9 @@ TEST(WorldTests, AttachMany)
     Entity e3 = world.entity();
     Entity e4 = world.entity();
 
-    world.attach(e1, e2);
-    world.attach(e1, e3);
-    world.attach(e1, e4);
+    world.add(e1, e2);
+    world.add(e1, e3);
+    world.add(e1, e4);
 
     EXPECT_TRUE(world.has(e1, e2));
     EXPECT_TRUE(world.has(e1, e3));
@@ -100,11 +100,11 @@ TEST(WorldTests, DetachOneOfMany)
     Entity e3 = world.entity();
     Entity e4 = world.entity();
 
-    world.attach(e1, e2);
-    world.attach(e1, e3);
-    world.attach(e1, e4);
+    world.add(e1, e2);
+    world.add(e1, e3);
+    world.add(e1, e4);
 
-    world.detach(e1, e3);
+    world.remove(e1, e3);
 
     EXPECT_TRUE(world.has(e1, e2));
     EXPECT_FALSE(world.has(e1, e3));
@@ -117,7 +117,7 @@ TEST(WorldTests, AutoDetachAfterDestroy)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
+    world.add(e1, e2);
     world.destroy(e2);
 
     EXPECT_FALSE(world.has(e1, e2));
@@ -130,8 +130,8 @@ TEST(WorldTests, DestroyWithAttachments)
     Entity e2 = world.entity();
     Entity e3 = world.entity();
 
-    world.attach(e1, e2);
-    world.attach(e1, e3);
+    world.add(e1, e2);
+    world.add(e1, e3);
 
     world.destroy(e1);
 
@@ -146,12 +146,12 @@ TEST(WorldTests, AttachTwice)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
-    world.attach(e1, e2);
+    world.add(e1, e2);
+    world.add(e1, e2);
 
     EXPECT_TRUE(world.has(e1, e2));
 
-    world.detach(e1, e2);
+    world.remove(e1, e2);
 
     EXPECT_FALSE(world.has(e1, e2));
 }
@@ -162,9 +162,9 @@ TEST(WorldTests, DetachTwice)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.attach(e1, e2);
-    world.detach(e1, e2);
-    world.detach(e1, e2);
+    world.add(e1, e2);
+    world.remove(e1, e2);
+    world.remove(e1, e2);
 
     EXPECT_FALSE(world.has(e1, e2));
 }
@@ -175,7 +175,7 @@ TEST(WorldTests, DetachUnattached)
     Entity e1 = world.entity();
     Entity e2 = world.entity();
 
-    world.detach(e1, e2);
+    world.remove(e1, e2);
 
     EXPECT_FALSE(world.has(e1, e2));
 }

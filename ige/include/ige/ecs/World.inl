@@ -33,34 +33,4 @@ bool World::load()
     return true;
 }
 
-template <Component... Cs>
-void World::add(Entity entity, Cs&&... components)
-{
-    IGE_TODO();
-}
-
-template <Component... Cs>
-void World::remove(Entity entity, Cs&&... components)
-{
-    IGE_TODO();
-}
-
-template <Component C>
-const C* World::get(Entity entity) const
-{
-    return IGE_TODO(const C*);
-}
-
-template <Component... Cs>
-void World::set(Entity entity, Cs&&... components)
-{
-    IGE_TODO();
-}
-
-template <Component C>
-const C* World::get() const
-{
-    return IGE_TODO(const C*);
-}
-
 }

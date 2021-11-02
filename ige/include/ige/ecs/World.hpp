@@ -117,6 +117,8 @@ public:
 
     /**
      * @brief Create an empty entity.
+     *
+     * @return The created entity.
      */
     Entity entity();
 
@@ -138,45 +140,42 @@ public:
     /**
      * @brief Add an attachment to an entity.
      *
-     * @param entity The entity to attach to.
+     * @param entity The entity to add to.
      * @param id The attachment to add.
      */
-    void attach(Entity entity, u64 id);
+    void add(Entity entity, u64 id);
 
     /**
      * @brief Attach an entity to another one.
      *
-     * Equivalent to `attach(entity, other.id())`.
+     * Equivalent to `add(entity, other.id())`.
      *
-     * @param entity The entity to attach to.
-     * @param other The entity to attach.
+     * @param entity The entity to add to.
+     * @param other The entity to add.
      */
-    inline void attach(Entity entity, Entity other)
-    {
-        attach(entity, other.id());
-    }
+    inline void add(Entity entity, Entity other) { add(entity, other.id()); }
 
     /**
      * @brief Remove an attachment from an entity.
      *
      * If the entity does not have the attachment, this function does nothing.
      *
-     * @param entity The entity to detach from.
+     * @param entity The entity to remove from.
      * @param id The attachment to remove.
      */
-    void detach(Entity entity, u64 id);
+    void remove(Entity entity, u64 id);
 
     /**
      * @brief Detach an entity from another one.
      *
-     * Equivalent to `detach(entity, other.id())`.
+     * Equivalent to `remove(entity, other.id())`.
      *
-     * @param entity The entity to detach from.
-     * @param other The entity to detach.
+     * @param entity The entity to remove from.
+     * @param other The entity to remove.
      */
-    inline void detach(Entity entity, Entity other)
+    inline void remove(Entity entity, Entity other)
     {
-        detach(entity, other.id());
+        remove(entity, other.id());
     }
 
     /**
@@ -208,7 +207,7 @@ public:
     Query<> query();
 
     /**
-     * @brief Create a system and attach it to this world.
+     * @brief Create a system and add it to this world.
      *
      * @param f The system's run function.
      */
@@ -241,6 +240,7 @@ public:
     template <Plugin P>
     bool load();
 
+#if 0
     /**
      * @brief Add components to an entity.
      *
@@ -300,6 +300,7 @@ public:
      */
     template <Component C>
     const C* get() const;
+#endif
 
 private:
     using EntityList = std::vector<Entity>;

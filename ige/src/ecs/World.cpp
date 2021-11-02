@@ -44,7 +44,7 @@ Entity World::entity()
 
 void World::destroy(Entity entity)
 {
-    // detach from all entities that had this entity as a component
+    // remove from all entities that had this entity as a component
     auto it = m_archetypes->begin();
 
     while (it != m_archetypes->end()) {
@@ -83,7 +83,7 @@ bool World::is_alive(Entity entity) const
     return m_entity_index->contains(entity.idgen());
 }
 
-void World::attach(Entity entity, u64 id)
+void World::add(Entity entity, u64 id)
 {
     IGE_ASSERT(is_alive(entity), "Entity is not alive");
 
@@ -92,7 +92,7 @@ void World::attach(Entity entity, u64 id)
     record.type = get_archetype(record.type.family->with(id));
 }
 
-void World::detach(Entity entity, u64 id)
+void World::remove(Entity entity, u64 id)
 {
     IGE_ASSERT(is_alive(entity), "Entity is not alive");
 
