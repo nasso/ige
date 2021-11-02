@@ -58,52 +58,90 @@ usize Archetype::Hash::operator()(const Archetype& a) const noexcept
 }
 
 Archetype::Archetype(std::span<const u64> ids)
-    : m_ids(ids.begin(), ids.end())
 {
-    std::sort(m_ids.begin(), m_ids.end());
+    m_ids = new u64[ids.size()];
+    m_size = ids.size();
+
+    std::copy(ids.begin(), ids.end(), m_ids);
+    std::sort(m_ids, m_ids + m_size);
 }
 
 Archetype::Archetype(With w)
 {
-    std::span extra(&w.extra_id, 1);
+    auto ids = w.base.ids();
 
-    std::set_union(
-        w.base.ids().begin(),
-        w.base.ids().end(),
-        extra.begin(),
-        extra.end(),
-        std::back_inserter(m_ids));
+    if (w.base.has(w.extra_id)) {
+        m_ids = new u64[ids.size()];
+        m_size = ids.size();
+
+        std::copy(ids.begin(), ids.end(), m_ids);
+        // no need to sort, because ids in w.base are already sorted
+    } else {
+        m_ids = new u64[ids.size() + 1];
+        m_size = ids.size() + 1;
+
+        std::merge(ids.begin(), ids.end(), &w.extra_id, &w.extra_id + 1, m_ids);
+    }
 }
 
 Archetype::Archetype(Without w)
 {
-    std::copy_if(
-        w.base.ids().begin(),
-        w.base.ids().end(),
-        std::back_inserter(m_ids),
-        [w](u64 id) { return id != w.missing_id; });
+    auto ids = w.base.ids();
+
+    if (w.base.has(w.missing_id)) {
+        m_ids = new u64[ids.size() - 1];
+        m_size = ids.size() - 1;
+
+        std::set_difference(
+            ids.begin(),
+            ids.end(),
+            &w.missing_id,
+            &w.missing_id + 1,
+            m_ids);
+    } else {
+        m_ids = new u64[ids.size()];
+        m_size = ids.size();
+
+        std::copy(ids.begin(), ids.end(), m_ids);
+    }
 }
 
 Archetype::Archetype(Archetype&& a)
-    : m_ids(std::move(a.m_ids))
+    : m_ids(a.m_ids)
+    , m_size(a.m_size)
 {
+    a.m_ids = nullptr;
+    a.m_size = 0;
 }
 
 Archetype& Archetype::operator=(Archetype&& f)
 {
-    m_ids = std::move(f.m_ids);
+    if (this != &f) {
+        delete[] m_ids;
+
+        m_ids = f.m_ids;
+        m_size = f.m_size;
+
+        f.m_ids = nullptr;
+        f.m_size = 0;
+    }
+
     return *this;
 }
 
-bool Archetype::operator==(std::span<const u64> ids) const
+bool Archetype::operator==(std::span<const u64> rhs) const
 {
     // ids are sorted at construction, so we can use std::equal
-    return std::equal(ids.begin(), ids.end(), m_ids.begin(), m_ids.end());
+    return std::equal(ids().begin(), ids().end(), rhs.begin(), rhs.end());
 }
 
-bool Archetype::operator==(const Archetype& other) const
+bool Archetype::operator==(const Archetype& rhs) const
 {
-    return m_ids == other.m_ids;
+    return std::equal(
+        ids().begin(),
+        ids().end(),
+        rhs.ids().begin(),
+        rhs.ids().end());
 }
 
 bool Archetype::operator==(const With& w) const
@@ -111,14 +149,14 @@ bool Archetype::operator==(const With& w) const
     auto w_ids = w.base.ids();
 
     // if m_ids is empty or smaller than w_ids, no match is possible
-    if (m_ids.empty() || m_ids.size() < w_ids.size()) {
+    if (m_size == 0 || m_size < w_ids.size()) {
         return false;
     }
 
     // handle the case where w_ids is empty
     // m_ids must be [w.extra_id]
     if (w_ids.empty()) {
-        return m_ids.size() == 1 && m_ids[0] == w.extra_id;
+        return m_size == 1 && m_ids[0] == w.extra_id;
     }
 
     // now we know m_ids and w_ids are both sorted and non-empty
@@ -128,7 +166,7 @@ bool Archetype::operator==(const With& w) const
     // g = all x in w_ids where x > w.extra_id
     // desc_ids = [l... w.extra_id g...]
 
-    for (usize i = 0; i < m_ids.size(); i++) {
+    for (usize i = 0; i < m_size; i++) {
         u64 id = m_ids[i];
 
         if (id == w.extra_id) {
@@ -137,7 +175,7 @@ bool Archetype::operator==(const With& w) const
             return std::equal(
                 w_ids.begin() + i,
                 w_ids.end(),
-                m_ids.begin() + i);
+                ids().begin() + i);
         } else if (id > w.extra_id || id != w_ids[i]) {
             // we never found the extra id
             // id < w.extra_id, and we found a mismatch
@@ -157,18 +195,18 @@ bool Archetype::operator==(const Without& w) const
     if (x == w_ids.end()) {
         // w.missing_id is not in w_ids
         return std::equal(
-            m_ids.begin(),
-            m_ids.end(),
+            ids().begin(),
+            ids().end(),
             w_ids.begin(),
             w_ids.end());
     }
 
-    return std::equal(w_ids.begin(), x, m_ids.begin())
+    return std::equal(w_ids.begin(), x, ids().begin())
         && std::equal(
                x + 1,
                w_ids.end(),
-               m_ids.begin() + (w_ids.end() - x),
-               m_ids.end());
+               ids().begin() + (w_ids.end() - x),
+               ids().end());
 }
 
 auto Archetype::with(u64 id) const -> With { return { *this, id }; }
@@ -178,7 +216,7 @@ auto Archetype::without(u64 id) const -> Without { return { *this, id }; }
 bool Archetype::has(u64 id) const noexcept
 {
     // we can use std::binary_search because ids are sorted
-    return std::binary_search(m_ids.begin(), m_ids.end(), id);
+    return std::binary_search(ids().begin(), ids().end(), id);
 }
 
 World::World()

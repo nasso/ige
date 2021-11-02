@@ -76,10 +76,14 @@ public:
 
     bool has(u64 id) const noexcept;
 
-    inline std::span<const u64> ids() const noexcept { return m_ids; }
+    inline std::span<const u64> ids() const noexcept
+    {
+        return { m_ids, m_size };
+    }
 
 private:
-    std::vector<u64> m_ids;
+    u64* m_ids;
+    usize m_size;
 };
 
 /**
