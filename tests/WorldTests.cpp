@@ -61,3 +61,52 @@ TEST(WorldTests, Detach)
 
     EXPECT_FALSE(world.has(e1, e2));
 }
+
+TEST(WorldTests, Reattach)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+
+    world.attach(e1, e2);
+    world.detach(e1, e2);
+    world.attach(e1, e2);
+
+    EXPECT_TRUE(world.has(e1, e2));
+}
+
+TEST(WorldTests, AttachMany)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+    Entity e3 = world.entity();
+    Entity e4 = world.entity();
+
+    world.attach(e1, e2);
+    world.attach(e1, e3);
+    world.attach(e1, e4);
+
+    EXPECT_TRUE(world.has(e1, e2));
+    EXPECT_TRUE(world.has(e1, e3));
+    EXPECT_TRUE(world.has(e1, e4));
+}
+
+TEST(WorldTests, DetachOneOfMany)
+{
+    World world;
+    Entity e1 = world.entity();
+    Entity e2 = world.entity();
+    Entity e3 = world.entity();
+    Entity e4 = world.entity();
+
+    world.attach(e1, e2);
+    world.attach(e1, e3);
+    world.attach(e1, e4);
+
+    world.detach(e1, e3);
+
+    EXPECT_TRUE(world.has(e1, e2));
+    EXPECT_FALSE(world.has(e1, e3));
+    EXPECT_TRUE(world.has(e1, e4));
+}
