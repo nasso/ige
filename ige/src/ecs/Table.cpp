@@ -2,6 +2,7 @@
 #include "ige/utility/Assert.hpp"
 #include "ige/utility/Control.hpp"
 #include "igepch.hpp"
+#include <cstdlib>
 
 namespace ige::ecs {
 
@@ -18,7 +19,7 @@ Table::~Table()
 {
     for (usize i = 0; i < m_column_count; ++i) {
         // todo: call destructors for non-trivially destructible types
-        delete[] m_columns[i];
+        std::free(m_columns[i]);
     }
 
     delete[] m_columns;
@@ -73,18 +74,21 @@ void Table::resize(usize n)
         // reallocations
         for (usize i = 0; i < m_column_count; ++i) {
             const usize stride = m_column_strides[i];
-            u8* column = static_cast<u8*>(m_columns[i]);
-            u8* new_column = new u8[stride * n];
+            void* column = m_columns[i];
+            void* new_column = std::malloc(stride * n);
 
             // copy old data to new column
             // todo: use move constructors for non-trivially movable types
-            std::copy_n(column, stride * m_row_count, new_column);
+            std::copy_n(
+                static_cast<u8*>(column),
+                stride * m_row_count,
+                static_cast<u8*>(new_column));
 
             // delete old column
-            delete[] column;
+            std::free(column);
 
             // set new column
-            m_columns[i] = static_cast<void*>(new_column);
+            m_columns[i] = new_column;
         }
 
         m_row_count = n;
