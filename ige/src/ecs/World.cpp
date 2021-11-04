@@ -117,7 +117,7 @@ void World::set(Entity entity, Entity component, const void* data)
         u8* dest = static_cast<u8*>(ptr);
         const u8* src = static_cast<const u8*>(data);
 
-        std::copy(src, src + type_info->size, dest);
+        std::copy_n(src, type_info->size, dest);
     });
 }
 
@@ -134,7 +134,7 @@ const void* World::get(Entity entity, Entity component) const
 
     const Table* table = record->archetype().table;
 
-    if (!table) {
+    if (!table || table->row_count() <= record->row()) {
         // the entity doesn't have the component
         return nullptr;
     }
@@ -143,7 +143,7 @@ const void* World::get(Entity entity, Entity component) const
     const usize component_size = table->strides()[column];
 
     const u8* all_components = static_cast<const u8*>(table->column(column));
-    const u8* component_data = all_components + component_size;
+    const u8* component_data = all_components + component_size * record->row();
 
     return static_cast<const void*>(component_data);
 }

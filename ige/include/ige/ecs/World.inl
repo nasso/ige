@@ -9,22 +9,22 @@ namespace ige::ecs {
 template <std::regular_invocable<void*> F>
 void World::mutate(Entity entity, Entity component, F&& f)
 {
-    IGE_ASSERT(is_alive(entity), "\"entity\" is not alive");
+    Record* record = get_record_mut(entity);
 
-    Record& record = *get_record_mut(entity);
+    IGE_ASSERT(record != nullptr, "\"entity\" is not alive");
 
     // ensure the entity has the component
-    add_to_record(record, component.id());
+    add_to_record(*record, component.id());
 
     // get the column index in which the component is stored
-    usize column = get_component_column(record.family(), component);
+    usize column = get_component_column(record->family(), component);
 
     // get or create the table storing the components of the archetype
-    Table& table = *touch_table(record.type_mut());
+    Table& table = *touch_table(record->type_mut());
 
     // ensure the table has enough rows
-    if (table.row_count() <= record.row()) {
-        table.resize(record.row() + 1);
+    if (table.row_count() <= record->row()) {
+        table.resize(record->row() + 1);
     }
 
     // get the component size
@@ -34,7 +34,7 @@ void World::mutate(Entity entity, Entity component, F&& f)
     u8* column_data = static_cast<u8*>(table.col_mut(column));
 
     // index the component for this entity
-    u8* component_data = column_data + record.row() * size;
+    u8* component_data = column_data + record->row() * size;
 
     // mutate the data
     f(static_cast<void*>(component_data));
