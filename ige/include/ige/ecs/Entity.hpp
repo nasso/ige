@@ -6,9 +6,9 @@
 
 namespace ige::ecs {
 
-class Entity {
+class IGE_API Entity {
 public:
-    inline Entity(u32 id = 0, u16 gen = 0)
+    inline explicit Entity(u32 id = 0, u16 gen = 0)
         : m_id((static_cast<u64>(id) << 32) | (static_cast<u64>(gen) << 16)) {};
 
     inline u32 id() const { return m_id >> 32; }
@@ -16,6 +16,8 @@ public:
     inline u16 gen() const { return (m_id >> 16) & 0xFFFF; }
 
     inline u64 idgen() const { return m_id; }
+
+    inline bool operator==(const Entity&) const = default;
 
 private:
     u64 m_id = 0;

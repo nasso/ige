@@ -16,6 +16,14 @@
 
 namespace ige::ecs {
 
+/**
+ * @brief Structure holding runtime type information about a component.
+ */
+struct IGE_API TypeInfo {
+    usize size;
+    usize align;
+};
+
 class World;
 
 /**
@@ -34,21 +42,8 @@ concept Plugin = Component<P> && std::constructible_from<P, ige::ecs::World&>;
  * pointer to the Table holding the actual data. Since some Families do not need
  * to store data, the pointer to the Table may be null.
  */
-class IGE_API Archetype {
-public:
-    Archetype() = default;
-
-    void merge_from(const Archetype& other);
-
-    inline const Table* table() const noexcept { return m_table; }
-
-    inline Table* table_mut() noexcept { return m_table; }
-
-    inline usize entity_count() const noexcept { return m_entity_count; }
-
-private:
-    Table* m_table = nullptr;
-    usize m_entity_count = 0;
+struct IGE_API Archetype {
+    Table* table = nullptr;
 };
 
 /**
@@ -56,9 +51,23 @@ private:
  *
  * This type represents an entry in the world's archetype index.
  */
-struct IGE_API ArchetypeRecord {
-    const Family* family;
-    Archetype* archetype;
+class IGE_API ArchetypeRecord {
+public:
+    ArchetypeRecord(const Family& family, Archetype& archetype)
+        : m_family(&family)
+        , m_archetype(&archetype) {};
+    ArchetypeRecord(const ArchetypeRecord&) = default;
+    ArchetypeRecord(ArchetypeRecord&&) = default;
+    ArchetypeRecord& operator=(const ArchetypeRecord&) = default;
+    ArchetypeRecord& operator=(ArchetypeRecord&&) = default;
+
+    inline const Family& family() const noexcept { return *m_family; }
+    inline const Archetype& archetype() const noexcept { return *m_archetype; }
+    inline Archetype& archetype_mut() noexcept { return *m_archetype; }
+
+private:
+    const Family* m_family;
+    Archetype* m_archetype;
 };
 
 /**
@@ -68,9 +77,36 @@ struct IGE_API ArchetypeRecord {
  * such as the Entity's archetype and its row in the Table storing the Entity's
  * components.
  */
-struct IGE_API Record {
-    ArchetypeRecord type;
-    u64 row;
+class IGE_API Record {
+public:
+    Record(ArchetypeRecord type, usize row)
+        : m_type(type)
+        , m_row(row) {};
+    Record(const Record&) = default;
+    Record(Record&&) = default;
+    Record& operator=(const Record&) = default;
+    Record& operator=(Record&&) = default;
+
+    inline const ArchetypeRecord& type() const noexcept { return m_type; }
+    inline ArchetypeRecord& type_mut() noexcept { return m_type; }
+    inline const usize& row() const noexcept { return m_row; }
+    inline usize& row_mut() noexcept { return m_row; }
+
+    inline const Family& family() const noexcept { return m_type.family(); }
+
+    inline const Archetype& archetype() const noexcept
+    {
+        return m_type.archetype();
+    }
+
+    inline Archetype& archetype_mut() noexcept
+    {
+        return m_type.archetype_mut();
+    }
+
+private:
+    ArchetypeRecord m_type;
+    usize m_row;
 };
 
 /**
@@ -202,6 +238,48 @@ public:
     }
 
     /**
+     * @brief Create a component.
+     *
+     * @param size The size of the component data in bytes.
+     * @param align The alignment of the component data in bytes.
+     * @return An entity representing the component.
+     */
+    Entity component(usize size, usize align);
+
+    /**
+     * @brief Set the data of a component.
+     *
+     * @param entity The entity having the component.
+     * @param component The component to set.
+     * @param data The data to set.
+     */
+    void set(Entity entity, Entity component, const void* data);
+
+    /**
+     * @brief Mutate the data of a component using a pure function.
+     *
+     * @param entity The entity having the component.
+     * @param component The component to set.
+     * @param f The function to apply to the data.
+     */
+    template <std::regular_invocable<void*> F>
+    void mutate(Entity entity, Entity component, F&& f);
+
+    /**
+     * @brief Get the data of a component.
+     *
+     * @param entity The entity having the component.
+     * @param component The component to get.
+     * @return A pointer to the component data.
+     */
+    const void* get(Entity entity, Entity component) const;
+
+    /**
+     * @brief Check whether the given ID represents a Component.
+     */
+    bool is_component(u64) const;
+
+    /**
      * @brief Create a new query.
      */
     Query<> query();
@@ -219,6 +297,8 @@ public:
      * Executes all scheduled systems.
      */
     void update();
+
+    // TEMPLATED INTERFACE
 
     /**
      * @brief Spawn a new entity.
@@ -309,6 +389,77 @@ private:
         = std::unordered_map<Family, Archetype, Family::Hash, std::equal_to<>>;
 
     /**
+     * @brief Create an Entity with the given Record.
+     *
+     * @return The new Entity.
+     */
+    Entity entity(Record);
+
+    /**
+     * @brief Get or create the Table for the given ArchetypeRecord.
+     *
+     * If the Archetype doesn't store any component, nullptr is returned.
+     */
+    Table* touch_table(ArchetypeRecord&);
+
+    /**
+     * @brief Get the type information for a component.
+     *
+     * @param component The component entity.
+     */
+    const TypeInfo* get_component_type_info(Entity component) const;
+
+    /**
+     * @brief Create or set a Record for the given Entity.
+     */
+    void set_record(Entity, Record);
+
+    /**
+     * @brief Get a constant pointer to the Record of the given Entity.
+     */
+    const Record* get_record(Entity) const;
+
+    /**
+     * @brief Get a mutable pointer to the Record of the given Entity.
+     */
+    Record* get_record_mut(Entity);
+
+    /**
+     * @brief Add an attachment to an entity.
+     */
+    void add_to_record(Record&, u64);
+
+    /**
+     * @brief Remove an attachment from an entity.
+     */
+    void remove_from_record(Record&, u64);
+
+    /**
+     * @brief Get the column storing the data of the given component for the
+     * given Family.
+     */
+    usize get_component_column(const Family&, Entity) const;
+
+    /**
+     * @brief Change a Record's archetype.
+     *
+     * Components are moved from the old archetype to the new one. If the new
+     * archetype is larger than the old one, the new components are left
+     * uninitialized. If the new archetype is smaller than the old one, the
+     * excess components are discarded. If the new archetype is the same as the
+     * old one, no action is taken.
+     */
+    void migrate_record(ArchetypeRecord&, Record&);
+
+    /**
+     * @brief Move all entities from one archetype to another.
+     *
+     * @param dst The destination archetype record.
+     * @param src The source archetype record.
+     */
+    void migrate_all(ArchetypeRecord& dst, const ArchetypeRecord& src);
+
+    /**
      * @brief Get a reference to the empty Family.
      */
     ArchetypeRecord empty_archetype();
@@ -340,6 +491,7 @@ private:
     EntityList* m_free_entities = nullptr;
     EntityIndex* m_entity_index = nullptr;
     ArchetypeIndex* m_archetypes = nullptr;
+    Entity m_comp_type_info = entity();
 };
 
 }

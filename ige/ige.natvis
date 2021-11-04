@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="ige::ecs::Entity">
+    <DisplayString>{m_id >> 32} ({(m_id >> 16) &amp; 0xFFFF})</DisplayString>
+  </Type>
+</AutoVisualizer>

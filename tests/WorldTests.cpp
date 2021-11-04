@@ -179,3 +179,27 @@ TEST(WorldTests, DetachUnattached)
 
     EXPECT_FALSE(world.has(e1, e2));
 }
+
+TEST(WorldTests, AddComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    world.add(entity, comp);
+
+    EXPECT_TRUE(world.has(entity, comp));
+}
+
+TEST(WorldTests, SetAndGetComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    const int val = 42;
+    world.set(entity, comp, &val);
+
+    const int* ptr = static_cast<const int*>(world.get(entity, comp));
+    EXPECT_EQ(*ptr, 42);
+}
