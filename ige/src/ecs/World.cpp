@@ -331,11 +331,6 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
 
         src_table->remove(src_row);
 
-        record.type_mut() = dst_ar;
-
-        // of course, we also need to update the row of the record we're moving
-        record.row_mut() = dst_row;
-
         // update the row for all records after the one that was removed
         // perf: this is O(n) over the number of entities in the world
         // fixme: Table::remove is O(1) and swaps the last row with the one
@@ -346,6 +341,9 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
                 r.row_mut() = src_row;
             }
         }
+
+        // of course, we also need to update the row of the record we're moving
+        record.row_mut() = dst_row;
     }
 
     // finally, update the record's type
