@@ -238,3 +238,39 @@ TEST(WorldTests, MutateAddsComponent)
     EXPECT_TRUE(world.has(entity, comp));
     EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp)), 42);
 }
+
+TEST(WorldTests, SetMultipleComponents)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp1 = world.component(sizeof(int), alignof(int));
+    Entity comp2 = world.component(sizeof(int), alignof(int));
+
+    const int val1 = 42;
+    const int val2 = 43;
+    world.set(entity, comp1, &val1);
+    world.set(entity, comp2, &val2);
+
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp1)), 42);
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp2)), 43);
+}
+
+TEST(WorldTests, DestroyComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp1 = world.component(sizeof(int), alignof(int));
+    Entity comp2 = world.component(sizeof(int), alignof(int));
+
+    const int val1 = 42;
+    const int val2 = 43;
+    world.set(entity, comp1, &val1);
+    world.set(entity, comp2, &val2);
+
+    world.destroy(comp1);
+
+    EXPECT_FALSE(world.has(entity, comp1));
+    EXPECT_TRUE(world.has(entity, comp2));
+
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp2)), 43);
+}

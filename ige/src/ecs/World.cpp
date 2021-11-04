@@ -27,6 +27,8 @@ Entity World::entity() { return entity({ empty_archetype(), 0 }); }
 
 void World::destroy(Entity entity)
 {
+    const bool entity_is_comp = is_component(entity);
+
     // remove from all entities that had this entity as a component
     auto it = m_archetypes->begin();
 
@@ -47,11 +49,22 @@ void World::destroy(Entity entity)
                 migrate_all(tar, ar);
                 m_archetypes->erase(it++);
             } else {
-                // it doesn't exist, so we have to create it
-                // since fam won't exist anymore, we can safely replace it
+                // the family doesn't exist, so we have to create it
+
+                // first, delete the column holding the component data
+                // /!\ we have to do this before we remove the entity from the
+                //     family, because we need the column index to remove the
+                //     component data
+                if (ar.archetype_mut().table && entity_is_comp) {
+                    const usize col = get_component_column(fam, entity);
+
+                    ar.archetype_mut().table->remove_column(col);
+                }
+
+                // since the old fam won't exist anymore, we can just replace it
                 auto nh = m_archetypes->extract(it++);
 
-                // fixme: mutate the family instead of creating a new one
+                // perf: mutate the family instead of creating a new one
                 nh.key() = Family(fam.without(entity.id()));
                 m_archetypes->insert(std::move(nh));
             }
@@ -211,7 +224,7 @@ Table* World::touch_table(ArchetypeRecord& ar)
         }
     }
 
-    return ar.archetype().table;
+    return ar.archetype_mut().table;
 }
 
 const TypeInfo* World::get_component_type_info(Entity component) const
@@ -264,7 +277,7 @@ usize World::get_component_column(const Family& fam, Entity component) const
 {
     usize column = 0;
 
-    for (u64 id : fam.ids()) {
+    for (u32 id : fam.ids()) {
         if (id == component.id()) {
             IGE_ASSERT(is_component(id), "\"component\" isn't a component");
             return column;
@@ -280,8 +293,8 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
 {
     const Family& src_fam = record.family();
     const Family& dst_fam = dst_ar.family();
-    Table*& src_table = record.archetype_mut().table;
-    Table*& dst_table = dst_ar.archetype_mut().table;
+    Table* src_table = record.archetype_mut().table;
+    Table* dst_table = dst_ar.archetype_mut().table;
 
     if (src_table && src_table == dst_table) {
         // the old and new table are the same, nothing to be done
@@ -292,7 +305,7 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
     }
 
     // create the destination table if it doesn't exist
-    touch_table(dst_ar);
+    dst_table = touch_table(dst_ar);
 
     // if there is both a source and a destination table, move the data
     if (dst_table && src_table) {
@@ -306,6 +319,7 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
             if (id == lid && src_fam.has(id) && is_component(id)) {
                 usize src_col = get_component_column(src_fam, Entity(lid));
 
+                // todo: use move constructors
                 std::copy_n(
                     static_cast<const u8*>(src_table->cell(src_col, src_row)),
                     src_table->strides()[src_col],
@@ -315,18 +329,23 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
             dst_col++;
         }
 
-        src_table->remove(record.row());
+        src_table->remove(src_row);
 
-        // update the row for all records after the one that was removed
-        // perf: this is O(n) over the number of entities in the world
-        for (auto& [id, r] : *m_entity_index) {
-            if (r.archetype().table == src_table && r.row() > record.row()) {
-                r.row_mut()--;
-            }
-        }
+        record.type_mut() = dst_ar;
 
         // of course, we also need to update the row of the record we're moving
         record.row_mut() = dst_row;
+
+        // update the row for all records after the one that was removed
+        // perf: this is O(n) over the number of entities in the world
+        // fixme: Table::remove is O(1) and swaps the last row with the one
+        //        being removed. This is not the way the rows are updated!
+        for (auto& [id, r] : *m_entity_index) {
+            if (r.archetype().table == src_table
+                && r.row() == src_table->row_count()) {
+                r.row_mut() = src_row;
+            }
+        }
     }
 
     // finally, update the record's type
@@ -335,26 +354,58 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
 
 void World::migrate_all(ArchetypeRecord& dst, const ArchetypeRecord& src)
 {
-    // const Family& dst_fam = dst.family();
-    // const Family& src_fam = src.family();
+    const Family& dst_fam = dst.family();
+    const Family& src_fam = src.family();
 
     Table* dst_table = dst.archetype_mut().table;
     const Table* src_table = src.archetype().table;
+
+    const usize row_offset = dst_table ? dst_table->row_count() : 0;
+
+    // if the old and new table are the same or the source table is empty,
+    // we have nothing else to do
+    if (src_table != dst_table && src_table && !src_table->empty()) {
+        // create the destination table if it doesn't exist
+        dst_table = touch_table(dst);
+
+        // if dst_table is nullptr, the destination doesn't have any component
+        if (dst_table) {
+            // resize the destination table to receive the extra data
+            dst_table->resize(dst_table->row_count() + src_table->row_count());
+
+            // iterate over the dest components
+            usize dst_col = 0;
+
+            for (u64 id : dst_fam.ids()) {
+                if (!is_component(id)) {
+                    continue;
+                }
+
+                if (src_fam.has(id)) {
+                    usize src_col = get_component_column(
+                        src_fam,
+                        Entity(id & 0xFFFFFFFF));
+
+                    // todo: use move constructors
+                    std::copy_n(
+                        static_cast<const u8*>(src_table->column(src_col)),
+                        src_table->strides()[src_col] * src_table->row_count(),
+                        static_cast<u8*>(dst_table->column_mut(dst_col)));
+                }
+
+                dst_col++;
+            }
+        }
+    }
 
     // update all records that use the source table
     // perf: this is O(n) over the number of entities in the world
     for (auto& [id, r] : *m_entity_index) {
         if (r.archetype().table == src_table) {
             r.type_mut() = dst;
+            r.row_mut() += row_offset;
         }
     }
-
-    if (src_table == dst_table) {
-        // the old and new table are the same, nothing to be done
-        return;
-    }
-
-    IGE_TODO();
 }
 
 ArchetypeRecord World::empty_archetype()

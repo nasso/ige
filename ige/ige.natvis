@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="ige::ecs::Entity">
-    <DisplayString>{m_id >> 32} ({(m_id >> 16) &amp; 0xFFFF})</DisplayString>
+    <DisplayString>{{{m_id >> 32}!{(m_id >> 16) &amp; 0xFFFF}}}</DisplayString>
+    <Expand>
+      <Item Name="[id]">m_id >> 32</Item>
+      <Item Name="[gen]">((m_id >> 16) &amp; 0xFFFF)</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="ige::ecs::Family">
+    <DisplayString>{{size={m_size}}}</DisplayString>
+    <Expand>
+      <Item Name="[size]">m_size</Item>
+      <ArrayItems>
+        <Size>m_size</Size>
+        <ValuePointer>m_ids</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+  <Type Name="ige::ecs::Table">
+    <DisplayString>{{cols={m_column_count} rows={m_row_count}}}</DisplayString>
   </Type>
 </AutoVisualizer>

@@ -40,6 +40,9 @@ namespace ige::ecs {
  */
 class IGE_API Table {
 public:
+    Table(const Table&) = delete;
+    Table& operator=(const Table&) = delete;
+
     /**
      * @brief Create an empty table storage.
      *
@@ -67,9 +70,21 @@ public:
     /**
      * @brief Remove the specified row from the table.
      *
+     * The operation is performed in O(1) time, by swapping the last row with
+     * the removed one.
+     *
      * @param row The index of the row to remove.
      */
     void remove(usize row);
+
+    /**
+     * @brief Remove the specified column.
+     *
+     * Columns to the right of the removed column are shifted to the left.
+     *
+     * @param column The index of the column to remove.
+     */
+    void remove_column(usize column);
 
     /**
      * @brief Resize the Table so that it contains exactly n rows.
@@ -82,7 +97,7 @@ public:
      *
      * @param column The column to get the pointer to.
      */
-    inline void* col_mut(usize n)
+    inline void* column_mut(usize n)
     {
         IGE_ASSERT(n < m_column_count, "column out of bounds.");
 
@@ -140,6 +155,11 @@ public:
     inline usize row_count() const noexcept { return m_row_count; }
 
     /**
+     * @brief Check whether the Table is empty.
+     */
+    inline bool empty() const noexcept { return m_row_count == 0; }
+
+    /**
      * @brief Get the sizes of each column.
      */
     inline std::span<const usize> strides() const noexcept
@@ -148,7 +168,7 @@ public:
     }
 
 private:
-    const usize m_column_count;
+    usize m_column_count;
     usize* m_column_strides;
     void** m_columns;
     usize m_row_count = 0;

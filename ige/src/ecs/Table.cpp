@@ -61,6 +61,28 @@ void Table::remove(usize n)
     }
 }
 
+void Table::remove_column(usize n)
+{
+    IGE_ASSERT(n < m_column_count, "column index out of bounds");
+
+    // remove column n
+    // todo: call destructors for column n
+    std::free(m_columns[n]);
+
+    // decrement column count
+    m_column_count--;
+
+    // shift all columns after n to the left
+    for (usize i = n; i < m_column_count; ++i) {
+        m_column_strides[i] = m_column_strides[i + 1];
+        m_columns[i] = m_columns[i + 1];
+    }
+
+    // invalidate the last column since it was moved
+    m_column_strides[m_column_count] = 0;
+    m_columns[m_column_count] = nullptr;
+}
+
 void Table::resize(usize n)
 {
     if (n < m_row_count) {
@@ -76,6 +98,8 @@ void Table::resize(usize n)
             const usize stride = m_column_strides[i];
             void* column = m_columns[i];
             void* new_column = std::malloc(stride * n);
+
+            IGE_ASSERT(new_column != nullptr, "allocation failed");
 
             // copy old data to new column
             // todo: use move constructors for non-trivially movable types

@@ -280,6 +280,14 @@ public:
     bool is_component(u64) const;
 
     /**
+     * @brief Check whether the given Entity is a Component.
+     */
+    inline bool is_component(Entity entity) const
+    {
+        return is_component(entity.id());
+    }
+
+    /**
      * @brief Create a new query.
      */
     Query<> query();
