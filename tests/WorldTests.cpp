@@ -200,6 +200,41 @@ TEST(WorldTests, SetAndGetComponent)
     const int val = 42;
     world.set(entity, comp, &val);
 
-    const int* ptr = static_cast<const int*>(world.get(entity, comp));
-    EXPECT_EQ(*ptr, 42);
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp)), 42);
+}
+
+TEST(WorldTests, MutateComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    const int val = 42;
+    world.set(entity, comp, &val);
+
+    world.mutate(entity, comp, [](void* ptr) {
+        int* iptr = static_cast<int*>(ptr);
+
+        EXPECT_EQ(*iptr, 42);
+
+        (*iptr)++;
+    });
+
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp)), 43);
+}
+
+TEST(WorldTests, MutateAddsComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    world.mutate(entity, comp, [](void* ptr) {
+        int* iptr = static_cast<int*>(ptr);
+
+        *iptr = 42;
+    });
+
+    EXPECT_TRUE(world.has(entity, comp));
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp)), 42);
 }
