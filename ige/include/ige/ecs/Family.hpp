@@ -49,9 +49,9 @@ public:
     Family(Family&&);
     Family& operator=(Family&&);
 
-    Family(std::span<const u64>);
-    Family(With);
-    Family(Without);
+    explicit Family(std::span<const u64>);
+    explicit Family(const With&);
+    explicit Family(const Without&);
 
     bool operator==(const Family&) const;
     bool operator==(const With&) const;

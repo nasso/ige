@@ -63,7 +63,7 @@ Family::Family(std::span<const u64> ids)
     std::sort(m_ids, m_ids + m_size);
 }
 
-Family::Family(With w)
+Family::Family(const With& w)
 {
     auto ids = w.base.ids();
 
@@ -81,7 +81,7 @@ Family::Family(With w)
     }
 }
 
-Family::Family(Without w)
+Family::Family(const Without& w)
 {
     auto ids = w.base.ids();
 
@@ -202,7 +202,7 @@ bool Family::operator==(const Without& w) const
         && std::equal(
                x + 1,
                w_ids.end(),
-               ids().begin() + (w_ids.end() - x),
+               ids().begin() + std::distance(w_ids.begin(), x),
                ids().end());
 }
 

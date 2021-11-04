@@ -338,8 +338,21 @@ void World::migrate_all(ArchetypeRecord& dst, const ArchetypeRecord& src)
     // const Family& dst_fam = dst.family();
     // const Family& src_fam = src.family();
 
-    // Table* dst_table = dst.archetype_mut().table;
-    // const Table* src_table = src.archetype().table;
+    Table* dst_table = dst.archetype_mut().table;
+    const Table* src_table = src.archetype().table;
+
+    // update all records that use the source table
+    // perf: this is O(n) over the number of entities in the world
+    for (auto& [id, r] : *m_entity_index) {
+        if (r.archetype().table == src_table) {
+            r.type_mut() = dst;
+        }
+    }
+
+    if (src_table == dst_table) {
+        // the old and new table are the same, nothing to be done
+        return;
+    }
 
     IGE_TODO();
 }
