@@ -77,7 +77,8 @@ public:
     void resize(usize n);
 
     /**
-     * @brief Get a pointer to the first element of the specified column.
+     * @brief Get a mutable pointer to the first element of the specified
+     * column.
      *
      * @param column The column to get the pointer to.
      */
@@ -89,7 +90,8 @@ public:
     }
 
     /**
-     * @brief Get a pointer to the first element of the specified column.
+     * @brief Get a constant pointer to the first element of the specified
+     * column.
      *
      * @param column The column to get the pointer to.
      */
@@ -98,6 +100,38 @@ public:
         IGE_ASSERT(n < m_column_count, "column out of bounds.");
 
         return m_columns[n];
+    }
+
+    /**
+     * @brief Get a constant pointer to the specified cell.
+     *
+     * @param column The column of the cell.
+     * @param row The row of the cell.
+     */
+    inline void* cell_mut(usize column, usize row)
+    {
+        IGE_ASSERT(column < m_column_count, "column out of bounds.");
+        IGE_ASSERT(row < m_row_count, "row out of bounds.");
+
+        return static_cast<void*>(
+            static_cast<u8*>(m_columns[column])
+            + row * m_column_strides[column]);
+    }
+
+    /**
+     * @brief Get a constant pointer to the specified cell.
+     *
+     * @param column The column of the cell.
+     * @param row The row of the cell.
+     */
+    inline const void* cell(usize column, usize row) const
+    {
+        IGE_ASSERT(column < m_column_count, "column out of bounds.");
+        IGE_ASSERT(row < m_row_count, "row out of bounds.");
+
+        return static_cast<const void*>(
+            static_cast<const u8*>(m_columns[column])
+            + row * m_column_strides[column]);
     }
 
     /**

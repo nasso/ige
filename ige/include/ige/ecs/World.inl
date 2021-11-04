@@ -27,17 +27,8 @@ void World::mutate(Entity entity, Entity component, F&& f)
         table.resize(record->row() + 1);
     }
 
-    // get the component size
-    const usize size = table.strides()[column];
-
-    // get component data pointer for the archetype
-    u8* column_data = static_cast<u8*>(table.col_mut(column));
-
-    // index the component for this entity
-    u8* component_data = column_data + record->row() * size;
-
     // mutate the data
-    f(static_cast<void*>(component_data));
+    f(table.cell_mut(column, record->row()));
 
     // TODO: mark as modified
 }

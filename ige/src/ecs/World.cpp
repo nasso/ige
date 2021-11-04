@@ -140,12 +140,8 @@ const void* World::get(Entity entity, Entity component) const
     }
 
     const usize column = get_component_column(record->family(), component);
-    const usize component_size = table->strides()[column];
 
-    const u8* all_components = static_cast<const u8*>(table->column(column));
-    const u8* component_data = all_components + component_size * record->row();
-
-    return static_cast<const void*>(component_data);
+    return table->cell(column, record->row());
 }
 
 Query<> World::query() { return Query(*this); }
@@ -264,12 +260,13 @@ void World::remove_from_record(Record& record, u64 id)
     migrate_record(ar, record);
 }
 
-usize World::get_component_column(const Family& fam, Entity ent) const
+usize World::get_component_column(const Family& fam, Entity component) const
 {
     usize column = 0;
 
     for (u64 id : fam.ids()) {
-        if (id == ent.id()) {
+        if (id == component.id()) {
+            IGE_ASSERT(is_component(id), "\"component\" isn't a component");
             return column;
         } else if (is_component(id)) {
             column++;
@@ -299,29 +296,20 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
 
     // if there is both a source and a destination table, move the data
     if (dst_table && src_table) {
+        const usize src_row = record.row();
         usize dst_row = dst_table->insert();
         usize dst_col = 0;
 
         for (u64 id : dst_fam.ids()) {
             u32 lid = id & 0xFFFFFFFF;
 
-            if (id == lid && src_fam.has(id)) {
-                Entity comp_ent(lid);
-                const TypeInfo* info = get_component_type_info(comp_ent);
+            if (id == lid && src_fam.has(id) && is_component(id)) {
+                usize src_col = get_component_column(src_fam, Entity(lid));
 
-                if (info) {
-                    usize src_col = get_component_column(src_fam, comp_ent);
-
-                    u8* dst_col_ptr
-                        = static_cast<u8*>(dst_table->col_mut(dst_col));
-                    const u8* src_col_ptr
-                        = static_cast<const u8*>(src_table->column(src_col));
-
-                    std::copy_n(
-                        src_col_ptr + info->size * dst_row,
-                        info->size,
-                        dst_col_ptr + info->size * dst_row);
-                }
+                std::copy_n(
+                    static_cast<const u8*>(src_table->cell(src_col, src_row)),
+                    src_table->strides()[src_col],
+                    static_cast<u8*>(dst_table->cell_mut(dst_col, dst_row)));
             }
 
             dst_col++;
@@ -347,11 +335,11 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
 
 void World::migrate_all(ArchetypeRecord& dst, const ArchetypeRecord& src)
 {
-    const Family& dst_fam = dst.family();
-    const Family& src_fam = src.family();
+    // const Family& dst_fam = dst.family();
+    // const Family& src_fam = src.family();
 
-    Table* dst_table = dst.archetype_mut().table;
-    const Table* src_table = src.archetype().table;
+    // Table* dst_table = dst.archetype_mut().table;
+    // const Table* src_table = src.archetype().table;
 
     IGE_TODO();
 }
