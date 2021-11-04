@@ -43,22 +43,19 @@ void Table::remove(usize n)
 
     // todo: call destructors for row n
 
-    // decrement row count
-    m_row_count--;
-
     // swap last row with row n if n is not the last row
-    if (n != m_row_count) {
+    if (n != m_row_count - 1) {
         for (usize i = 0; i < m_column_count; ++i) {
-            const usize stride = m_column_strides[i];
-            u8* column = static_cast<u8*>(m_columns[i]);
-
             // todo: use move constructors for non-trivially movable types
             std::copy_n(
-                column + stride * m_row_count,
-                stride,
-                column + stride * n);
+                static_cast<const u8*>(cell(i, m_row_count - 1)),
+                m_column_strides[i],
+                static_cast<u8*>(cell_mut(i, n)));
         }
     }
+
+    // decrement row count
+    m_row_count--;
 }
 
 void Table::remove_column(usize n)

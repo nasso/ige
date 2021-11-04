@@ -274,3 +274,84 @@ TEST(WorldTests, DestroyComponent)
 
     EXPECT_EQ(*static_cast<const int*>(world.get(entity, comp2)), 43);
 }
+
+TEST(WorldTests, DestroyEntityWithComponent)
+{
+    World world;
+    Entity entity1 = world.entity();
+    Entity entity2 = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    const int val1 = 42;
+    const int val2 = 43;
+    world.set(entity1, comp, &val1);
+    world.set(entity2, comp, &val2);
+
+    world.destroy(entity1);
+
+    EXPECT_TRUE(world.has(entity2, comp));
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity2, comp)), 43);
+}
+
+TEST(WorldTests, DestroyEntityWithMultipleComponents)
+{
+    World world;
+    Entity entity1 = world.entity();
+    Entity entity2 = world.entity();
+    Entity comp1 = world.component(sizeof(int), alignof(int));
+    Entity comp2 = world.component(sizeof(int), alignof(int));
+
+    const int val1 = 42;
+    const int val2 = 43;
+    world.set(entity1, comp1, &val1);
+    world.set(entity1, comp2, &val2);
+    world.set(entity2, comp1, &val1);
+    world.set(entity2, comp2, &val2);
+
+    world.destroy(entity1);
+
+    EXPECT_TRUE(world.has(entity2, comp1));
+    EXPECT_TRUE(world.has(entity2, comp2));
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity2, comp1)), 42);
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity2, comp2)), 43);
+}
+
+TEST(WorldTests, RemoveComponent)
+{
+    World world;
+    Entity entity = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    const int val = 42;
+    world.set(entity, comp, &val);
+
+    world.remove(entity, comp);
+
+    EXPECT_FALSE(world.has(entity, comp));
+    EXPECT_EQ(world.get(entity, comp), nullptr);
+}
+
+TEST(WorldTests, RemoveComponentOnOneEntity)
+{
+    World world;
+    Entity entity1 = world.entity();
+    Entity entity2 = world.entity();
+    Entity entity3 = world.entity();
+    Entity comp = world.component(sizeof(int), alignof(int));
+
+    const int val1 = 42;
+    const int val2 = 43;
+    const int val3 = 44;
+    world.set(entity1, comp, &val1);
+    world.set(entity2, comp, &val2);
+    world.set(entity3, comp, &val3);
+
+    world.remove(entity2, comp);
+
+    EXPECT_TRUE(world.has(entity1, comp));
+    EXPECT_FALSE(world.has(entity2, comp));
+    EXPECT_TRUE(world.has(entity3, comp));
+
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity1, comp)), 42);
+    EXPECT_EQ(*static_cast<const int*>(world.get(entity3, comp)), 44);
+}
