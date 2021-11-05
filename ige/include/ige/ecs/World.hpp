@@ -408,19 +408,6 @@ public:
     template <Plugin P>
     bool load();
 
-#if 0
-    /**
-     * @brief Get a constant pointer to a resource.
-     *
-     * If no resource of the specified type exists, a null pointer is returned.
-     *
-     * @tparam C The resource type.
-     * @return const C* A pointer to the resource.
-     */
-    template <Component C>
-    const C* get() const;
-#endif
-
 private:
     using EntityList = std::vector<Entity>;
     using EntityIndex = std::unordered_map<u64, Record>;
