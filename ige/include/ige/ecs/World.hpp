@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <concepts>
 #include <functional>
+#include <optional>
 #include <span>
 #include <unordered_map>
 #include <vector>
@@ -268,6 +269,8 @@ public:
     /**
      * @brief Get the data of a component.
      *
+     * If the entity does not have the component, this function returns nullptr.
+     *
      * @param entity The entity having the component.
      * @param component The component to get.
      * @return A pointer to the component data.
@@ -288,6 +291,86 @@ public:
     }
 
     /**
+     * @brief Run one step of the simulation.
+     *
+     * Executes all scheduled systems.
+     */
+    void update();
+
+    // TEMPLATED INTERFACE
+
+    /**
+     * @brief Create a new component from a C++ type.
+     *
+     * This function always creates a new component.
+     *
+     * @tparam C The C++ type of the component.
+     * @return The Entity representing the component.
+     */
+    template <Component C>
+    Entity component();
+
+    /**
+     * @brief Get or create a component associated with a C++ type.
+     *
+     * On its first call, an instance of this method template creates a new
+     * component and associates it with the given C++ type. Subsequent calls
+     * will always return the same component.
+     *
+     * @tparam C The C++ type of the component.
+     * @return The Entity representing the component.
+     */
+    template <Component C>
+    Entity static_component();
+
+    /**
+     * @brief Get a component associated with a C++ type.
+     *
+     * Return the Entity representing the component previously registered with
+     * `static_component<C>()`. If the component wasn't registered yet, this
+     * function returns std::nullopt.
+     *
+     * @tparam C The C++ type of the component.
+     * @return The Entity representing the component.
+     */
+    template <Component C>
+    std::optional<Entity> get_static_component() const;
+
+    /**
+     * @brief Set the data of a component.
+     *
+     * @tparam C The C++ type identifying the component.
+     * @param entity The entity.
+     * @param data The component data to set.
+     */
+    template <Component C>
+    void set(Entity entity, const C& data);
+
+    /**
+     * @brief Get the data of a component identified by its C++ type.
+     *
+     * If the entity does not have the component, this function returns nullptr.
+     *
+     * @tparam C The C++ type identifying the component.
+     * @param entity The entity.
+     * @return const C* A pointer to the component.
+     */
+    template <Component C>
+    const C* get(Entity entity) const;
+
+    /**
+     * @brief Remove components from an entity.
+     *
+     * Components not attached to the entity are silently ignored.
+     *
+     * @tparam C The first component to remove.
+     * @tparam Cs The remaining components to remove.
+     * @param entity The entity to remove the components from.
+     */
+    template <Component C, Component... Cs>
+    void remove(Entity entity);
+
+    /**
      * @brief Create a new query.
      *
      * @tparam Cs The components to query for.
@@ -304,15 +387,6 @@ public:
      */
     template <Component... Cs>
     SystemBuilder<Cs...> system();
-
-    /**
-     * @brief Run one step of the simulation.
-     *
-     * Executes all scheduled systems.
-     */
-    void update();
-
-    // TEMPLATED INTERFACE
 
     /**
      * @brief Spawn a new entity.
@@ -336,55 +410,6 @@ public:
 
 #if 0
     /**
-     * @brief Add components to an entity.
-     *
-     * If any of the components are already present on the entity, they are
-     * replaced.
-     *
-     * @param entity The entity to add the components to.
-     * @param components The components to add.
-     */
-    template <Component... Cs>
-    void add(Entity, Cs&&...);
-
-    /**
-     * @brief Remove components from an entity.
-     *
-     * If any of the components are not present on the entity, no action is
-     * taken.
-     *
-     * @param entity The entity to remove the components from.
-     * @param components The components to remove.
-     */
-    template <Component... Cs>
-    void remove(Entity, Cs&&...);
-
-    /**
-     * @brief Get a constant pointer to a component attached to the given
-     * entity.
-     *
-     * If no component of the specified type exists, a null pointer is returned.
-     *
-     * @param entity The entity.
-     * @return const C* A pointer to the component.
-     */
-    template <Component C>
-    const C* get(Entity) const;
-
-    /**
-     * @brief Set the value of one or more components attached to the given
-     * entity.
-     *
-     * If any component is missing from the entity, it is added.
-     *
-     * @tparam Cs The component types.
-     * @param entity The entity.
-     * @param components The component values to set.
-     */
-    template <Component... Cs>
-    void set(Entity, Cs&&...);
-
-    /**
      * @brief Get a constant pointer to a resource.
      *
      * If no resource of the specified type exists, a null pointer is returned.
@@ -399,6 +424,7 @@ public:
 private:
     using EntityList = std::vector<Entity>;
     using EntityIndex = std::unordered_map<u64, Record>;
+    using StaticComponentIndex = std::unordered_map<u64, Entity>;
     using ArchetypeIndex
         = std::unordered_map<Family, Archetype, Family::Hash, std::equal_to<>>;
 
@@ -505,6 +531,7 @@ private:
     EntityList* m_free_entities = nullptr;
     EntityIndex* m_entity_index = nullptr;
     ArchetypeIndex* m_archetypes = nullptr;
+    StaticComponentIndex* m_static_component_index = nullptr;
     Entity m_comp_type_info = entity();
 };
 

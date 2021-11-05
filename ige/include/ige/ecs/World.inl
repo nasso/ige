@@ -1,8 +1,10 @@
 #include "World.hpp"
 #include "ige/utility/Assert.hpp"
 #include "ige/utility/Control.hpp"
+#include "ige/utility/FamilyGen.hpp"
 #include <concepts>
 #include <functional>
+#include <optional>
 
 namespace ige::ecs {
 
@@ -31,6 +33,69 @@ void World::mutate(Entity entity, Entity component, F&& f)
     f(table.cell_mut(column, record->row()));
 
     // TODO: mark as modified
+}
+
+template <Component C>
+Entity World::component()
+{
+    return component(sizeof(C), alignof(C));
+}
+
+template <Component C>
+Entity World::static_component()
+{
+    static const u64 id = utility::FamilyGen::type<C>();
+
+    auto it = m_static_component_index->find(id);
+
+    if (it == m_static_component_index->end()) {
+        it = m_static_component_index->emplace(id, component<C>()).first;
+    }
+
+    return it->second;
+}
+
+template <Component C>
+std::optional<Entity> World::get_static_component() const
+{
+    static const u64 id = utility::FamilyGen::type<C>();
+
+    const auto it = m_static_component_index->find(id);
+
+    if (it == m_static_component_index->end()) {
+        return std::nullopt;
+    } else {
+        return { it->second };
+    }
+}
+
+template <Component C>
+void World::set(Entity entity, const C& data)
+{
+    set(entity, static_component<C>(), &data);
+}
+
+template <Component C>
+const C* World::get(Entity entity) const
+{
+    if (auto comp = get_static_component<C>()) {
+        return static_cast<const C*>(get(entity, *comp));
+    }
+
+    return nullptr;
+}
+
+template <Component C, Component... Cs>
+void World::remove(Entity entity)
+{
+    if (auto comp = get_static_component<C>()) {
+        remove(entity, *comp);
+    }
+
+    // recursively remove the remaining components
+    if constexpr (sizeof...(Cs) > 0) {
+        remove<Cs...>(entity);
+    }
 }
 
 template <Component... Cs>

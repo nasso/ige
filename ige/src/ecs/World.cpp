@@ -12,6 +12,7 @@ World::World()
     : m_free_entities(new EntityList)
     , m_entity_index(new EntityIndex)
     , m_archetypes(new ArchetypeIndex)
+    , m_static_component_index(new StaticComponentIndex)
 {
     add(m_comp_type_info, m_comp_type_info);
 }
@@ -21,6 +22,7 @@ World::~World()
     delete m_free_entities;
     delete m_entity_index;
     delete m_archetypes;
+    delete m_static_component_index;
 }
 
 Entity World::entity() { return entity({ empty_archetype(), 0 }); }
@@ -147,7 +149,8 @@ const void* World::get(Entity entity, Entity component) const
 
     const Table* table = record->archetype().table;
 
-    if (!table || table->row_count() <= record->row()) {
+    if (!table || table->row_count() <= record->row()
+        || !record->family().has(component.id())) {
         // the entity doesn't have the component
         return nullptr;
     }
