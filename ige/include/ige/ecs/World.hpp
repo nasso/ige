@@ -477,8 +477,24 @@ private:
     /**
      * @brief Get the column storing the data of the given component for the
      * given Family.
+     *
+     * If the given identifier does not name a component, std::nullopt is
+     * returned.
      */
-    usize get_component_column(const Family&, Entity) const;
+    std::optional<usize> get_component_column(const Family&, u32) const;
+
+    /**
+     * @brief Get the column storing the data of the given component for the
+     * given Family.
+     *
+     * If the given identifier does not name a component, std::nullopt is
+     * returned.
+     */
+    inline std::optional<usize>
+    get_component_column(const Family& fam, Entity entity) const
+    {
+        return get_component_column(fam, entity.id());
+    }
 
     /**
      * @brief Change a Record's archetype.

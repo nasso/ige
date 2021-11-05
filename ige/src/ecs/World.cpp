@@ -29,8 +29,6 @@ Entity World::entity() { return entity({ empty_archetype(), 0 }); }
 
 void World::destroy(Entity entity)
 {
-    const bool entity_is_comp = is_component(entity);
-
     // remove from all entities that had this entity as a component
     auto it = m_archetypes->begin();
 
@@ -57,10 +55,10 @@ void World::destroy(Entity entity)
                 // /!\ we have to do this before we remove the entity from the
                 //     family, because we need the column index to remove the
                 //     component data
-                if (ar.archetype_mut().table && entity_is_comp) {
-                    const usize col = get_component_column(fam, entity);
-
-                    ar.archetype_mut().table->remove_column(col);
+                if (ar.archetype_mut().table) {
+                    if (auto col = get_component_column(fam, entity)) {
+                        ar.archetype_mut().table->remove_column(*col);
+                    }
                 }
 
                 // since the old fam won't exist anymore, we can just replace it
@@ -149,15 +147,18 @@ const void* World::get(Entity entity, Entity component) const
 
     const Table* table = record->archetype().table;
 
-    if (!table || table->row_count() <= record->row()
-        || !record->family().has(component.id())) {
+    if (!table || table->row_count() <= record->row()) {
         // the entity doesn't have the component
         return nullptr;
     }
 
-    const usize column = get_component_column(record->family(), component);
+    const auto column = get_component_column(record->family(), component);
 
-    return table->cell(column, record->row());
+    if (column) {
+        return table->cell(*column, record->row());
+    } else {
+        return nullptr;
+    }
 }
 
 void World::update()
@@ -272,22 +273,32 @@ void World::remove_from_record(Record& record, u64 id)
     migrate_record(ar, record);
 }
 
-usize World::get_component_column(const Family& fam, Entity component) const
+std::optional<usize>
+World::get_component_column(const Family& fam, u32 component) const
 {
-    usize column = 0;
+    const bool is_comp = is_component(component);
 
-    for (const u64 id : fam.ids()) {
-        const u32 lid = id & 0xFFFFFFFF;
+    if (!is_comp) {
+        return std::nullopt;
+    }
 
-        if (lid == component.id()) {
-            IGE_ASSERT(is_component(lid), "\"component\" isn't a component");
+    for (usize column = 0; const u64 id : fam.ids()) {
+        if (id == component) {
+            // we found the component!
             return column;
-        } else if (is_component(lid)) {
+        } else if (id > component) {
+            // we would have found the component before this id
+            return std::nullopt;
+        } else if (is_component(id)) {
+            // increment the column if the current id names a component
+            // (only components are stored in the table)
             column++;
         }
     }
 
-    return column;
+    // none of the ids matched the component
+    // that means the component is not in the family
+    return std::nullopt;
 }
 
 void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
@@ -322,20 +333,22 @@ void World::migrate_record(ArchetypeRecord& dst_ar, Record& record)
                 const u32 lid = id & 0xFFFFFFFF;
 
                 // we only care about components also in the source family
-                if (id == lid && src_fam.has(id) && is_component(id)) {
+                if (id == lid && src_fam.has(id)) {
                     // figure out the column of that component in the source
                     // table
-                    const usize src_col
-                        = get_component_column(src_fam, Entity(lid));
+                    const auto src_col = get_component_column(src_fam, lid);
 
-                    // todo: use move constructor
-                    // no destruction needed because the row was just inserted
-                    std::copy_n(
-                        static_cast<const u8*>(
-                            src_table->cell(src_col, src_row)),
-                        src_table->strides()[src_col],
-                        static_cast<u8*>(
-                            dst_table->cell_mut(dst_col, dst_row)));
+                    if (src_col) {
+                        // todo: use move constructor
+                        // no destruction needed because the row was just
+                        // inserted
+                        std::copy_n(
+                            static_cast<const u8*>(
+                                src_table->cell(*src_col, src_row)),
+                            src_table->strides()[*src_col],
+                            static_cast<u8*>(
+                                dst_table->cell_mut(dst_col, dst_row)));
+                    }
                 }
 
                 dst_col++;
@@ -401,21 +414,19 @@ void World::migrate_all(ArchetypeRecord& dst, const ArchetypeRecord& src)
             // iterate over the dest components
             usize dst_col = 0;
 
-            for (u64 id : dst_fam.ids()) {
-                if (!is_component(id)) {
-                    continue;
-                }
-
+            for (const u64 id : dst_fam.ids()) {
                 if (src_fam.has(id)) {
-                    usize src_col = get_component_column(
-                        src_fam,
-                        Entity(id & 0xFFFFFFFF));
+                    const auto src_col
+                        = get_component_column(src_fam, id & 0xFFFFFFFF);
 
-                    // todo: use move constructors
-                    std::copy_n(
-                        static_cast<const u8*>(src_table->column(src_col)),
-                        src_table->strides()[src_col] * src_table->row_count(),
-                        static_cast<u8*>(dst_table->column_mut(dst_col)));
+                    if (src_col) {
+                        // todo: use move constructors
+                        std::copy_n(
+                            static_cast<const u8*>(src_table->column(*src_col)),
+                            src_table->strides()[*src_col]
+                                * src_table->row_count(),
+                            static_cast<u8*>(dst_table->column_mut(dst_col)));
+                    }
                 }
 
                 dst_col++;

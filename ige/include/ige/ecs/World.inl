@@ -19,7 +19,9 @@ void World::mutate(Entity entity, Entity component, F&& f)
     add_to_record(*record, component.id());
 
     // get the column index in which the component is stored
-    usize column = get_component_column(record->family(), component);
+    const auto column = get_component_column(record->family(), component);
+
+    IGE_ASSERT(column.has_value(), "\"component\" is not a component");
 
     // get or create the table storing the components of the archetype
     Table& table = *touch_table(record->type_mut());
@@ -30,7 +32,7 @@ void World::mutate(Entity entity, Entity component, F&& f)
     }
 
     // mutate the data
-    f(table.cell_mut(column, record->row()));
+    f(table.cell_mut(*column, record->row()));
 
     // TODO: mark as modified
 }
