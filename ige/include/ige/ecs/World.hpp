@@ -259,12 +259,20 @@ public:
     /**
      * @brief Mutate the data of a component using a pure function.
      *
+     * The given function is called with the component data as its first
+     * argument. If possible, a second boolean argument is passed to the
+     * function, which is set to true if the component was just created.
+     *
      * @param entity The entity having the component.
      * @param component The component to set.
      * @param f The function to apply to the data.
      */
-    template <std::regular_invocable<void*> F>
+    // clang-format off
+    template <class F>
+        requires std::regular_invocable<F, void*>
+            || std::regular_invocable<F, void*, bool>
     void mutate(Entity entity, Entity component, F&& f);
+    // clang-format on
 
     /**
      * @brief Get the data of a component.
@@ -344,7 +352,19 @@ public:
      * @param data The component data to set.
      */
     template <Component C>
-    void set(Entity entity, const C& data);
+    void set(Entity entity, C&& data);
+
+    /**
+     * @brief Construct a component in place.
+     *
+     * @tparam C The C++ type identifying the component.
+     * @param entity The entity.
+     * @param args The arguments to pass to the constructor.
+     * @return A reference to the constructed component.
+     */
+    template <Component C, class... Args>
+        requires std::constructible_from<C, Args...>
+    void emplace(Entity entity, Args&&... args);
 
     /**
      * @brief Get the data of a component identified by its C++ type.

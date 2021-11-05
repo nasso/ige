@@ -2,6 +2,8 @@
 #include <ige/ecs/Entity.hpp>
 #include <ige/ecs/World.hpp>
 #include <ige/utility/Types.hpp>
+#include <memory>
+#include <utility>
 
 using ige::ecs::Entity;
 using ige::ecs::World;
@@ -116,4 +118,20 @@ TEST(WorldTemplateTests, RemoveMultipleImplicitComponents)
     const ige::u64* value4 = world.get<ige::u64>(entity);
     ASSERT_NE(value4, nullptr);
     EXPECT_EQ(*value4, 64);
+}
+
+TEST(WorldTemplateTests, SetNonCopyableComponent)
+{
+    World world;
+    Entity entity = world.entity();
+
+    world.set<std::unique_ptr<int>>(entity, std::make_unique<int>(3));
+}
+
+TEST(WorldTemplateTests, EmplaceComponent)
+{
+    World world;
+    Entity entity = world.entity();
+
+    world.emplace<std::pair<int, int>>(entity, 4, 2);
 }

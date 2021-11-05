@@ -8,7 +8,9 @@
 
 namespace ige::ecs {
 
-template <std::regular_invocable<void*> F>
+template <class F>
+    requires std::regular_invocable<F, void*> || std::
+        regular_invocable<F, void*, bool>
 void World::mutate(Entity entity, Entity component, F&& f)
 {
     Record* record = get_record_mut(entity);
@@ -16,7 +18,11 @@ void World::mutate(Entity entity, Entity component, F&& f)
     IGE_ASSERT(record != nullptr, "\"entity\" is not alive");
 
     // ensure the entity has the component
-    add_to_record(*record, component.id());
+    const bool had_component = record->family().has(component.id());
+
+    if (!had_component) {
+        add_to_record(*record, component.id());
+    }
 
     // get the column index in which the component is stored
     const auto column = get_component_column(record->family(), component);
@@ -32,7 +38,13 @@ void World::mutate(Entity entity, Entity component, F&& f)
     }
 
     // mutate the data
-    f(table.cell_mut(*column, record->row()));
+    void* data_ptr = table.cell_mut(*column, record->row());
+
+    if constexpr (std::regular_invocable<F, void*, bool>) {
+        f(data_ptr, !had_component);
+    } else if constexpr (std::regular_invocable<F, void*>) {
+        f(data_ptr);
+    }
 
     // TODO: mark as modified
 }
@@ -72,9 +84,24 @@ std::optional<Entity> World::get_static_component() const
 }
 
 template <Component C>
-void World::set(Entity entity, const C& data)
+void World::set(Entity entity, C&& data)
 {
-    set(entity, static_component<C>(), &data);
+    emplace<C>(entity, std::forward<C>(data));
+}
+
+template <Component C, class... Args>
+    requires std::constructible_from<C, Args...>
+void World::emplace(Entity entity, Args&&... args)
+{
+    mutate(entity, static_component<C>(), [&](void* data, bool is_new) {
+        C* dest_ptr = static_cast<C*>(data);
+
+        if (!is_new) {
+            dest_ptr->~C();
+        }
+
+        new (dest_ptr) C(std::forward<Args>(args)...);
+    });
 }
 
 template <Component C>
