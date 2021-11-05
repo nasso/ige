@@ -34,6 +34,18 @@ void World::mutate(Entity entity, Entity component, F&& f)
 }
 
 template <Component... Cs>
+Query<Cs...> World::query()
+{
+    return Query(*this).all<Cs...>();
+}
+
+template <Component... Cs>
+SystemBuilder<Cs...> World::system()
+{
+    return SystemBuilder<>(*this).all<Cs...>();
+}
+
+template <Component... Cs>
 template <Component... Css>
 Query<Cs..., Css...> Query<Cs...>::all()
 {

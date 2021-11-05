@@ -25,16 +25,15 @@ int main()
 
     // "query" creates an object matching a set of entities.
     // Here, we create a query matching entities with a "Window" component.
-    auto q = world.query().all<Window>();
+    world.system<Window>().each([&](const Window& window) {
+        // If the window is closed, the program will exit.
+        if (window.closed) {
+            running = false;
+        }
+    });
 
     // This is the main game loop.
     while (running) {
-        // "each" can be used to iterate over entities matching a query.
-        q.each([&](const Window& window) {
-            // If the window is closed, the program will exit.
-            if (window.closed) {
-                running = false;
-            }
-        });
+        world.update();
     }
 }

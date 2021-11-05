@@ -157,10 +157,6 @@ const void* World::get(Entity entity, Entity component) const
     return table->cell(column, record->row());
 }
 
-Query<> World::query() { return Query(*this); }
-
-SystemBuilder<> World::system() { return SystemBuilder(*this); }
-
 void World::update()
 {
     m_tick++;
@@ -277,11 +273,13 @@ usize World::get_component_column(const Family& fam, Entity component) const
 {
     usize column = 0;
 
-    for (u32 id : fam.ids()) {
-        if (id == component.id()) {
-            IGE_ASSERT(is_component(id), "\"component\" isn't a component");
+    for (const u64 id : fam.ids()) {
+        const u32 lid = id & 0xFFFFFFFF;
+
+        if (lid == component.id()) {
+            IGE_ASSERT(is_component(lid), "\"component\" isn't a component");
             return column;
-        } else if (is_component(id)) {
+        } else if (is_component(lid)) {
             column++;
         }
     }

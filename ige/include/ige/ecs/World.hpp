@@ -289,15 +289,21 @@ public:
 
     /**
      * @brief Create a new query.
+     *
+     * @tparam Cs The components to query for.
+     * @return A query for the given components.
      */
-    Query<> query();
+    template <Component... Cs>
+    Query<Cs...> query();
 
     /**
      * @brief Create a system and add it to this world.
      *
-     * @param f The system's run function.
+     * @tparam Cs The components to query for.
+     * @return A system builder to configure the system.
      */
-    SystemBuilder<> system();
+    template <Component... Cs>
+    SystemBuilder<Cs...> system();
 
     /**
      * @brief Run one step of the simulation.
