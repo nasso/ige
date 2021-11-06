@@ -1,8 +1,8 @@
 #include "ige/ecs/Schedule.hpp"
 #include "ige/ecs/System.hpp"
 #include "ige/ecs/World.hpp"
+#include <algorithm>
 #include <memory>
-#include <ranges>
 #include <vector>
 
 using ige::ecs::Schedule;
@@ -40,7 +40,7 @@ void Schedule::run_forward(World& world)
 
 void Schedule::run_reverse(World& world)
 {
-    for (auto& sys : std::views::reverse(m_systems)) {
+    std::for_each(m_systems.rbegin(), m_systems.rend(), [&](auto& sys) {
         sys->run(world);
-    }
+    });
 }
