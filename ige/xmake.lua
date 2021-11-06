@@ -66,7 +66,7 @@ rule("embed_bytes")
     before_build(function(target, opt)
         import("core.base.option")
         import("core.project.depend")
-        import("private.utils.progress")
+        import("utils.progress")
 
         --- generate the variable name for the given source path
         local function gen_ident(src_path)
