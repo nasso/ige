@@ -1,0 +1,295 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+
+jobs:
+  pre-job:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v3.4.0
+        with:
+          cancel_others: true
+          paths_ignore: >
+            [
+              ".github/workflows/format.yml",
+              "**/README.md",
+              "**/CHANGELOG.md",
+              "**/LICENSE",
+              "**/.gitignore",
+              "**/.clang-format"
+            ]
+
+  build-ubuntu:
+    strategy:
+      matrix:
+        arch: [x86_64]
+        mode: [release]
+
+    needs: pre-job
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+
+    env:
+      CC: gcc-10
+      CXX: g++-10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >>
+          $GITHUB_ENV
+
+      # Install xmake
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update -v
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
+
+      # Configure
+      - name: Configure
+        run: xmake f -a ${{ matrix.arch }} -m ${{ matrix.mode }} -yv
+
+      # Build
+      - name: Build
+        run: xmake -v
+
+      # Run tests
+      - name: Test
+        run: xmake test
+
+      # Compress artifact
+      - name: Compress artifact
+        run: tar -zcvf ubuntu.tar.gz -C ige include/ -C ../build/linux/x86_64/release libige.a
+
+      # Push artifact
+      - name: Push artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ubuntu_build
+          path: ubuntu.tar.gz
+
+  build-epitest:
+    strategy:
+      matrix:
+        arch: [x86_64]
+        mode: [release]
+
+    needs: pre-job
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker
+
+    env:
+      XMAKE_ROOT: y
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Install bzip2
+      - name: Install dependencies
+        run: sudo dnf -y install bzip2
+
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >>
+          $GITHUB_ENV
+
+      # Install xmake
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update -v
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
+
+      # Configure
+      - name: Configure
+        run: xmake f -a ${{ matrix.arch }} -m ${{ matrix.mode }} -yv
+
+      # Build
+      - name: Build
+        run: xmake -v
+
+      # Run tests
+      - name: Test
+        run: xmake test
+
+      # Compress artifact
+      - name: Compress artifact
+        run: tar -zcvf epitest.tar.gz -C ige include/ -C ../build/linux/x86_64/release libige.a
+
+      # Push artifact
+      - name: Push artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: epitest_build
+          path: epitest.tar.gz
+
+  build-windows:
+    needs: pre-job
+    if: ${{ needs.pre-job.outputs.should_skip != 'true' }}
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        arch: [x64]
+        mode: [release]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Force xmake to a specific folder (for cache)
+      - name: Set xmake env
+        run: >
+          echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" | Out-File
+          -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      # Install xmake
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+
+      # Update xmake repository (in order to have the file that will be cached)
+      - name: Update xmake repository
+        run: xmake repo --update -v
+
+      # Fetch xmake dephash
+      - name: Retrieve dependencies hash
+        id: dep_hash
+        run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+
+      # Cache xmake dependencies
+      - name: Retrieve cached xmake dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
+          key: >
+            ${{ runner.os }}-${{ matrix.arch }}-${{ matrix.mode }}-${{
+            steps.dep_hash.outputs.hash }}
+
+      # Configure
+      - name: Configure
+        run: xmake f -a ${{ matrix.arch }} -m ${{ matrix.mode }} -yv
+
+      # Build
+      - name: Build
+        run: xmake -v
+
+      # Run tests
+      - name: Test
+        run: xmake test
+
+      - name: ls
+        run: ls -R
+
+      # Compress artifact
+      - name: Compress artifact
+        run: tar.exe -a -c -f windows.zip -C ige include -C ../build/windows/x64/release ige.lib
+
+      # Push artifact
+      - name: Push artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows_build
+          path: windows.zip
+
+  release:
+    needs: [build-ubuntu, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Create release"
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: Release ${{ github.event.inputs.version }}
+
+      - name: Download ubuntu artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ubuntu_build
+
+      - name: Download epitest artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: epitest_build
+
+      - name: Download windows artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: windows_build
+
+      - name: "Upload ubuntu release files"
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: ige_ubuntu_x86_64-${{ github.event.inputs.version }}.tar.gz
+          asset_path: ubuntu.tar.gz
+          asset_content_type: application/zip
+
+      - name: "Upload epitest release files"
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: ige_epitest_x86_64-${{ github.event.inputs.version }}.tar.gz
+          asset_path: epitest.tar.gz
+          asset_content_type: application/zip
+
+      - name: "Upload windows release files"
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_name: ige_windows_x64-${{ github.event.inputs.version }}.zip
+          asset_path: windows.zip
+          asset_content_type: application/zip
+
