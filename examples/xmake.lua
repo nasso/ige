@@ -14,6 +14,7 @@ local examples = {
     ["physics"] = { files = {"physics.cpp"} },
     ["script"] = { files = {"script.cpp"} },
     ["ui"] = { files = {"ui.cpp"} },
+    ["skybox"] = { files = {"skybox.cpp"} },
 }
 
 for name, cfg in pairs(examples) do
