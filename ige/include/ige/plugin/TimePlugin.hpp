@@ -16,12 +16,40 @@ public:
     void update();
     void set_tick_duration(Duration);
 
+    /**
+     * @brief The amount of time elapsed since the application started.
+     */
     Duration now() const;
+
+    /**
+     * @brief The time elapsed since the last update.
+     */
     Duration delta() const;
+
+    /**
+     * @brief The duration of a single tick.
+     */
     Duration tick() const;
+
+    /**
+     * @brief The amount of time elapsed since the application started, in
+     * seconds.
+     */
     float now_seconds() const;
+
+    /**
+     * @brief The time elapsed since the last update, in seconds.
+     */
     float delta_seconds() const;
+
+    /**
+     * @brief The duration of a single tick, in seconds.
+     */
     float tick_seconds() const;
+
+    /**
+     * @brief How many ticks have passed since the last update.
+     */
     std::uint32_t ticks() const;
 
 private:
