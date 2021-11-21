@@ -4,6 +4,14 @@
 
 `ige` is a 3D game engine built in C++20 for educational purposes.
 
+## Features
+
+- Entity-Component-System architecture
+- Basic 3D renderer using OpenGL 4
+- glTF 2.0 model loading
+- Physics engine using [Bullet 3](https://bulletphysics.org/)
+- Plugin system to opt-in to only the features you need
+
 ## Contributing
 
 Contributions are welcome! Just keep the following rules in mind:
